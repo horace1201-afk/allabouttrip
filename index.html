@@ -10,7 +10,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Nanum+Myeongjo:wght@400;700;800&family=Nanum+Brush+Script&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
   :root{
     --ink:#1A1815; --sub:#57503F; --paper:#F1ECE1; --paper2:#F8F5EE; --bg:#FCFBF7;
@@ -19,7 +22,8 @@
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{background:var(--bg)}
-  body{font-family:'Gowun Dodum',sans-serif;color:var(--ink);line-height:1.6}
+  body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;color:var(--ink);line-height:1.6}
+  .gowun{font-family:'Gowun Dodum',sans-serif}
   a{color:var(--sub);text-decoration:none}
   a:hover{color:var(--ink)}
   .serif{font-family:'Nanum Myeongjo',serif}
@@ -53,7 +57,7 @@
   }
 
   /* ── 레이아웃: 좌(고정) 우(무대) ── */
-  .split{display:grid;grid-template-columns:minmax(340px,42%) 1fr;min-height:100vh}
+  .split{display:grid;grid-template-columns:minmax(340px,55%) 1fr;min-height:100vh}
   .left{border-right:1px solid var(--hair);position:sticky;top:0;height:100vh;overflow-y:auto;
         display:flex;flex-direction:column;padding:34px 34px 24px;background:var(--st0);
         transition:background-color .5s ease}
@@ -75,7 +79,7 @@
   .tagline{font-size:14.5px;color:var(--sub);margin-top:10px;line-height:1.75}
   .home-btns{display:flex;flex-direction:column;gap:11px;margin-top:auto;padding-top:36px}
   @media(max-width:840px){.home-btns{margin-top:26px;padding-top:0}}
-  .hbtn{display:flex;align-items:center;justify-content:space-between;font-family:'Gowun Dodum';font-size:16px;font-weight:700;
+  .hbtn{display:flex;align-items:center;justify-content:space-between;font-family:'Gowun Dodum';font-size:16px;
         color:var(--ink);background:#FBF8F0;border:1px solid rgba(26,24,21,0.10);border-radius:14px;
         padding:15px 20px;cursor:pointer;text-align:left;transition:.15s}
   .hbtn:hover{border-color:var(--ink)}
@@ -98,7 +102,7 @@
   .foot{font-size:11.5px;color:var(--sub);margin-top:22px;line-height:1.9}
 
   /* ── 왼쪽: 코스 상세 모드 ── */
-  .backlink{font-size:14px;color:var(--sub);cursor:pointer;background:none;border:none;font-family:'Gowun Dodum';padding:0}
+  .backlink{font-size:14px;color:var(--sub);cursor:pointer;background:none;border:none;font:inherit;padding:0}
   .backlink:hover{color:var(--ink)}
   .dt-title{font-family:'Nanum Myeongjo';font-size:22px;font-weight:800;line-height:1.4;margin-top:14px}
   .dt-meta{font-size:13px;color:var(--sub);margin-top:6px}
@@ -107,12 +111,25 @@
   .dt-days{margin-top:18px}
   .day-h{font-family:'Nanum Myeongjo';font-size:15px;font-weight:700;margin:20px 0 4px;display:flex;gap:8px;align-items:baseline}
   .day-h .c{font-size:12.5px;color:var(--sub);font-family:'Gowun Dodum';font-weight:400}
+  .day-wrap{display:grid;grid-template-columns:1fr 340px;gap:18px;align-items:start}
+  @media(max-width:1180px){.day-wrap{grid-template-columns:1fr}.day-map{order:-1}}
+  .day-map{height:320px;border:1px solid var(--hair);border-radius:12px;overflow:hidden;
+      position:sticky;top:14px;filter:grayscale(.2) sepia(.12);z-index:0}
+  .day-map .leaflet-control-attribution{font-size:8px;background:rgba(252,251,247,.7)}
+  .map-pin{width:24px;height:24px;border-radius:50%;background:var(--ink);color:#FCFBF7;
+      font:700 12px 'Pretendard Variable',Pretendard,sans-serif;display:flex;align-items:center;justify-content:center;
+      border:1.5px solid #FCFBF7;box-shadow:0 1px 4px rgba(26,24,21,.35)}
+  .travel-chip{display:inline-block;background:rgba(252,251,247,.94);border:1px solid var(--hair);
+      border-radius:999px;padding:1px 8px;font:600 10.5px 'Pretendard Variable',Pretendard,sans-serif;color:var(--deep);
+      white-space:nowrap;box-shadow:0 1px 3px rgba(26,24,21,.2);transform:translate(-50%,-50%)}
+  .pin-no{display:inline-flex;width:17px;height:17px;border-radius:50%;background:var(--ink);color:#FCFBF7;
+      font-size:10.5px;font-weight:700;align-items:center;justify-content:center;margin-right:7px;vertical-align:1px}
   .slot{display:grid;grid-template-columns:44px 1fr;gap:10px;padding:9px 0;border-bottom:1px solid var(--hair)}
   .slot .t{font-size:12.5px;color:var(--sub);padding-top:2px}
   .slot .ti{font-size:13.5px;line-height:1.5;font-weight:600}
   .slot .ty{font-size:10.5px;color:var(--sub);border:1px solid var(--hair);border-radius:999px;padding:0 7px;margin-left:6px;white-space:nowrap}
   .slot .tip{font-size:12px;color:var(--sub);margin-top:3px;line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .guide-btn{display:inline-flex;align-items:center;gap:4px;font-family:'Gowun Dodum';font-size:11px;
+  .guide-btn{display:inline-flex;align-items:center;gap:4px;font:600 11px 'Pretendard Variable',Pretendard,sans-serif;
       color:var(--red);background:none;border:1px solid rgba(179,55,43,0.45);border-radius:999px;
       padding:1px 9px;margin-left:7px;cursor:pointer;vertical-align:2px}
   .guide-btn:hover{background:#FBF1EF}
@@ -127,7 +144,9 @@
   .bucket-card .tips{margin-top:11px;border-top:1px dashed var(--hair);padding-top:10px}
   .bucket-card .tips .tl{font-family:'Nanum Brush Script';font-size:17px;color:var(--red)}
   .bucket-card .tips p{font-size:12.5px;color:var(--deep);line-height:1.7;margin-top:4px}
-  .bucket-photo{width:100%;max-height:190px;object-fit:cover;border-radius:12px;border:1px solid var(--hair);margin-top:12px;display:block}
+  .bucket-photo{display:block;max-width:100%;max-height:240px;width:auto;height:auto;
+      border-radius:12px;border:1px solid var(--hair);margin:12px auto 0}
+  .photo-credit{text-align:center!important}
   .photo-credit{font-size:10.5px;color:var(--sub);margin-top:4px;text-align:right}
   .pspots{margin-top:11px;border-top:1px dashed var(--hair);padding-top:10px}
   .pspots .tl{font-family:'Nanum Brush Script';font-size:17px;color:var(--ink)}
@@ -169,7 +188,7 @@
 
   /* 마켓 탭 */
   .search{display:flex;align-items:center;gap:9px;border-bottom:1.5px solid var(--ink);padding:8px 2px;margin-top:22px;max-width:560px}
-  .search input{flex:1;border:none;background:none;font-family:'Gowun Dodum';font-size:16px;color:var(--ink);outline:none}
+  .search input{flex:1;border:none;background:none;font:inherit;font-size:15px;color:var(--ink);outline:none}
   .search input::placeholder{color:var(--sub)}
   .sorts{display:flex;gap:20px;margin-top:14px;align-items:baseline}
   .sorts button{position:relative;font-family:'Gowun Dodum';font-size:15px;color:var(--sub);background:none;border:none;cursor:pointer;padding:0 0 5px}
@@ -182,7 +201,7 @@
   .mcard:hover .m-t{text-decoration:underline;text-underline-offset:4px}
   .mcard.sel{background:var(--st0);border-radius:10px;padding-left:12px;padding-right:12px}
   .m-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-  .m-t{font-size:16.5px;line-height:1.35;font-weight:700}
+  .m-t{font-size:16px;line-height:1.4;font-weight:600}
   .m-hearts{display:flex;align-items:center;gap:5px;margin-top:4px;flex-shrink:0}
   .m-hearts svg{width:20px;height:20px}
   .m-hearts span{font-size:15px}
@@ -354,6 +373,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 const $ = (id) => document.getElementById(id);
 
 const TYPE_KO = { flight:"항공", checkin:"체크인", checkout:"체크아웃", visit:"관광", meal:"식사", move:"이동" };
+const PIN_ICON = `<svg viewBox="0 0 48 48" style="width:13px;height:13px;vertical-align:-2px" fill="none" stroke="#B3372B" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M24 40 C15 29 12.5 21 17 14.5 Q24 6.5 31 14 C35.5 20.5 33.5 28.5 24.5 39"></path><path d="M24 14.5 Q28 15 27.5 19 Q27 22.5 23.5 22 Q20.5 21.5 21 18 Q21.3 15.3 23.5 14.7"></path></svg>`;
 
 let courses = [];          // 마켓 목록 캐시
 let sortKey = "latest";
@@ -464,7 +484,7 @@ async function loadSeeds(snap){
     const cities = [...new Set((snap?.days||[]).map(d => d.city).filter(Boolean))];
     if (!cities.length) return [];
     const { data, error } = await sb.from("bucket_seeds")
-      .select("id, name_raw, name_norm, category, detail, audio_url")
+      .select("id, name_raw, name_norm, category, detail, audio_url, image_url")
       .in("city", cities).limit(500);
     if (error) return [];
     return (data||[]).map(s => ({ ...s, n: norm(s.name_norm || s.name_raw) })).filter(s => s.n.length >= 3);
@@ -482,25 +502,41 @@ function matchSeed(slot, seeds){
 }
 
 let seedById = {};
+let dayMaps = [];
 function renderDetail(c, seeds){
   const snap = c.itinerary_snapshot || {};
   const days = snap.days || [];
   seedById = {};
+  dayMaps.forEach(m => m.remove()); dayMaps = [];
+  const mapData = {};   // dayIdx → [{lat,lng,no,title}]
   const daysHtml = days.map((d, i) => {
+    const pts = [];
     const slots = (d.slots || []).map(s => {
       const tip = s.tip || s.desc || "";
       const seed = matchSeed(s, seeds);
       if (seed) seedById[seed.id] = seed;
       const gbtn = seed ? `<button class="guide-btn" data-seed="${seed.id}">✦ 가이드</button>` : "";
+      // 좌표 있는 슬롯(항공 제외)에 순번 핀 부여
+      let pin = "";
+      const lat = parseFloat(s.lat), lng = parseFloat(s.lng);
+      if (Number.isFinite(lat) && Number.isFinite(lng) && s.type !== "flight"){
+        pts.push({ lat, lng, no: pts.length + 1, title: s.title || "", travel: parseTravel(s) });
+        pin = `<span class="pin-no">${pts.length}</span>`;
+      }
       return `<div class="slot">
         <span class="t">${esc(s.time||"")}</span>
         <div>
-          <div class="ti">${esc(s.title||"")}${TYPE_KO[s.type]?`<span class="ty">${TYPE_KO[s.type]}</span>`:""}${gbtn}</div>
+          <div class="ti">${pin}${esc(s.title||"")}${TYPE_KO[s.type]?`<span class="ty">${TYPE_KO[s.type]}</span>`:""}${gbtn}</div>
           ${tip?`<div class="tip">${esc(tip)}</div>`:""}
         </div>
       </div>`;
     }).join("");
-    return `<div class="day-h">Day ${i+1}<span class="c">${esc(d.city||"")}${d.date?" · "+esc(d.date):""}</span></div>${slots}`;
+    const head = `<div class="day-h">Day ${i+1}<span class="c">${esc(d.city||"")}${d.date?" · "+esc(d.date):""}</span></div>`;
+    if (pts.length){
+      mapData[i] = pts;
+      return `${head}<div class="day-wrap"><div class="day-slots">${slots}</div><div class="day-map" id="dmap-${i}"></div></div>`;
+    }
+    return head + slots;
   }).join("");
 
   $("detailBody").innerHTML = `
@@ -513,6 +549,78 @@ function renderDetail(c, seeds){
   `;
   $("btnTake").addEventListener("click", () => { $("takeNote").style.display = "block"; });
   document.querySelectorAll(".guide-btn").forEach(b => b.addEventListener("click", () => toggleBucket(b)));
+  initDayMaps(mapData);
+}
+
+/* ── 이동수단 미니 아이콘 (시안 손그림 문법) ── */
+function mIcon(paths, sw){
+  return `<svg viewBox="0 0 48 48" style="width:13px;height:13px;vertical-align:-2px;margin-right:3px" fill="none" stroke="currentColor" stroke-width="${sw||3.4}" stroke-linecap="round" stroke-linejoin="round">` +
+    paths.map(d => `<path d="${d}"></path>`).join("") + `</svg>`;
+}
+const MODE_ICON = {
+  car:   mIcon(["M6 32 Q6 26 13 25 L18 25 Q21 17 28 17 Q34 17 36 24 L39 25 Q43 26 42.5 32","M14 29 Q18 29 18 33 Q18 37 14 37 Q10 37 10 33 Q10 29.5 13 29","M34 29 Q38 29 38 33 Q38 37 34 37 Q30 37 30 33 Q30 29.5 33 29"]),
+  walk:  mIcon(["M22 7 Q26 4.5 29 8 Q26.5 11.5 22.5 8","M25 12 L23 26","M25 15 L32 20","M25 15.5 L16 19","M23 26 L16 39","M23.5 26 L30 38"]),
+  plane: mIcon(["M7 29 Q22 21 41 11","M40 12 Q35 24 29 37","M30 36 Q25 31 20 28","M8 29 Q14 28.5 19 28"]),
+  train: mIcon(["M11 8 L37 7.5 L38 32 L10.5 33 L11 9.5","M12 19 L37.5 18.3","M15 38 L11 43","M33 38 L37 43","M18 26 Q20 24 22 26 Q20 28 18.4 26.4","M27 26 Q29 24 31 26 Q29 28 27.4 26.4"]),
+  ship:  mIcon(["M8 30 L40 29 L34 39 L13 40 L8 31","M24 29 L23.5 12 L33 20 L24 20","M6 44 Q14 41 24 44 Q34 47 42 43"], 3),
+};
+function modeIconOf(emoji){
+  if (/🚗|🚕|🚙|🚐/.test(emoji)) return MODE_ICON.car;
+  if (/🚶|👣/.test(emoji)) return MODE_ICON.walk;
+  if (/✈/.test(emoji)) return MODE_ICON.plane;
+  if (/🚌|🚆|🚇|🚄|🚋|🚊/.test(emoji)) return MODE_ICON.train;
+  if (/⛴|🚢|⛵/.test(emoji)) return MODE_ICON.ship;
+  return "";
+}
+
+/* ── 이동시간 파싱: travelToNext에서 소요시간 + 손그림 아이콘 ── */
+function parseTravel(s){
+  const raw = s.travelToNext || "";
+  if (!raw) return null;
+  let dur = "";
+  let m = raw.match(/(\d+)\s*시간\s*(\d+)\s*분/);
+  if (m) dur = m[1] + "시간 " + m[2] + "분";
+  else if ((m = raw.match(/(\d+)\s*시간/))) dur = m[1] + "시간";
+  else if ((m = raw.match(/(\d+)\s*분/))) dur = m[1] + "분";
+  if (!dur) return null;
+  const icon = modeIconOf((s.travelModeToNext || "") + " " + raw);
+  return icon + dur;
+}
+
+/* ── Day별 미니 지도 (Leaflet · 무채색) ── */
+function initDayMaps(mapData){
+  if (typeof L === "undefined") return;
+  Object.entries(mapData).forEach(([i, pts]) => {
+    const el = document.getElementById("dmap-" + i);
+    if (!el) return;
+    const map = L.map(el, { scrollWheelZoom:false, zoomControl:true });
+    dayMaps.push(map);
+    // 클릭하면 휠 확대 허용, 벗어나면 다시 잠금 (페이지 스크롤 보호)
+    map.on("click", () => map.scrollWheelZoom.enable());
+    el.addEventListener("mouseleave", () => map.scrollWheelZoom.disable());
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+      attribution: "© OpenStreetMap © CARTO", maxZoom: 19
+    }).addTo(map);
+    const latlngs = pts.map(p => [p.lat, p.lng]);
+    pts.forEach(p => {
+      L.marker([p.lat, p.lng], {
+        icon: L.divIcon({ className:"", html:`<div class="map-pin">${p.no}</div>`, iconSize:[24,24], iconAnchor:[12,12] })
+      }).addTo(map).bindTooltip(p.title, { direction:"top", offset:[0,-12] });
+    });
+    if (latlngs.length > 1){
+      L.polyline(latlngs, { color:"#B3372B", weight:2, dashArray:"6 6", opacity:.85 }).addTo(map);
+      // 구간 중간에 이동시간 칩
+      for (let k = 0; k < pts.length - 1; k++){
+        const t = pts[k].travel;
+        if (!t) continue;
+        const mid = [(pts[k].lat + pts[k+1].lat)/2, (pts[k].lng + pts[k+1].lng)/2];
+        L.marker(mid, { interactive:false,
+          icon: L.divIcon({ className:"", html:`<span class="travel-chip">${t}</span>`, iconSize:[1,1] })
+        }).addTo(map);
+      }
+    }
+    map.fitBounds(L.latLngBounds(latlngs), { padding:[26,26], maxZoom:15 });
+  });
 }
 
 /* ── 버킷 카드 토글 ── */
@@ -536,11 +644,25 @@ function toggleBucket(btn){
     ${d.desc?`<div class="desc">${esc(d.desc)}</div>`:""}
     ${viRows?`<dl class="vinfo">${viRows}</dl>`:""}
     ${tips.length?`<div class="tips"><span class="tl">모드니 팁</span>${tips.map(t=>`<p>✦ ${esc(t)}</p>`).join("")}</div>`:""}
-    ${spots.length?`<div class="pspots"><span class="tl">사진 명소</span>${spots.map(p=>`<p>📌 <b>${esc(p.spot||"")}</b>${p.tip?` — ${esc(p.tip)}`:""}</p>`).join("")}</div>`:""}
+    ${spots.length?`<div class="pspots"><span class="tl">사진 명소</span>${spots.map(p=>`<p>${PIN_ICON} <b>${esc(p.spot||"")}</b>${p.tip?` — ${esc(p.tip)}`:""}</p>`).join("")}</div>`:""}
     ${s.audio_url?`<div class="audio-row"><button class="audio-btn" data-url="${esc(s.audio_url)}" aria-label="음성 가이드 재생">▶</button><span class="al">음성 가이드 듣기 — 모드니가 읽어 드려요</span></div>`:""}
   `;
   slotEl.after(card);
-  loadPhoto(s.name_raw, card.querySelector(".photo-slot"));
+  const pslot = card.querySelector(".photo-slot");
+  if (s.image_url){
+    const img = document.createElement("img");
+    img.className = "bucket-photo"; img.alt = s.name_raw; img.loading = "lazy";
+    img.onerror = () => { pslot.innerHTML = ""; loadPhoto(s.name_raw, pslot); };
+    img.onload = () => {
+      const cr = document.createElement("div");
+      cr.className = "photo-credit"; cr.textContent = "사진: 위키미디어";
+      pslot.appendChild(cr);
+    };
+    img.src = s.image_url;
+    pslot.appendChild(img);
+  } else {
+    loadPhoto(s.name_raw, pslot);
+  }
   const ab = card.querySelector(".audio-btn");
   if (ab) ab.addEventListener("click", () => playAudio(ab));
 }
@@ -556,14 +678,17 @@ async function loadPhoto(name, slotDiv){
     if (!src) return;
     const img = document.createElement("img");
     img.className = "bucket-photo";
-    img.src = src.replace(/\/(\d+)px-/, "/640px-");
     img.alt = name;
     img.loading = "lazy";
+    img.onerror = () => { slotDiv.innerHTML = ""; };   // 로드 실패 시 사진 영역 통째로 제거
+    img.onload = () => {
+      const cr = document.createElement("div");
+      cr.className = "photo-credit";
+      cr.textContent = "사진: 위키미디어";
+      slotDiv.appendChild(cr);
+    };
+    img.src = src;                                      // 원본 썸네일 그대로 (확대 강제 제거)
     slotDiv.appendChild(img);
-    const cr = document.createElement("div");
-    cr.className = "photo-credit";
-    cr.textContent = "사진: 위키미디어";
-    slotDiv.appendChild(cr);
   } catch(e){ /* 없으면 패스 */ }
 }
 
