@@ -22,7 +22,7 @@
   }
   .wrap{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
 
-  /* 손그림 테두리 — 모서리를 비대칭으로 */
+  /* 손그림 테두리 */
   .sketch{
     background:#fff;border:1.6px solid var(--ink);
     border-radius:255px 15px 225px 15px / 15px 225px 15px 255px;
@@ -58,12 +58,12 @@
   /* ── 컨트롤바 ── */
   .controls{display:flex;align-items:center;gap:10px;margin:6px 0 18px;flex-wrap:wrap}
   .seg{display:flex;border:1.6px solid var(--ink);border-radius:12px;overflow:hidden;background:#fff}
-  .seg button{border:none;background:none;font:inherit;font-size:13px;font-weight:600;color:var(--pencil);padding:6px 16px;cursor:pointer;border-right:1.6px dashed var(--line)}
+  .seg button{border:none;background:none;font:inherit;font-size:13px;font-weight:600;color:var(--pencil);padding:6px 14px;cursor:pointer;border-right:1.6px dashed var(--line)}
   .seg button:last-child{border-right:none}
   .seg button.on{background:var(--ink);color:#fff}
   .stamp{font-size:11px;color:var(--faint);margin-left:auto}
   .fxlab{font-size:12px;color:var(--pencil)}
-  .fxlab input{width:72px;font:inherit;font-size:14px;padding:4px 8px;border:1.6px solid var(--ink);border-radius:10px;background:#fff;margin:0 4px}
+  .fxlab input{width:72px;font:inherit;font-size:12px;padding:4px 8px;border:1.6px solid var(--ink);border-radius:10px;background:#fff;margin:0 4px}
 
   /* ── 섹션 공통 ── */
   section{margin-bottom:28px}
@@ -77,10 +77,11 @@
   .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
   .kpi{padding:12px 14px 10px}
   .kpi .lb{font-size:11px;color:var(--pencil);font-weight:600}
-  .kpi .v{font-size:24px;font-weight:800;letter-spacing:-.02em;margin-top:2px;font-variant-numeric:tabular-nums}
+  .kpi .v{font-size:22px;font-weight:800;letter-spacing:-.02em;margin-top:2px;font-variant-numeric:tabular-nums}
   .kpi .v small{font-size:12px;font-weight:600;color:var(--pencil);margin-left:3px}
+  .kpi .v2{font-size:11px;color:var(--pencil);margin-top:1px;font-variant-numeric:tabular-nums}
   .kpi.accent{background:var(--ink);color:#fff}
-  .kpi.accent .lb,.kpi.accent .v small{color:#CFCFCA}
+  .kpi.accent .lb,.kpi.accent .v small,.kpi.accent .v2{color:#CFCFCA}
   .totals{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:12.5px;color:var(--pencil)}
   .totals b{color:var(--ink);font-variant-numeric:tabular-nums}
 
@@ -107,6 +108,10 @@
   td.r,th.r{text-align:right}
   .plus{font-weight:800}
   .minus{color:var(--pencil);font-weight:800;text-decoration:underline wavy rgba(43,43,43,.35) 1px}
+  #monthlyTable{margin-top:14px;overflow-x:auto}
+  #monthlyTable table{min-width:560px}
+  #monthlyTable .cum{color:var(--pencil)}
+  #monthlyTable tr.total td{border-top:1.6px solid var(--ink);border-bottom:none;font-weight:800}
 
   /* ── 상태 ── */
   .state{padding:60px 0;text-align:center;color:var(--pencil);font-size:14px}
@@ -152,9 +157,10 @@
 
     <div class="controls">
       <div class="seg" role="group" aria-label="기간 선택">
-        <button data-days="7">7일</button>
-        <button data-days="30" class="on">30일</button>
-        <button data-days="90">90일</button>
+        <button data-view="7">7일</button>
+        <button data-view="30" class="on">30일</button>
+        <button data-view="90">90일</button>
+        <button data-view="monthly">월별</button>
       </div>
       <label class="fxlab">환율 <input id="fx" type="number" value="1400" min="800" max="2500" step="10"> ₩/$</label>
       <span class="stamp" id="genAt"></span>
@@ -167,17 +173,18 @@
       <div class="totals" id="totalsRow"></div>
     </section>
 
-    <!-- ② 일별 추이 -->
+    <!-- ② 추이 -->
     <section>
-      <div class="sec-title"><span class="no">02</span><h2>일별 추이</h2></div>
+      <div class="sec-title"><span class="no">02</span><h2 id="trendTitle">일별 추이</h2></div>
       <div class="card sketch">
         <div class="chart-box tall"><canvas id="chDaily"></canvas></div>
+        <div id="monthlyTable" class="hidden"></div>
       </div>
     </section>
 
     <!-- ③ AI 비용 + 시드 -->
     <section>
-      <div class="sec-title"><span class="no">03</span><h2>AI 비용 분해 · 시드 성장</h2></div>
+      <div class="sec-title"><span class="no">03</span><h2>AI 비용 분해 · 시드 성장 <span id="rangeNote" style="font-size:11px;color:var(--faint);font-weight:400"></span></h2></div>
       <div class="grid2">
         <div class="card sketch">
           <h3>모델별 비용 <span id="aiTotal" style="color:var(--pencil)"></span></h3>
@@ -203,7 +210,7 @@
       <div class="sec-title"><span class="no">04</span><h2>전환 퍼널 · 꿈조각</h2></div>
       <div class="grid2">
         <div class="card sketch">
-          <h3>예약 전환 퍼널 (기간 내)</h3>
+          <h3>예약 전환 퍼널</h3>
           <div class="funnel" id="funnelBox"></div>
           <p style="font-size:11.5px;color:var(--pencil);margin-top:12px">
             클릭·인증은 app_events 기반 — 앱 이벤트 발신 코드 배포 후부터 집계돼요.
@@ -224,7 +231,7 @@
 
 <script>
 /* ─────────────────────────────────────────
-   여행의 모든것 — 관리자 대시보드 v1 (연필 스케치)
+   여행의 모든것 — 관리자 대시보드 v2 (연필 스케치 · 원화 기준 · 월별 리포트)
    데이터: Edge Function admin-stats (JWT + 이메일 화이트리스트)
 ───────────────────────────────────────── */
 const SUPABASE_URL = "https://gecmrywieyntzzwthvlg.supabase.co";
@@ -237,11 +244,11 @@ const $ = (id) => document.getElementById(id);
 const views = ["loginView","loadingView","errorView","dashView"];
 function show(id){ views.forEach(v => $(v).classList.toggle("hidden", v !== id)); }
 
-let currentDays = 30;
+let currentView = "30";       // '7' | '30' | '90' | 'monthly'
 let lastStats = null;
 let charts = {};
 
-/* ── 연필 해칭 패턴 (캔버스) ── */
+/* ── 연필 해칭 패턴 ── */
 const INK = "#2B2B2B", PENCIL = "#6E6E6E", FAINT = "#B9B9B9";
 function hatch(color, gap, lw){
   const c = document.createElement("canvas");
@@ -275,17 +282,21 @@ const PAT = {
                  x.fillStyle=PENCIL;x.beginPath();x.arc(4,4,1.1,0,7);x.fill();return x.createPattern(c,"repeat"); }
 };
 
-/* Chart.js 공통 톤 */
 Chart.defaults.color = PENCIL;
 Chart.defaults.borderColor = "rgba(43,43,43,.12)";
 Chart.defaults.font.family = "'Pretendard Variable',Pretendard,sans-serif";
 
-/* ── 공통 포맷터 ── */
+/* ── 포맷터: 원화 우선 ── */
 const nf = new Intl.NumberFormat("ko-KR");
+function fxRate(){ return Number($("fx").value) || 1400; }
 const usd = (v) => "$" + (Number(v)||0).toFixed(2);
-function krw(v){
-  const fx = Number($("fx").value) || 1400;
-  return "약 ₩" + nf.format(Math.round((Number(v)||0) * fx));
+const toKrw = (v) => Math.round((Number(v)||0) * fxRate());
+const krw = (v) => "₩" + nf.format(toKrw(v));               // usd값 → ₩문자열
+const krwFromWon = (w) => "₩" + nf.format(Math.round(w));   // 이미 원화인 값
+function krwTick(w){                                        // 축 눈금 축약
+  if (w >= 100000000) return "₩" + (w/100000000).toFixed(1) + "억";
+  if (w >= 10000) return "₩" + Math.round(w/10000) + "만";
+  return "₩" + nf.format(w);
 }
 
 /* ── 인증 흐름 ── */
@@ -305,7 +316,7 @@ $("btnLogin").addEventListener("click", async () => {
   });
 });
 $("btnLogout").addEventListener("click", () => sb.auth.signOut());
-$("btnRefresh").addEventListener("click", () => load(currentDays));
+$("btnRefresh").addEventListener("click", () => load());
 
 function toggleTopBtns(on){
   $("btnRefresh").classList.toggle("hidden", !on);
@@ -315,27 +326,29 @@ function toggleTopBtns(on){
 function afterLogin(session){
   $("whoami").textContent = session.user?.email || "";
   toggleTopBtns(true);
-  load(currentDays);
+  load();
 }
 
-/* ── 기간 토글 ── */
+/* ── 기간/월별 토글 ── */
 document.querySelectorAll(".seg button").forEach(b => {
   b.addEventListener("click", () => {
     document.querySelectorAll(".seg button").forEach(x => x.classList.remove("on"));
     b.classList.add("on");
-    currentDays = Number(b.dataset.days);
-    load(currentDays);
+    currentView = b.dataset.view;
+    load();
   });
 });
 $("fx").addEventListener("change", () => { if (lastStats) render(lastStats); });
 
 /* ── 데이터 로드 ── */
-async function load(days){
+function daysForView(){ return currentView === "monthly" ? 365 : Number(currentView); }
+
+async function load(){
   show("loadingView");
   try {
     const { data:{ session } } = await sb.auth.getSession();
     if (!session) { show("loginView"); return; }
-    const res = await fetch(FN_URL + "?days=" + days, {
+    const res = await fetch(FN_URL + "?days=" + daysForView(), {
       headers: {
         "Authorization": "Bearer " + session.access_token,
         "apikey": SUPABASE_ANON
@@ -359,86 +372,152 @@ async function load(days){
   }
 }
 
+/* ── 월별 그룹핑 ── */
+function groupMonthly(daily){
+  const m = {};
+  for (const d of (daily||[])){
+    const k = (d.date||"").slice(0,7);
+    if (!k) continue;
+    if (!m[k]) m[k] = { trips:0, signups:0, calls:0, cost:0 };
+    m[k].trips += d.trips||0;
+    m[k].signups += d.signups||0;
+    m[k].calls += d.ai_calls||0;
+    m[k].cost += Number(d.ai_cost_usd)||0;
+  }
+  return Object.keys(m).sort().map(k => ({ month:k, ...m[k] }));
+}
+
 /* ── 렌더 ── */
 function render(s){
   const t = s.today || {};
+  const monthly = currentView === "monthly";
 
   $("todayDate").textContent = "(" + (s.kst_today || "") + " KST)";
   $("genAt").textContent = s.generated_at ? "집계 " + new Date(s.generated_at).toLocaleString("ko-KR") : "";
+  $("rangeNote").textContent = monthly ? "(최근 365일 기준)" : "(선택 기간 기준)";
 
-  /* ① KPI */
+  /* ① KPI — 비용은 ₩ 크게, $ 작게 */
   const kpis = [
     { lb:"오늘 여행 생성", v: nf.format(t.trips||0), sub:"건" },
     { lb:"오늘 가입", v: nf.format(t.signups||0), sub:"명" },
     { lb:"오늘 AI 호출", v: nf.format(t.ai_calls||0), sub:"회" },
-    { lb:"오늘 AI 비용", v: usd(t.ai_cost_usd), sub: krw(t.ai_cost_usd), accent:true },
+    { lb:"오늘 AI 비용", v: krw(t.ai_cost_usd), sub:"", v2: usd(t.ai_cost_usd), accent:true },
     { lb:"오늘 꿈조각 사용", v: nf.format(t.cookies_spent||0), sub:"개" },
     { lb:"오늘 예약 클릭", v: nf.format(t.booking_clicks||0), sub:"회" },
     { lb:"오늘 예약 인증", v: nf.format(t.booking_verified||0), sub:"건" },
   ];
   $("kpiRow").innerHTML = kpis.map((k,i) =>
-    `<div class="kpi sketch${i%2?" alt":""}${k.accent?" accent":""}"><div class="lb">${k.lb}</div><div class="v">${k.v}<small>${k.sub}</small></div></div>`
+    `<div class="kpi sketch${i%2?" alt":""}${k.accent?" accent":""}">
+       <div class="lb">${k.lb}</div>
+       <div class="v">${k.v}${k.sub?`<small>${k.sub}</small>`:""}</div>
+       ${k.v2?`<div class="v2">${k.v2}</div>`:""}
+     </div>`
   ).join("");
 
   const tot = s.totals || {};
   $("totalsRow").innerHTML =
     `누적 — 여행 <b>${nf.format(tot.trips||0)}</b> · 가입자 <b>${nf.format(tot.users||0)}</b> · 추억영상 <b>${nf.format(tot.videos||0)}</b> · 마켓 코스 <b>${nf.format(tot.market_courses||0)}</b>`;
 
-  /* ② 일별 추이 */
+  /* ② 추이 — 일별 or 월별 */
   const daily = s.daily || [];
-  const labels = daily.map(d => d.date.slice(5));
-  drawChart("chDaily", {
-    type:"bar",
-    data:{ labels, datasets:[
-      { type:"bar", label:"여행 생성", data: daily.map(d=>d.trips||0),
-        backgroundColor: PAT.mid(), borderColor: INK, borderWidth:1.2, borderRadius:3, yAxisID:"y" },
-      { type:"bar", label:"가입", data: daily.map(d=>d.signups||0),
-        backgroundColor: PAT.dots(), borderColor: PENCIL, borderWidth:1.2, borderRadius:3, yAxisID:"y" },
-      { type:"line", label:"AI 비용($)", data: daily.map(d=>Number(d.ai_cost_usd)||0),
-        borderColor: INK, backgroundColor: INK, borderWidth:2, borderDash:[6,4],
-        tension:.3, pointRadius:2.5, pointStyle:"rectRot", yAxisID:"y1" },
-    ]},
-    options:{ maintainAspectRatio:false, interaction:{mode:"index",intersect:false},
-      plugins:{ legend:{labels:{font:{size:11},boxWidth:14}}, tooltip:{callbacks:{
-        label:(c)=> c.dataset.label + ": " + (c.dataset.yAxisID==="y1" ? usd(c.parsed.y) : nf.format(c.parsed.y))
-      }}},
-      scales:{ y:{beginAtZero:true, ticks:{precision:0}}, y1:{position:"right", beginAtZero:true, grid:{drawOnChartArea:false},
-        ticks:{callback:(v)=>"$"+v}}, x:{ticks:{maxTicksLimit:15,font:{size:10}}} }
-    }
-  });
+  if (monthly) {
+    $("trendTitle").textContent = "월별 리포트 (최근 12개월)";
+    const rows = groupMonthly(daily);
+    const labels = rows.map(r => r.month.slice(2).replace("-", "."));
+    drawChart("chDaily", {
+      type:"bar",
+      data:{ labels, datasets:[
+        { type:"bar", label:"여행 생성", data: rows.map(r=>r.trips),
+          backgroundColor: PAT.mid(), borderColor: INK, borderWidth:1.2, borderRadius:3, yAxisID:"y" },
+        { type:"bar", label:"가입", data: rows.map(r=>r.signups),
+          backgroundColor: PAT.dots(), borderColor: PENCIL, borderWidth:1.2, borderRadius:3, yAxisID:"y" },
+        { type:"line", label:"AI 비용(₩)", data: rows.map(r=>toKrw(r.cost)),
+          borderColor: INK, backgroundColor: INK, borderWidth:2, borderDash:[6,4],
+          tension:.3, pointRadius:3, pointStyle:"rectRot", yAxisID:"y1" },
+      ]},
+      options: trendOptions()
+    });
+    /* 월별 표 + 누적 */
+    let cumTrips = 0, cumSign = 0, cumCost = 0;
+    const trs = rows.map(r => {
+      cumTrips += r.trips; cumSign += r.signups; cumCost += r.cost;
+      return `<tr>
+        <td>${r.month.replace("-", "년 ")}월</td>
+        <td class="r">${nf.format(r.trips)}</td>
+        <td class="r">${nf.format(r.signups)}</td>
+        <td class="r">${nf.format(r.calls)}</td>
+        <td class="r">${krw(r.cost)}</td>
+        <td class="r cum">${nf.format(cumTrips)}</td>
+        <td class="r cum">${krw(cumCost)}</td>
+      </tr>`;
+    }).join("");
+    $("monthlyTable").innerHTML = `
+      <table>
+        <thead><tr>
+          <th>월</th><th class="r">여행</th><th class="r">가입</th><th class="r">AI 호출</th>
+          <th class="r">AI 비용</th><th class="r">누적 여행</th><th class="r">누적 비용</th>
+        </tr></thead>
+        <tbody>${trs}
+          <tr class="total"><td>합계</td>
+            <td class="r">${nf.format(cumTrips)}</td>
+            <td class="r">${nf.format(cumSign)}</td>
+            <td class="r">${nf.format(rows.reduce((a,r)=>a+r.calls,0))}</td>
+            <td class="r">${krw(cumCost)}</td><td class="r">—</td><td class="r">—</td>
+          </tr>
+        </tbody>
+      </table>`;
+    $("monthlyTable").classList.remove("hidden");
+  } else {
+    $("trendTitle").textContent = "일별 추이";
+    $("monthlyTable").classList.add("hidden");
+    const labels = daily.map(d => d.date.slice(5));
+    drawChart("chDaily", {
+      type:"bar",
+      data:{ labels, datasets:[
+        { type:"bar", label:"여행 생성", data: daily.map(d=>d.trips||0),
+          backgroundColor: PAT.mid(), borderColor: INK, borderWidth:1.2, borderRadius:3, yAxisID:"y" },
+        { type:"bar", label:"가입", data: daily.map(d=>d.signups||0),
+          backgroundColor: PAT.dots(), borderColor: PENCIL, borderWidth:1.2, borderRadius:3, yAxisID:"y" },
+        { type:"line", label:"AI 비용(₩)", data: daily.map(d=>toKrw(d.ai_cost_usd)),
+          borderColor: INK, backgroundColor: INK, borderWidth:2, borderDash:[6,4],
+          tension:.3, pointRadius:2.5, pointStyle:"rectRot", yAxisID:"y1" },
+      ]},
+      options: trendOptions()
+    });
+  }
 
-  /* ③ 모델별 도넛 */
+  /* ③ 모델별 도넛 — ₩ 기준 */
   const byModel = s.ai_by_model || [];
   const aiSum = byModel.reduce((a,m)=>a+(Number(m.cost_usd)||0),0);
-  $("aiTotal").textContent = usd(aiSum) + " · " + krw(aiSum);
+  $("aiTotal").textContent = krw(aiSum) + " (" + usd(aiSum) + ")";
   const modelPats = [PAT.dark(), PAT.light(), PAT.cross(), PAT.dots(), PAT.mid()];
   drawChart("chModel", {
     type:"doughnut",
     data:{ labels: byModel.map(m => shortModel(m.model)),
-      datasets:[{ data: byModel.map(m=>Number(m.cost_usd)||0),
+      datasets:[{ data: byModel.map(m=>toKrw(m.cost_usd)),
         backgroundColor: byModel.map((_,i)=> modelPats[i % modelPats.length]),
         borderColor: INK, borderWidth:1.4 }]},
     options:{ maintainAspectRatio:false, plugins:{ legend:{position:"bottom",labels:{font:{size:11},boxWidth:14}},
       tooltip:{callbacks:{ label:(c)=> {
         const m = byModel[c.dataIndex]||{};
-        return ` ${usd(c.parsed)} · ${nf.format(m.calls||0)}회 · in ${nf.format(m.input_tokens||0)} / out ${nf.format(m.output_tokens||0)}`;
+        return ` ${krwFromWon(c.parsed)} (${usd(m.cost_usd)}) · ${nf.format(m.calls||0)}회 · in ${nf.format(m.input_tokens||0)} / out ${nf.format(m.output_tokens||0)}`;
       }}}}}
   });
 
-  /* ③ 기능별 바 */
+  /* ③ 기능별 바 — ₩ 기준 */
   const byCaller = (s.ai_by_caller || []).slice(0, 12);
   drawChart("chCaller", {
     type:"bar",
     data:{ labels: byCaller.map(c=>c.caller),
-      datasets:[{ data: byCaller.map(c=>Number(c.cost_usd)||0),
+      datasets:[{ data: byCaller.map(c=>toKrw(c.cost_usd)),
         backgroundColor: byCaller.map((_,i)=> i===0 ? PAT.dark() : PAT.light()),
         borderColor: byCaller.map((_,i)=> i===0 ? INK : PENCIL), borderWidth:1.2, borderRadius:3 }]},
     options:{ indexAxis:"y", maintainAspectRatio:false, plugins:{ legend:{display:false},
       tooltip:{callbacks:{ label:(c)=>{
         const r = byCaller[c.dataIndex]||{};
-        return ` ${usd(c.parsed.x)} · ${nf.format(r.calls||0)}회` + ((r.errors||0)>0 ? ` · ⚠️에러 ${r.errors}` : "");
+        return ` ${krwFromWon(c.parsed.x)} (${usd(r.cost_usd)}) · ${nf.format(r.calls||0)}회` + ((r.errors||0)>0 ? ` · ⚠️에러 ${r.errors}` : "");
       }}}},
-      scales:{ x:{ticks:{callback:(v)=>"$"+v}}, y:{ticks:{font:{size:10}}} }
+      scales:{ x:{ticks:{callback:(v)=>krwTick(v)}}, y:{ticks:{font:{size:10}}} }
     }
   });
 
@@ -468,14 +547,14 @@ function render(s){
   /* ④ 퍼널 */
   const f = s.funnel || {};
   const fMax = Math.max(f.trips_total||0, 1);
-  const rows = [
+  const rows2 = [
     { lb:"여행 생성", v:f.trips_total||0 },
     { lb:"예약 클릭", v:f.trips_clicked||0 },
     { lb:"예약 인증", v:f.trips_verified||0 },
   ];
-  $("funnelBox").innerHTML = rows.map((r,i) => {
+  $("funnelBox").innerHTML = rows2.map((r,i) => {
     const pct = Math.round((r.v / fMax) * 100);
-    const conv = i===0 ? "" : `<span class="rate">${rows[i-1].v ? Math.round(r.v/rows[i-1].v*100) : 0}%</span>`;
+    const conv = i===0 ? "" : `<span class="rate">${rows2[i-1].v ? Math.round(r.v/rows2[i-1].v*100) : 0}%</span>`;
     return `<div class="frow"><span class="lb">${r.lb}</span><div class="fbar" style="width:${Math.max(pct,1)}%"></div><span class="num">${nf.format(r.v)} ${conv}</span></div>`;
   }).join("");
 
@@ -487,6 +566,21 @@ function render(s){
     `<tr><td>${reasonKo(r.reason)}</td><td class="r">${nf.format(r.count||0)}</td>
      <td class="r ${ (r.total||0) >= 0 ? "plus":"minus" }">${(r.total||0)>=0?"+":""}${nf.format(r.total||0)}</td></tr>`
   ).join("") || `<tr><td colspan="3" style="color:var(--faint)">기간 내 내역이 없어요.</td></tr>`;
+}
+
+/* ── 추이 차트 공통 옵션 (₩ 축) ── */
+function trendOptions(){
+  return {
+    maintainAspectRatio:false, interaction:{mode:"index",intersect:false},
+    plugins:{ legend:{labels:{font:{size:11},boxWidth:14}}, tooltip:{callbacks:{
+      label:(c)=> c.dataset.label + ": " + (c.dataset.yAxisID==="y1" ? krwFromWon(c.parsed.y) : nf.format(c.parsed.y))
+    }}},
+    scales:{
+      y:{beginAtZero:true, ticks:{precision:0}},
+      y1:{position:"right", beginAtZero:true, grid:{drawOnChartArea:false}, ticks:{callback:(v)=>krwTick(v)}},
+      x:{ticks:{maxTicksLimit:15,font:{size:10}}}
+    }
+  };
 }
 
 /* ── 헬퍼 ── */
