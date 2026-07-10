@@ -13,8 +13,9 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
-    --ink:#1A1815; --sub:#6B665E; --paper:#F1ECE1; --paper2:#F8F5EE; --bg:#FCFBF7;
+    --ink:#1A1815; --sub:#57503F; --paper:#F1ECE1; --paper2:#F8F5EE; --bg:#FCFBF7;
     --deep:#57503F; --red:#B3372B; --hair:rgba(26,24,21,0.16);
+    --st0:#ECE6D7; --st1:#F3EEE2; --st2:#F9F6EE; --st3:#FCFBF7;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{background:var(--bg)}
@@ -29,6 +30,8 @@
   .ink-line{stroke-dasharray:700;animation:draw 5.4s ease-in-out infinite}
   @keyframes drawOnce{from{stroke-dashoffset:320}to{stroke-dashoffset:0}}
   .icon-line{stroke-dasharray:320;animation:drawOnce 1.8s ease-out forwards}
+  @keyframes drawOnceL{from{stroke-dashoffset:700}to{stroke-dashoffset:0}}
+  .mark-line{stroke-dasharray:700;animation:drawOnceL 2.2s ease-out both}
   @keyframes mo-leg{0%,100%{transform:rotate(14deg)}50%{transform:rotate(-14deg)}}
   @keyframes mo-bob{from{transform:translateY(0)}to{transform:translateY(-3px)}}
   @keyframes mo-ground{to{stroke-dashoffset:-36}}
@@ -52,8 +55,12 @@
   /* ── 레이아웃: 좌(고정) 우(무대) ── */
   .split{display:grid;grid-template-columns:minmax(340px,42%) 1fr;min-height:100vh}
   .left{border-right:1px solid var(--hair);position:sticky;top:0;height:100vh;overflow-y:auto;
-        display:flex;flex-direction:column;padding:34px 34px 24px;background:var(--bg)}
-  .right{padding:34px 40px 60px;max-width:760px}
+        display:flex;flex-direction:column;padding:34px 34px 24px;background:var(--st0);
+        transition:background-color .5s ease}
+  .left.detail-mode{background:var(--st3)}
+  .right{padding:34px 40px 60px;background:var(--st1);transition:background-color .5s ease}
+  .right.market{background:var(--st2)}
+  .right > section{max-width:760px}
   @media(max-width:840px){
     .split{grid-template-columns:1fr}
     .left{position:static;height:auto;border-right:none;border-bottom:1px solid var(--hair);padding:26px 22px 20px}
@@ -61,14 +68,15 @@
   }
 
   /* ── 왼쪽: 홈 ── */
-  .mark{width:150px;height:188px;margin:8px 0 4px}
-  @media(max-width:840px){.mark{width:110px;height:138px}}
+  .mark{width:240px;height:300px;margin:14px 0 6px}
+  @media(max-width:840px){.mark{width:130px;height:163px;margin:8px 0 4px}}
   .brand-sub{font-size:19px;color:var(--sub)}
   h1.brand{font-size:33px;font-weight:800;letter-spacing:.01em;margin-top:2px}
-  .tagline{font-size:14px;color:var(--sub);margin-top:10px;line-height:1.75}
-  .home-btns{display:flex;flex-direction:column;gap:11px;margin-top:26px}
-  .hbtn{display:flex;align-items:center;justify-content:space-between;font-family:'Gowun Dodum';font-size:16px;
-        color:var(--ink);background:var(--paper);border:1px solid transparent;border-radius:14px;
+  .tagline{font-size:14.5px;color:var(--sub);margin-top:10px;line-height:1.75}
+  .home-btns{display:flex;flex-direction:column;gap:11px;margin-top:auto;padding-top:36px}
+  @media(max-width:840px){.home-btns{margin-top:26px;padding-top:0}}
+  .hbtn{display:flex;align-items:center;justify-content:space-between;font-family:'Gowun Dodum';font-size:16px;font-weight:700;
+        color:var(--ink);background:#FBF8F0;border:1px solid rgba(26,24,21,0.10);border-radius:14px;
         padding:15px 20px;cursor:pointer;text-align:left;transition:.15s}
   .hbtn:hover{border-color:var(--ink)}
   .hbtn.on{border-color:var(--ink);background:var(--paper2)}
@@ -79,7 +87,7 @@
   .gbtn.soon{color:var(--sub);cursor:default;border-style:dashed}
   .gbtn.soon:hover{border-color:var(--hair)}
   .login-row{display:flex;gap:8px;flex-wrap:wrap}
-  .gbtn{font-family:'Gowun Dodum';font-size:14px;color:var(--ink);background:none;border:1px solid var(--hair);
+  .gbtn{font-family:'Gowun Dodum';font-size:14px;color:var(--ink);background:#FBF8F0;border:1px solid var(--hair);
         border-radius:12px;padding:10px 18px;cursor:pointer;transition:.15s}
   .gbtn:hover{border-color:var(--ink)}
   .whoami{font-size:12px;color:var(--sub);margin-bottom:8px}
@@ -94,16 +102,42 @@
   .backlink:hover{color:var(--ink)}
   .dt-title{font-family:'Nanum Myeongjo';font-size:22px;font-weight:800;line-height:1.4;margin-top:14px}
   .dt-meta{font-size:13px;color:var(--sub);margin-top:6px}
-  .dt-summary{font-size:13.5px;color:var(--deep);margin-top:12px;line-height:1.75;background:var(--paper2);
+  .dt-summary{font-size:13.5px;color:var(--deep);margin-top:12px;line-height:1.75;background:var(--st1);
               border-radius:12px;padding:12px 14px}
   .dt-days{margin-top:18px}
   .day-h{font-family:'Nanum Myeongjo';font-size:15px;font-weight:700;margin:20px 0 4px;display:flex;gap:8px;align-items:baseline}
   .day-h .c{font-size:12.5px;color:var(--sub);font-family:'Gowun Dodum';font-weight:400}
   .slot{display:grid;grid-template-columns:44px 1fr;gap:10px;padding:9px 0;border-bottom:1px solid var(--hair)}
   .slot .t{font-size:12.5px;color:var(--sub);padding-top:2px}
-  .slot .ti{font-size:13.5px;line-height:1.5}
+  .slot .ti{font-size:13.5px;line-height:1.5;font-weight:600}
   .slot .ty{font-size:10.5px;color:var(--sub);border:1px solid var(--hair);border-radius:999px;padding:0 7px;margin-left:6px;white-space:nowrap}
   .slot .tip{font-size:12px;color:var(--sub);margin-top:3px;line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .guide-btn{display:inline-flex;align-items:center;gap:4px;font-family:'Gowun Dodum';font-size:11px;
+      color:var(--red);background:none;border:1px solid rgba(179,55,43,0.45);border-radius:999px;
+      padding:1px 9px;margin-left:7px;cursor:pointer;vertical-align:2px}
+  .guide-btn:hover{background:#FBF1EF}
+  .bucket-card{grid-column:1 / -1;background:var(--st1);border:1px solid var(--hair);border-radius:14px;
+      padding:15px 16px 14px;margin:10px 0 4px}
+  .bucket-card h5{font-family:'Nanum Myeongjo';font-size:15px;font-weight:800}
+  .bucket-card .cat{font-size:11px;color:var(--sub);border:1px solid var(--hair);border-radius:999px;padding:0 8px;margin-left:8px;vertical-align:2px}
+  .bucket-card .desc{font-size:13px;color:var(--deep);line-height:1.75;margin-top:8px}
+  .bucket-card .vinfo{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;margin-top:11px;font-size:12.5px}
+  .bucket-card .vinfo dt{color:var(--sub)}
+  .bucket-card .vinfo dd{color:var(--ink)}
+  .bucket-card .tips{margin-top:11px;border-top:1px dashed var(--hair);padding-top:10px}
+  .bucket-card .tips .tl{font-family:'Nanum Brush Script';font-size:17px;color:var(--red)}
+  .bucket-card .tips p{font-size:12.5px;color:var(--deep);line-height:1.7;margin-top:4px}
+  .bucket-photo{width:100%;max-height:190px;object-fit:cover;border-radius:12px;border:1px solid var(--hair);margin-top:12px;display:block}
+  .photo-credit{font-size:10.5px;color:var(--sub);margin-top:4px;text-align:right}
+  .pspots{margin-top:11px;border-top:1px dashed var(--hair);padding-top:10px}
+  .pspots .tl{font-family:'Nanum Brush Script';font-size:17px;color:var(--ink)}
+  .pspots p{font-size:12.5px;color:var(--deep);line-height:1.7;margin-top:4px}
+  .pspots p b{font-weight:700}
+  .audio-row{display:flex;align-items:center;gap:10px;margin-top:13px;border-top:1px dashed var(--hair);padding-top:12px}
+  .audio-btn{width:38px;height:38px;border-radius:50%;border:1.6px solid var(--ink);background:#FBF8F0;
+      cursor:pointer;font-size:14px;color:var(--ink);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .audio-btn:hover{background:#fff}
+  .audio-row .al{font-size:12.5px;color:var(--sub)}
   .take{display:block;width:100%;margin-top:22px;font-family:'Gowun Dodum';font-size:15px;color:var(--red);
         background:none;border:1.5px solid var(--red);border-radius:13px;padding:13px;cursor:pointer}
   .take:hover{background:#FBF1EF}
@@ -113,18 +147,18 @@
   .rtab{display:none}
   .rtab.on{display:block}
   .r-title{font-family:'Nanum Myeongjo';font-size:24px;font-weight:800}
-  .r-sub{font-size:13.5px;color:var(--sub);margin-top:6px}
+  .r-sub{font-size:14px;color:var(--sub);margin-top:6px}
 
   /* 안내 탭 */
   .feat{margin-top:30px;max-width:640px;display:grid;grid-template-columns:1fr 1fr;gap:0 28px}
   @media(max-width:840px){.feat{grid-template-columns:1fr}}
   .feat .row{padding:14px 2px;border-bottom:1px solid var(--hair);display:grid;grid-template-columns:38px 1fr;gap:12px;align-items:start}
   .feat .row .fic{width:30px;height:30px;margin-top:1px}
-  .feat .row b{font-family:'Nanum Myeongjo';font-size:15px;font-weight:700}
-  .feat .row p{font-size:12.5px;color:var(--sub);margin-top:3px;line-height:1.65}
+  .feat .row b{font-family:'Nanum Myeongjo';font-size:15px;font-weight:800}
+  .feat .row p{font-size:13px;color:var(--sub);margin-top:3px;line-height:1.68}
   .hl{margin-top:30px;max-width:620px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
   @media(max-width:840px){.hl{grid-template-columns:1fr}}
-  .hl .box{background:var(--paper2);border-radius:16px;padding:20px 20px 18px;position:relative}
+  .hl .box{background:var(--st3);border-radius:16px;padding:20px 20px 18px;position:relative}
   .hl .box.red{border:1.5px solid var(--red)}
   .hl h3{font-family:'Nanum Myeongjo';font-size:16px;font-weight:800;line-height:1.45}
   .hl h3 .brush{font-size:20px;color:var(--red);margin-right:2px}
@@ -146,21 +180,21 @@
   .cards{margin-top:6px;max-width:620px}
   .mcard{padding:16px 2px 14px;border-bottom:1px solid var(--hair);cursor:pointer}
   .mcard:hover .m-t{text-decoration:underline;text-underline-offset:4px}
-  .mcard.sel{background:var(--paper2);border-radius:10px;padding-left:12px;padding-right:12px}
+  .mcard.sel{background:var(--st0);border-radius:10px;padding-left:12px;padding-right:12px}
   .m-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-  .m-t{font-size:16.5px;line-height:1.35}
+  .m-t{font-size:16.5px;line-height:1.35;font-weight:700}
   .m-hearts{display:flex;align-items:center;gap:5px;margin-top:4px;flex-shrink:0}
   .m-hearts svg{width:20px;height:20px}
   .m-hearts span{font-size:15px}
   .m-hearts .chev{width:15px;height:15px;margin-left:5px}
-  .m-sum{font-size:13px;color:var(--sub);margin-top:7px;line-height:1.65;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .m-sum{font-size:13.5px;color:var(--sub);margin-top:7px;line-height:1.65;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .m-tags{display:flex;gap:10px;margin-top:9px;flex-wrap:wrap}
   .m-tags span{font-size:12.5px;color:var(--deep)}
   .m-badge{font-size:11px;color:var(--sub);border:1px solid var(--hair);border-radius:999px;padding:1px 8px;margin-left:8px;vertical-align:2px}
   .empty{font-size:14px;color:var(--sub);padding:40px 0;text-align:center}
 
   /* 서베이 안내 탭 */
-  .survey-box{margin-top:30px;max-width:520px;background:var(--paper2);border-radius:16px;padding:26px;text-align:center}
+  .survey-box{margin-top:30px;max-width:520px;background:var(--st3);border-radius:16px;padding:26px;text-align:center}
   .survey-box svg{width:180px;height:130px}
   .survey-box p{font-size:14px;color:var(--deep);margin-top:12px;line-height:1.8}
 
@@ -178,23 +212,23 @@
       <svg class="mark" viewBox="0 0 240 300" fill="none" stroke="#1c1a17" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round">
       <!-- ㅗ 가로획 = 땅 -->
       <g class="d1">
-        <path class="ink-line" d="M50 250 Q120 242 192 250"></path>
-        <path class="ink-line" d="M68 262 L75 255"></path>
-        <path class="ink-line" d="M170 262 L177 255"></path>
+        <path class="mark-line" d="M50 250 Q120 242 192 250"></path>
+        <path class="mark-line" d="M68 262 L75 255"></path>
+        <path class="mark-line" d="M170 262 L177 255"></path>
       </g>
       <!-- ㅗ 세로획 = 표지판 기둥 -->
       <g class="d2">
-        <path class="ink-line" d="M120 250 L120 122"></path>
+        <path class="mark-line" d="M120 250 L120 122"></path>
       </g>
       <!-- ㅁ = 방향 표지판 (오른쪽으로 가리킴) -->
       <g class="d3">
-        <path class="ink-line" d="M72 48 L150 45 L188 84 L150 123 L75 124 Z"></path>
+        <path class="mark-line" d="M72 48 L150 45 L188 84 L150 123 L75 124 Z"></path>
       </g>
       <!-- 빨간 보따리: 기둥에 묶어 늘어뜨린 봇짐 -->
       <g class="d3" stroke="#B3372B">
-        <path class="ink-line" stroke-width="3" d="M121 165 Q145 172 154 194"></path>
-        <path class="ink-line" stroke-width="3.2" d="M154 194 Q172 192 174 210 Q175 228 156 230 Q138 231 137 214 Q136 198 151 194.5"></path>
-        <path class="ink-line" stroke-width="2.6" d="M150 193 Q154 186 159 192.5"></path>
+        <path class="mark-line" stroke-width="3" d="M121 165 Q145 172 154 194"></path>
+        <path class="mark-line" stroke-width="3.2" d="M154 194 Q172 192 174 210 Q175 228 156 230 Q138 231 137 214 Q136 198 151 194.5"></path>
+        <path class="mark-line" stroke-width="2.6" d="M150 193 Q154 186 159 192.5"></path>
       </g>
     </svg>
       <h1 class="serif brand">여행의 모든 것</h1>
@@ -328,6 +362,7 @@ let selectedId = null;
 /* ── 오른쪽 탭 전환 ── */
 function showTab(name){
   ["tabIntro","tabMarket","tabSurvey"].forEach(t => $(t).classList.toggle("on", t === name));
+  document.querySelector(".right").classList.toggle("market", name === "tabMarket");
   $("btnMarket").classList.toggle("on", name === "tabMarket");
   $("btnSurvey").classList.toggle("on", name === "tabSurvey");
   if (name !== "tabMarket") closeDetail();
@@ -337,11 +372,11 @@ $("btnSurvey").addEventListener("click", () => showTab("tabSurvey"));
 document.addEventListener("click", (e) => { if (e.target && e.target.id === "goMarket"){ showTab("tabMarket"); loadMarket(); } });
 
 /* ── 왼쪽 상세 열기/닫기 ── */
-function openDetail(){ $("leftHome").classList.add("hidden"); $("leftDetail").classList.remove("hidden");
+function openDetail(){ document.querySelector(".left").classList.add("detail-mode"); $("leftHome").classList.add("hidden"); $("leftDetail").classList.remove("hidden");
   if (window.matchMedia("(max-width:840px)").matches) window.scrollTo({top:0, behavior:"smooth"}); }
-function closeDetail(){ $("leftDetail").classList.add("hidden"); $("leftHome").classList.remove("hidden");
+function closeDetail(){ document.querySelector(".left").classList.remove("detail-mode"); $("leftDetail").classList.add("hidden"); $("leftHome").classList.remove("hidden");
   selectedId = null; document.querySelectorAll(".mcard.sel").forEach(c=>c.classList.remove("sel")); }
-$("btnBack").addEventListener("click", closeDetail);
+$("btnBack").addEventListener("click", () => showTab("tabIntro"));
 
 /* ── 마켓 로드 ── */
 async function loadMarket(){
@@ -415,22 +450,52 @@ async function selectCourse(id){
       .select("market_title, region, nights, summary, itinerary_snapshot, is_sample")
       .eq("id", id).single();
     if (error) throw error;
-    renderDetail(data);
+    const seeds = await loadSeeds(data.itinerary_snapshot);
+    renderDetail(data, seeds);
   } catch (e) {
     $("detailBody").innerHTML = '<div class="empty">일정을 불러오지 못했어요.</div>';
   }
 }
 
-function renderDetail(c){
+/* ── 버킷 시드: 코스 도시들로 조회 후 이름 매칭 ── */
+const norm = (s) => (s||"").toLowerCase().replace(/[^0-9a-z가-힣]/g, "");
+async function loadSeeds(snap){
+  try {
+    const cities = [...new Set((snap?.days||[]).map(d => d.city).filter(Boolean))];
+    if (!cities.length) return [];
+    const { data, error } = await sb.from("bucket_seeds")
+      .select("id, name_raw, name_norm, category, detail, audio_url")
+      .in("city", cities).limit(500);
+    if (error) return [];
+    return (data||[]).map(s => ({ ...s, n: norm(s.name_norm || s.name_raw) })).filter(s => s.n.length >= 3);
+  } catch(e){ return []; }
+}
+function matchSeed(slot, seeds){
+  if (["flight","move","checkout"].includes(slot.type)) return null;
+  const hay = norm((slot.title||"") + " " + (slot.mapQuery||""));
+  if (!hay) return null;
+  let best = null;
+  for (const s of seeds){
+    if (hay.includes(s.n) && (!best || s.n.length > best.n.length)) best = s;
+  }
+  return best;
+}
+
+let seedById = {};
+function renderDetail(c, seeds){
   const snap = c.itinerary_snapshot || {};
   const days = snap.days || [];
+  seedById = {};
   const daysHtml = days.map((d, i) => {
     const slots = (d.slots || []).map(s => {
       const tip = s.tip || s.desc || "";
+      const seed = matchSeed(s, seeds);
+      if (seed) seedById[seed.id] = seed;
+      const gbtn = seed ? `<button class="guide-btn" data-seed="${seed.id}">✦ 가이드</button>` : "";
       return `<div class="slot">
         <span class="t">${esc(s.time||"")}</span>
         <div>
-          <div class="ti">${esc(s.title||"")}${TYPE_KO[s.type]?`<span class="ty">${TYPE_KO[s.type]}</span>`:""}</div>
+          <div class="ti">${esc(s.title||"")}${TYPE_KO[s.type]?`<span class="ty">${TYPE_KO[s.type]}</span>`:""}${gbtn}</div>
           ${tip?`<div class="tip">${esc(tip)}</div>`:""}
         </div>
       </div>`;
@@ -446,9 +511,77 @@ function renderDetail(c){
     <button class="take" id="btnTake">이 여행 담아가기</button>
     <div class="take-note" id="takeNote">담기는 앱에서 할 수 있어요 — Google Play 출시와 함께 만나요! ✦</div>
   `;
-  $("btnTake").addEventListener("click", () => {
-    $("takeNote").style.display = "block";
-  });
+  $("btnTake").addEventListener("click", () => { $("takeNote").style.display = "block"; });
+  document.querySelectorAll(".guide-btn").forEach(b => b.addEventListener("click", () => toggleBucket(b)));
+}
+
+/* ── 버킷 카드 토글 ── */
+function toggleBucket(btn){
+  const slotEl = btn.closest(".slot");
+  const open = slotEl.nextElementSibling;
+  if (open && open.classList.contains("bucket-card")){ stopAudio(); open.remove(); return; }
+  const s = seedById[btn.dataset.seed];
+  if (!s) return;
+  const d = s.detail || {};
+  const vi = d.visitInfo || {};
+  const tips = (d.modniTips || []).slice(0, 3);
+  const viRows = [["운영시간",vi.hours],["요금",vi.price],["추천 시간",vi.bestTime],["소요",vi.duration]]
+    .filter(([_,v]) => v).map(([k,v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("");
+  const card = document.createElement("div");
+  card.className = "bucket-card";
+  const spots = (d.photoSpots || []).slice(0, 2);
+  card.innerHTML = `
+    <h5>${esc(s.name_raw)}<span class="cat">${esc(TYPE_KO[s.category] || s.category || "")}</span></h5>
+    <div class="photo-slot"></div>
+    ${d.desc?`<div class="desc">${esc(d.desc)}</div>`:""}
+    ${viRows?`<dl class="vinfo">${viRows}</dl>`:""}
+    ${tips.length?`<div class="tips"><span class="tl">모드니 팁</span>${tips.map(t=>`<p>✦ ${esc(t)}</p>`).join("")}</div>`:""}
+    ${spots.length?`<div class="pspots"><span class="tl">사진 명소</span>${spots.map(p=>`<p>📌 <b>${esc(p.spot||"")}</b>${p.tip?` — ${esc(p.tip)}`:""}</p>`).join("")}</div>`:""}
+    ${s.audio_url?`<div class="audio-row"><button class="audio-btn" data-url="${esc(s.audio_url)}" aria-label="음성 가이드 재생">▶</button><span class="al">음성 가이드 듣기 — 모드니가 읽어 드려요</span></div>`:""}
+  `;
+  slotEl.after(card);
+  loadPhoto(s.name_raw, card.querySelector(".photo-slot"));
+  const ab = card.querySelector(".audio-btn");
+  if (ab) ab.addEventListener("click", () => playAudio(ab));
+}
+
+/* ── 위키피디아 대표 사진 (무료 · 실패 시 조용히 생략) ── */
+async function loadPhoto(name, slotDiv){
+  if (!name || !slotDiv) return;
+  try {
+    const res = await fetch("https://ko.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(name));
+    if (!res.ok) return;
+    const j = await res.json();
+    const src = j?.thumbnail?.source;
+    if (!src) return;
+    const img = document.createElement("img");
+    img.className = "bucket-photo";
+    img.src = src.replace(/\/(\d+)px-/, "/640px-");
+    img.alt = name;
+    img.loading = "lazy";
+    slotDiv.appendChild(img);
+    const cr = document.createElement("div");
+    cr.className = "photo-credit";
+    cr.textContent = "사진: 위키미디어";
+    slotDiv.appendChild(cr);
+  } catch(e){ /* 없으면 패스 */ }
+}
+
+/* ── 오디오 재생 (한 번에 하나) ── */
+let audioEl = null, audioBtn = null;
+function stopAudio(){
+  if (audioEl){ audioEl.pause(); audioEl = null; }
+  if (audioBtn){ audioBtn.textContent = "▶"; audioBtn = null; }
+}
+function playAudio(btn){
+  const url = btn.dataset.url;
+  if (audioBtn === btn && audioEl){ stopAudio(); return; }
+  stopAudio();
+  audioEl = new Audio(url);
+  audioBtn = btn;
+  btn.textContent = "❚❚";
+  audioEl.play().catch(() => { btn.textContent = "▶"; });
+  audioEl.addEventListener("ended", stopAudio);
 }
 
 /* ── 인증 ── */
