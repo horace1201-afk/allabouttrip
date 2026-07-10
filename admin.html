@@ -384,7 +384,10 @@ function groupMonthly(daily){
     m[k].calls += d.ai_calls||0;
     m[k].cost += Number(d.ai_cost_usd)||0;
   }
-  return Object.keys(m).sort().map(k => ({ month:k, ...m[k] }));
+  const rows = Object.keys(m).sort().map(k => ({ month:k, ...m[k] }));
+  // 데이터 시작 전의 빈 달(전부 0)은 숨김 — 첫 활동 월부터 표시
+  const first = rows.findIndex(r => r.trips || r.signups || r.calls || r.cost > 0);
+  return first > 0 ? rows.slice(first) : rows;
 }
 
 /* ── 렌더 ── */
