@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>여행의 모든것 — 관리자 대시보드</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --paper:#FAFAF7; --ink:#2B2B2B; --pencil:#6E6E6E; --faint:#B9B9B9; --line:#DDDDD8;
+    --shadow:3px 3px 0 rgba(43,43,43,.12);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;
+    background:var(--paper);color:var(--ink);line-height:1.55;
+    background-image:radial-gradient(rgba(43,43,43,.035) 1px, transparent 1px);
+    background-size:22px 22px;
+  }
+  .wrap{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+
+  /* 손그림 테두리 — 모서리를 비대칭으로 */
+  .sketch{
+    background:#fff;border:1.6px solid var(--ink);
+    border-radius:255px 15px 225px 15px / 15px 225px 15px 255px;
+    box-shadow:var(--shadow);
+  }
+  .sketch.alt{border-radius:15px 255px 15px 225px / 225px 15px 255px 15px}
+
+  /* ── 헤더 ── */
+  header{display:flex;align-items:center;gap:10px;padding:14px 0 18px;flex-wrap:wrap}
+  .star{font-size:24px;line-height:1;flex-shrink:0;transform:rotate(-8deg)}
+  header h1{font-size:18px;font-weight:800;letter-spacing:-.02em}
+  header .sub{font-size:12px;color:var(--pencil);width:100%;padding-left:34px;margin-top:-6px}
+  .spacer{flex:1}
+  .btn{
+    border:1.6px solid var(--ink);background:#fff;color:var(--ink);
+    font:inherit;font-size:13px;font-weight:600;
+    padding:6px 16px;cursor:pointer;transition:.12s;
+    border-radius:255px 15px 225px 15px / 15px 225px 15px 255px;
+    box-shadow:2px 2px 0 rgba(43,43,43,.15);
+  }
+  .btn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 rgba(43,43,43,.2)}
+  .btn:active{transform:translate(1px,1px);box-shadow:1px 1px 0 rgba(43,43,43,.15)}
+  .btn.primary{background:var(--ink);color:#fff}
+  .btn:focus-visible{outline:2px dashed var(--ink);outline-offset:3px}
+
+  /* ── 로그인 화면 ── */
+  #loginView{min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center}
+  #loginView .star{font-size:52px}
+  #loginView h2{font-size:22px;font-weight:800}
+  #loginView p{font-size:13px;color:var(--pencil)}
+  #loginView .btn{font-size:15px;padding:11px 26px}
+
+  /* ── 컨트롤바 ── */
+  .controls{display:flex;align-items:center;gap:10px;margin:6px 0 18px;flex-wrap:wrap}
+  .seg{display:flex;border:1.6px solid var(--ink);border-radius:12px;overflow:hidden;background:#fff}
+  .seg button{border:none;background:none;font:inherit;font-size:13px;font-weight:600;color:var(--pencil);padding:6px 16px;cursor:pointer;border-right:1.6px dashed var(--line)}
+  .seg button:last-child{border-right:none}
+  .seg button.on{background:var(--ink);color:#fff}
+  .stamp{font-size:11px;color:var(--faint);margin-left:auto}
+  .fxlab{font-size:12px;color:var(--pencil)}
+  .fxlab input{width:72px;font:inherit;font-size:14px;padding:4px 8px;border:1.6px solid var(--ink);border-radius:10px;background:#fff;margin:0 4px}
+
+  /* ── 섹션 공통 ── */
+  section{margin-bottom:28px}
+  .sec-title{display:flex;align-items:baseline;gap:10px;margin-bottom:10px;border-bottom:1.6px dashed var(--faint);padding-bottom:6px}
+  .sec-title .no{font-size:11px;font-weight:800;letter-spacing:.06em;color:var(--pencil)}
+  .sec-title h2{font-size:15px;font-weight:800}
+  .card{padding:16px}
+  .card h3{font-size:13px;font-weight:700;margin-bottom:8px}
+
+  /* ── ① KPI ── */
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+  .kpi{padding:12px 14px 10px}
+  .kpi .lb{font-size:11px;color:var(--pencil);font-weight:600}
+  .kpi .v{font-size:24px;font-weight:800;letter-spacing:-.02em;margin-top:2px;font-variant-numeric:tabular-nums}
+  .kpi .v small{font-size:12px;font-weight:600;color:var(--pencil);margin-left:3px}
+  .kpi.accent{background:var(--ink);color:#fff}
+  .kpi.accent .lb,.kpi.accent .v small{color:#CFCFCA}
+  .totals{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:12.5px;color:var(--pencil)}
+  .totals b{color:var(--ink);font-variant-numeric:tabular-nums}
+
+  /* ── 차트 그리드 ── */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr}}
+  .chart-box{position:relative;height:260px}
+  .chart-box.tall{height:340px}
+
+  /* ── 퍼널 ── */
+  .funnel{display:flex;flex-direction:column;gap:10px}
+  .frow{display:grid;grid-template-columns:110px 1fr 96px;align-items:center;gap:10px;font-size:13px}
+  .frow .lb{font-size:13px;font-weight:700}
+  .fbar{height:20px;min-width:3px;transition:width .5s;border:1.4px solid var(--ink);
+        background:repeating-linear-gradient(45deg,transparent 0 3px,rgba(43,43,43,.55) 3px 5px);
+        border-radius:6px 12px 8px 10px}
+  .frow .num{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+  .frow .rate{color:var(--pencil);font-size:11px;font-weight:500}
+
+  /* ── 테이블 ── */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{font-size:11px;color:var(--pencil);font-weight:600;text-align:left;padding:6px 8px;border-bottom:1.6px solid var(--ink)}
+  td{padding:7px 8px;border-bottom:1px dashed var(--line);font-variant-numeric:tabular-nums}
+  td.r,th.r{text-align:right}
+  .plus{font-weight:800}
+  .minus{color:var(--pencil);font-weight:800;text-decoration:underline wavy rgba(43,43,43,.35) 1px}
+
+  /* ── 상태 ── */
+  .state{padding:60px 0;text-align:center;color:var(--pencil);font-size:14px}
+  .state .star{display:block;font-size:44px;margin:0 auto 12px;animation:wob 1.6s ease-in-out infinite}
+  @keyframes wob{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg) scale(1.08)}}
+  @media (prefers-reduced-motion: reduce){.state .star{animation:none}}
+  .err-box{padding:16px;font-size:13.5px}
+  .hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="star" aria-hidden="true">✦</div>
+    <h1>여행의 모든것 · 관리자 노트</h1>
+    <div class="spacer"></div>
+    <span id="whoami" style="font-size:12px;color:var(--pencil)"></span>
+    <button class="btn hidden" id="btnRefresh">새로고침</button>
+    <button class="btn hidden" id="btnLogout">로그아웃</button>
+    <div class="sub">모드니가 연필로 적어두는 지표들</div>
+  </header>
+
+  <!-- 로그인 -->
+  <div id="loginView" class="hidden">
+    <div class="star" aria-hidden="true">✦</div>
+    <h2>관리자 로그인</h2>
+    <p>허용된 계정만 데이터를 볼 수 있어요.</p>
+    <button class="btn primary" id="btnLogin">Google로 로그인</button>
+  </div>
+
+  <!-- 로딩 -->
+  <div id="loadingView" class="state hidden">
+    <span class="star" aria-hidden="true">✦</span>
+    데이터를 스케치하는 중이에요…
+  </div>
+
+  <!-- 에러 -->
+  <div id="errorView" class="err-box sketch hidden"></div>
+
+  <!-- 대시보드 -->
+  <main id="dashView" class="hidden">
+
+    <div class="controls">
+      <div class="seg" role="group" aria-label="기간 선택">
+        <button data-days="7">7일</button>
+        <button data-days="30" class="on">30일</button>
+        <button data-days="90">90일</button>
+      </div>
+      <label class="fxlab">환율 <input id="fx" type="number" value="1400" min="800" max="2500" step="10"> ₩/$</label>
+      <span class="stamp" id="genAt"></span>
+    </div>
+
+    <!-- ① 오늘 요약 -->
+    <section>
+      <div class="sec-title"><span class="no">01</span><h2>오늘 요약 <span id="todayDate" style="font-size:12px;color:var(--faint);font-weight:400"></span></h2></div>
+      <div class="kpis" id="kpiRow"></div>
+      <div class="totals" id="totalsRow"></div>
+    </section>
+
+    <!-- ② 일별 추이 -->
+    <section>
+      <div class="sec-title"><span class="no">02</span><h2>일별 추이</h2></div>
+      <div class="card sketch">
+        <div class="chart-box tall"><canvas id="chDaily"></canvas></div>
+      </div>
+    </section>
+
+    <!-- ③ AI 비용 + 시드 -->
+    <section>
+      <div class="sec-title"><span class="no">03</span><h2>AI 비용 분해 · 시드 성장</h2></div>
+      <div class="grid2">
+        <div class="card sketch">
+          <h3>모델별 비용 <span id="aiTotal" style="color:var(--pencil)"></span></h3>
+          <div class="chart-box"><canvas id="chModel"></canvas></div>
+        </div>
+        <div class="card sketch alt">
+          <h3>기능별 비용 TOP 12</h3>
+          <div class="chart-box"><canvas id="chCaller"></canvas></div>
+        </div>
+        <div class="card sketch alt">
+          <h3>버킷 시드 일별 증가</h3>
+          <div class="chart-box"><canvas id="chSeeds"></canvas></div>
+        </div>
+        <div class="card sketch">
+          <h3>시드 현황</h3>
+          <div id="seedTotals"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ④ 퍼널 + 꿈조각 -->
+    <section>
+      <div class="sec-title"><span class="no">04</span><h2>전환 퍼널 · 꿈조각</h2></div>
+      <div class="grid2">
+        <div class="card sketch">
+          <h3>예약 전환 퍼널 (기간 내)</h3>
+          <div class="funnel" id="funnelBox"></div>
+          <p style="font-size:11.5px;color:var(--pencil);margin-top:12px">
+            클릭·인증은 app_events 기반 — 앱 이벤트 발신 코드 배포 후부터 집계돼요.
+          </p>
+        </div>
+        <div class="card sketch alt">
+          <h3>꿈조각 사유별 <span id="cookieNet" style="font-size:11px;color:var(--pencil);font-weight:400"></span></h3>
+          <table>
+            <thead><tr><th>사유</th><th class="r">건수</th><th class="r">합계</th></tr></thead>
+            <tbody id="cookieBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+/* ─────────────────────────────────────────
+   여행의 모든것 — 관리자 대시보드 v1 (연필 스케치)
+   데이터: Edge Function admin-stats (JWT + 이메일 화이트리스트)
+───────────────────────────────────────── */
+const SUPABASE_URL = "https://gecmrywieyntzzwthvlg.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdlY21yeXdpZXludHp6d3RodmxnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0NzU0ODIsImV4cCI6MjA5NDA1MTQ4Mn0.Cakqtz_AOHgNIVWHXyl_v-Dj7bSIJKoPSNbkbAqRemg";
+const FN_URL = SUPABASE_URL + "/functions/v1/admin-stats";
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+const $ = (id) => document.getElementById(id);
+const views = ["loginView","loadingView","errorView","dashView"];
+function show(id){ views.forEach(v => $(v).classList.toggle("hidden", v !== id)); }
+
+let currentDays = 30;
+let lastStats = null;
+let charts = {};
+
+/* ── 연필 해칭 패턴 (캔버스) ── */
+const INK = "#2B2B2B", PENCIL = "#6E6E6E", FAINT = "#B9B9B9";
+function hatch(color, gap, lw){
+  const c = document.createElement("canvas");
+  c.width = c.height = gap;
+  const x = c.getContext("2d");
+  x.strokeStyle = color; x.lineWidth = lw || 1.2; x.lineCap = "round";
+  x.beginPath();
+  x.moveTo(-1, gap + 1); x.lineTo(gap + 1, -1);
+  x.moveTo(-1 - gap, gap + 1); x.lineTo(1, -1 - gap);
+  x.moveTo(gap - 1, gap * 2 + 1); x.lineTo(gap * 2 + 1, gap - 1);
+  x.stroke();
+  return x.createPattern(c, "repeat");
+}
+function crossHatch(color, gap){
+  const c = document.createElement("canvas");
+  c.width = c.height = gap;
+  const x = c.getContext("2d");
+  x.strokeStyle = color; x.lineWidth = 1.1;
+  x.beginPath();
+  x.moveTo(0, gap); x.lineTo(gap, 0);
+  x.moveTo(0, 0); x.lineTo(gap, gap);
+  x.stroke();
+  return x.createPattern(c, "repeat");
+}
+const PAT = {
+  dark:  () => hatch(INK, 6, 1.4),
+  mid:   () => hatch(PENCIL, 7, 1.2),
+  light: () => hatch(FAINT, 8, 1.1),
+  cross: () => crossHatch(PENCIL, 8),
+  dots:  () => { const c=document.createElement("canvas");c.width=c.height=8;const x=c.getContext("2d");
+                 x.fillStyle=PENCIL;x.beginPath();x.arc(4,4,1.1,0,7);x.fill();return x.createPattern(c,"repeat"); }
+};
+
+/* Chart.js 공통 톤 */
+Chart.defaults.color = PENCIL;
+Chart.defaults.borderColor = "rgba(43,43,43,.12)";
+Chart.defaults.font.family = "'Pretendard Variable',Pretendard,sans-serif";
+
+/* ── 공통 포맷터 ── */
+const nf = new Intl.NumberFormat("ko-KR");
+const usd = (v) => "$" + (Number(v)||0).toFixed(2);
+function krw(v){
+  const fx = Number($("fx").value) || 1400;
+  return "약 ₩" + nf.format(Math.round((Number(v)||0) * fx));
+}
+
+/* ── 인증 흐름 ── */
+async function boot(){
+  const { data:{ session } } = await sb.auth.getSession();
+  if (session) { afterLogin(session); } else { show("loginView"); }
+}
+sb.auth.onAuthStateChange((event, session) => {
+  if (event === "SIGNED_IN" && session) afterLogin(session);
+  if (event === "SIGNED_OUT") { $("whoami").textContent=""; toggleTopBtns(false); show("loginView"); }
+});
+
+$("btnLogin").addEventListener("click", async () => {
+  await sb.auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo: location.origin + location.pathname }
+  });
+});
+$("btnLogout").addEventListener("click", () => sb.auth.signOut());
+$("btnRefresh").addEventListener("click", () => load(currentDays));
+
+function toggleTopBtns(on){
+  $("btnRefresh").classList.toggle("hidden", !on);
+  $("btnLogout").classList.toggle("hidden", !on);
+}
+
+function afterLogin(session){
+  $("whoami").textContent = session.user?.email || "";
+  toggleTopBtns(true);
+  load(currentDays);
+}
+
+/* ── 기간 토글 ── */
+document.querySelectorAll(".seg button").forEach(b => {
+  b.addEventListener("click", () => {
+    document.querySelectorAll(".seg button").forEach(x => x.classList.remove("on"));
+    b.classList.add("on");
+    currentDays = Number(b.dataset.days);
+    load(currentDays);
+  });
+});
+$("fx").addEventListener("change", () => { if (lastStats) render(lastStats); });
+
+/* ── 데이터 로드 ── */
+async function load(days){
+  show("loadingView");
+  try {
+    const { data:{ session } } = await sb.auth.getSession();
+    if (!session) { show("loginView"); return; }
+    const res = await fetch(FN_URL + "?days=" + days, {
+      headers: {
+        "Authorization": "Bearer " + session.access_token,
+        "apikey": SUPABASE_ANON
+      }
+    });
+    if (res.status === 403) {
+      $("errorView").innerHTML = "이 계정(<b>" + (session.user?.email||"") + "</b>)은 관리자 권한이 없어요. 허용된 계정으로 다시 로그인해 주세요. <br><br><button class='btn' onclick='sb.auth.signOut()'>다른 계정으로 로그인</button>";
+      show("errorView"); return;
+    }
+    if (!res.ok) {
+      const t = await res.text().catch(()=> "");
+      throw new Error("서버 응답 " + res.status + (t ? " — " + t.slice(0,200) : ""));
+    }
+    const stats = await res.json();
+    lastStats = stats;
+    render(stats);
+    show("dashView");
+  } catch (e) {
+    $("errorView").textContent = "데이터를 불러오지 못했어요: " + (e?.message || e) + " — 새로고침으로 다시 시도해 주세요.";
+    show("errorView");
+  }
+}
+
+/* ── 렌더 ── */
+function render(s){
+  const t = s.today || {};
+
+  $("todayDate").textContent = "(" + (s.kst_today || "") + " KST)";
+  $("genAt").textContent = s.generated_at ? "집계 " + new Date(s.generated_at).toLocaleString("ko-KR") : "";
+
+  /* ① KPI */
+  const kpis = [
+    { lb:"오늘 여행 생성", v: nf.format(t.trips||0), sub:"건" },
+    { lb:"오늘 가입", v: nf.format(t.signups||0), sub:"명" },
+    { lb:"오늘 AI 호출", v: nf.format(t.ai_calls||0), sub:"회" },
+    { lb:"오늘 AI 비용", v: usd(t.ai_cost_usd), sub: krw(t.ai_cost_usd), accent:true },
+    { lb:"오늘 꿈조각 사용", v: nf.format(t.cookies_spent||0), sub:"개" },
+    { lb:"오늘 예약 클릭", v: nf.format(t.booking_clicks||0), sub:"회" },
+    { lb:"오늘 예약 인증", v: nf.format(t.booking_verified||0), sub:"건" },
+  ];
+  $("kpiRow").innerHTML = kpis.map((k,i) =>
+    `<div class="kpi sketch${i%2?" alt":""}${k.accent?" accent":""}"><div class="lb">${k.lb}</div><div class="v">${k.v}<small>${k.sub}</small></div></div>`
+  ).join("");
+
+  const tot = s.totals || {};
+  $("totalsRow").innerHTML =
+    `누적 — 여행 <b>${nf.format(tot.trips||0)}</b> · 가입자 <b>${nf.format(tot.users||0)}</b> · 추억영상 <b>${nf.format(tot.videos||0)}</b> · 마켓 코스 <b>${nf.format(tot.market_courses||0)}</b>`;
+
+  /* ② 일별 추이 */
+  const daily = s.daily || [];
+  const labels = daily.map(d => d.date.slice(5));
+  drawChart("chDaily", {
+    type:"bar",
+    data:{ labels, datasets:[
+      { type:"bar", label:"여행 생성", data: daily.map(d=>d.trips||0),
+        backgroundColor: PAT.mid(), borderColor: INK, borderWidth:1.2, borderRadius:3, yAxisID:"y" },
+      { type:"bar", label:"가입", data: daily.map(d=>d.signups||0),
+        backgroundColor: PAT.dots(), borderColor: PENCIL, borderWidth:1.2, borderRadius:3, yAxisID:"y" },
+      { type:"line", label:"AI 비용($)", data: daily.map(d=>Number(d.ai_cost_usd)||0),
+        borderColor: INK, backgroundColor: INK, borderWidth:2, borderDash:[6,4],
+        tension:.3, pointRadius:2.5, pointStyle:"rectRot", yAxisID:"y1" },
+    ]},
+    options:{ maintainAspectRatio:false, interaction:{mode:"index",intersect:false},
+      plugins:{ legend:{labels:{font:{size:11},boxWidth:14}}, tooltip:{callbacks:{
+        label:(c)=> c.dataset.label + ": " + (c.dataset.yAxisID==="y1" ? usd(c.parsed.y) : nf.format(c.parsed.y))
+      }}},
+      scales:{ y:{beginAtZero:true, ticks:{precision:0}}, y1:{position:"right", beginAtZero:true, grid:{drawOnChartArea:false},
+        ticks:{callback:(v)=>"$"+v}}, x:{ticks:{maxTicksLimit:15,font:{size:10}}} }
+    }
+  });
+
+  /* ③ 모델별 도넛 */
+  const byModel = s.ai_by_model || [];
+  const aiSum = byModel.reduce((a,m)=>a+(Number(m.cost_usd)||0),0);
+  $("aiTotal").textContent = usd(aiSum) + " · " + krw(aiSum);
+  const modelPats = [PAT.dark(), PAT.light(), PAT.cross(), PAT.dots(), PAT.mid()];
+  drawChart("chModel", {
+    type:"doughnut",
+    data:{ labels: byModel.map(m => shortModel(m.model)),
+      datasets:[{ data: byModel.map(m=>Number(m.cost_usd)||0),
+        backgroundColor: byModel.map((_,i)=> modelPats[i % modelPats.length]),
+        borderColor: INK, borderWidth:1.4 }]},
+    options:{ maintainAspectRatio:false, plugins:{ legend:{position:"bottom",labels:{font:{size:11},boxWidth:14}},
+      tooltip:{callbacks:{ label:(c)=> {
+        const m = byModel[c.dataIndex]||{};
+        return ` ${usd(c.parsed)} · ${nf.format(m.calls||0)}회 · in ${nf.format(m.input_tokens||0)} / out ${nf.format(m.output_tokens||0)}`;
+      }}}}}
+  });
+
+  /* ③ 기능별 바 */
+  const byCaller = (s.ai_by_caller || []).slice(0, 12);
+  drawChart("chCaller", {
+    type:"bar",
+    data:{ labels: byCaller.map(c=>c.caller),
+      datasets:[{ data: byCaller.map(c=>Number(c.cost_usd)||0),
+        backgroundColor: byCaller.map((_,i)=> i===0 ? PAT.dark() : PAT.light()),
+        borderColor: byCaller.map((_,i)=> i===0 ? INK : PENCIL), borderWidth:1.2, borderRadius:3 }]},
+    options:{ indexAxis:"y", maintainAspectRatio:false, plugins:{ legend:{display:false},
+      tooltip:{callbacks:{ label:(c)=>{
+        const r = byCaller[c.dataIndex]||{};
+        return ` ${usd(c.parsed.x)} · ${nf.format(r.calls||0)}회` + ((r.errors||0)>0 ? ` · ⚠️에러 ${r.errors}` : "");
+      }}}},
+      scales:{ x:{ticks:{callback:(v)=>"$"+v}}, y:{ticks:{font:{size:10}}} }
+    }
+  });
+
+  /* ③ 시드 성장 */
+  const seeds = s.seeds || {};
+  const sd = seeds.bucket_daily || [];
+  drawChart("chSeeds", {
+    type:"bar",
+    data:{ labels: sd.map(d=>d.date.slice(5)),
+      datasets:[{ label:"버킷 시드 추가", data: sd.map(d=>d.added||0),
+        backgroundColor: PAT.mid(), borderColor: INK, borderWidth:1.2, borderRadius:3 }]},
+    options:{ maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales:{ y:{beginAtZero:true,ticks:{precision:0}}, x:{ticks:{maxTicksLimit:15,font:{size:10}}} } }
+  });
+
+  $("seedTotals").innerHTML = `
+    <table>
+      <tbody>
+        <tr><td>버킷 시드</td><td class="r"><b>${nf.format(seeds.bucket||0)}</b></td></tr>
+        <tr><td>호텔 시드</td><td class="r"><b>${nf.format(seeds.hotel||0)}</b></td></tr>
+        <tr><td>도시 시드</td><td class="r"><b>${nf.format(seeds.city||0)}</b></td></tr>
+        <tr><td>직항 노선</td><td class="r"><b>${nf.format(seeds.direct_routes||0)}</b></td></tr>
+        <tr><td>호텔 존</td><td class="r"><b>${nf.format(seeds.hotel_zone||0)}</b></td></tr>
+      </tbody>
+    </table>`;
+
+  /* ④ 퍼널 */
+  const f = s.funnel || {};
+  const fMax = Math.max(f.trips_total||0, 1);
+  const rows = [
+    { lb:"여행 생성", v:f.trips_total||0 },
+    { lb:"예약 클릭", v:f.trips_clicked||0 },
+    { lb:"예약 인증", v:f.trips_verified||0 },
+  ];
+  $("funnelBox").innerHTML = rows.map((r,i) => {
+    const pct = Math.round((r.v / fMax) * 100);
+    const conv = i===0 ? "" : `<span class="rate">${rows[i-1].v ? Math.round(r.v/rows[i-1].v*100) : 0}%</span>`;
+    return `<div class="frow"><span class="lb">${r.lb}</span><div class="fbar" style="width:${Math.max(pct,1)}%"></div><span class="num">${nf.format(r.v)} ${conv}</span></div>`;
+  }).join("");
+
+  /* ④ 꿈조각 */
+  const ck = s.cookies || {};
+  $("cookieNet").textContent = `적립 +${nf.format(ck.earned_total||0)} · 사용 -${nf.format(ck.spent_total||0)}`;
+  const reasons = (ck.by_reason || []).slice().sort((a,b)=>Math.abs(b.total)-Math.abs(a.total));
+  $("cookieBody").innerHTML = reasons.map(r =>
+    `<tr><td>${reasonKo(r.reason)}</td><td class="r">${nf.format(r.count||0)}</td>
+     <td class="r ${ (r.total||0) >= 0 ? "plus":"minus" }">${(r.total||0)>=0?"+":""}${nf.format(r.total||0)}</td></tr>`
+  ).join("") || `<tr><td colspan="3" style="color:var(--faint)">기간 내 내역이 없어요.</td></tr>`;
+}
+
+/* ── 헬퍼 ── */
+function drawChart(id, cfg){
+  if (charts[id]) charts[id].destroy();
+  charts[id] = new Chart($(id).getContext("2d"), cfg);
+}
+function shortModel(m){
+  if (!m) return "?";
+  if (m.includes("sonnet")) return "Sonnet";
+  if (m.includes("haiku")) return "Haiku";
+  return m;
+}
+function reasonKo(r){
+  const map = {
+    signup_bonus:"가입 보너스", beta_bonus:"베타 보너스", day_unlock:"Day 잠금해제",
+    hotel_ocr:"호텔 OCR 인증", video_create:"추억영상 생성", itinerary_change:"일정 변경",
+    course_amend:"코스 수정", flight_edit:"항공 수정", manual_adjust:"수동 조정",
+    referral:"친구 초대", purchase:"결제 적립",
+  };
+  return map[r] || r;
+}
+
+boot();
+</script>
+</body>
+</html>
