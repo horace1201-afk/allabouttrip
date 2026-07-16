@@ -6,366 +6,522 @@
 <title>여행의 모든것 — 모든이의 꿈, 모드니</title>
 <meta name="description" content="AI 여행 플래닝 앱 여행의 모든것. 모드니가 그려주는 나만의 여행 — 마켓에서 완성된 일정을 구경하고 그대로 담아가세요.">
 <meta property="og:title" content="여행의 모든것 · 모드니">
-<meta property="og:description" content="마켓에서 완성된 여행을 구경하고, 나만의 여행을 만들어 보세요.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Nanum+Myeongjo:wght@400;700;800&family=Nanum+Brush+Script&display=swap" rel="stylesheet">
+<meta property="og:description" content="계획부터 추억까지 — 여행의 모든 것을 한 곳에서.">
+<link rel="icon" href="assets/favicon.png">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
-  :root{
-    --ink:#1A1815; --sub:#57503F; --paper:#F1ECE1; --paper2:#F8F5EE; --bg:#FCFBF7;
-    --deep:#57503F; --red:#B3372B; --hair:rgba(26,24,21,0.16);
-    --st0:#ECE6D7; --st1:#F3EEE2; --st2:#F9F6EE; --st3:#FCFBF7;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html,body{background:var(--bg)}
-  body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;color:var(--ink);line-height:1.6}
-  .gowun{font-family:'Gowun Dodum',sans-serif}
-  a{color:var(--sub);text-decoration:none}
-  a:hover{color:var(--ink)}
-  .serif{font-family:'Nanum Myeongjo',serif}
-  .brush{font-family:'Nanum Brush Script',cursive}
+:root{
+  /* 앱 디자인 시스템 정본 (lib/theme.ts hub) — coral은 액션·활성 전용 */
+  --orange:#F4581C; --orange-deep:#C6431F; --orange-soft:#FDEDE7; --orange-tint:#FEF5F0;
+  --ink:#211B31; --sub:#8A8494; --faint:#B7B2BF; --line:#EDE9E4; --hair:#F0EDE8;
+  --bg:#FFFFFF; --warm:#FAF8F5; --green:#2E7D5B; --green-soft:#E7F3EC;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+html,body{background:var(--bg)}
+body{font-family:'Pretendard Variable',Pretendard,-apple-system,'Malgun Gothic',sans-serif;color:var(--ink);line-height:1.6}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
+.hidden{display:none!important}
+img{max-width:100%}
 
-  /* ── 그리기 애니메이션 (시안 원본) ── */
-  @keyframes draw{0%{stroke-dashoffset:700}45%{stroke-dashoffset:0}82%{stroke-dashoffset:0}100%{stroke-dashoffset:-700}}
-  .ink-line{stroke-dasharray:700;animation:draw 5.4s ease-in-out infinite}
-  @keyframes drawOnce{from{stroke-dashoffset:320}to{stroke-dashoffset:0}}
-  .icon-line{stroke-dasharray:320;animation:drawOnce 1.8s ease-out forwards}
-  @keyframes drawOnceL{from{stroke-dashoffset:700}to{stroke-dashoffset:0}}
-  .mark-line{stroke-dasharray:700;animation:drawOnceL 2.2s ease-out both}
-  @keyframes mo-leg{0%,100%{transform:rotate(14deg)}50%{transform:rotate(-14deg)}}
-  @keyframes mo-bob{from{transform:translateY(0)}to{transform:translateY(-3px)}}
-  @keyframes mo-ground{to{stroke-dashoffset:-36}}
-  @keyframes mo-ponder{0%,100%{transform:rotate(-3deg)}55%{transform:rotate(7deg)}}
-  @keyframes mo-dot{0%,12%{opacity:0}30%,72%{opacity:1}88%,100%{opacity:0}}
-  @keyframes mo-write{0%{stroke-dashoffset:140}78%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
-  @keyframes mo-pen{0%{offset-distance:0%}78%{offset-distance:100%}100%{offset-distance:100%}}
-  .mo-walker{animation:mo-bob .34s ease-in-out infinite alternate}
-  .mo-leg1{animation:mo-leg .68s ease-in-out infinite}
-  .mo-leg2{animation:mo-leg .68s ease-in-out infinite;animation-delay:-.34s}
-  .mo-scroll{animation:mo-ground .55s linear infinite}
-  .mo-head{animation:mo-ponder 3.2s ease-in-out infinite}
-  .mo-dot{animation:mo-dot 3.2s ease-in-out infinite}
-  .mo-writeline{stroke-dasharray:140;animation:mo-write 3s linear infinite}
-  .mo-pen{offset-rotate:0deg;animation:mo-pen 3s linear infinite}
-  .d1{animation-delay:0s}.d2{animation-delay:.55s}.d3{animation-delay:1.15s}
-  @media (prefers-reduced-motion:reduce){
-    .ink-line,.icon-line,.mo-walker,.mo-leg1,.mo-leg2,.mo-scroll,.mo-head,.mo-dot,.mo-writeline,.mo-pen{animation:none;stroke-dashoffset:0}
-  }
+/* ═══ 상단바 ═══ */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:80;display:flex;align-items:center;gap:12px;
+  padding:14px 22px;transition:background .25s, box-shadow .25s}
+.topbar.solid{background:rgba(255,253,251,.92);backdrop-filter:blur(10px);box-shadow:0 1px 0 var(--hair)}
+.topbar .tb-brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;letter-spacing:-.2px;color:#fff}
+.topbar .tb-brand img{width:26px;height:26px;border-radius:8px}
+.topbar.solid .tb-brand{color:var(--ink)}
+.topbar .sp{flex:1}
+.tb-login{font-size:13.5px;font-weight:700;color:#fff}
+.topbar.solid .tb-login{color:var(--ink)}
+.tb-burger{width:34px;height:34px;display:flex;flex-direction:column;justify-content:center;gap:5px;padding:7px}
+.tb-burger span{height:2.5px;background:#fff;border-radius:2px;transition:.2s}
+.topbar.solid .tb-burger span{background:var(--ink)}
 
-  /* ── 레이아웃: 좌(고정) 우(무대) ── */
-  .split{display:grid;grid-template-columns:minmax(340px,55%) 1fr;min-height:100vh}
-  .left{border-right:1px solid var(--hair);position:sticky;top:0;height:100vh;overflow-y:auto;
-        display:flex;flex-direction:column;padding:34px 34px 24px;background:var(--st0);
-        transition:background-color .5s ease}
-  .left.detail-mode{background:var(--st3)}
-  .right{padding:34px 40px 60px;background:var(--st1);transition:background-color .5s ease}
-  .right.market{background:var(--st2)}
-  .right > section{max-width:760px}
-  @media(max-width:840px){
-    .split{grid-template-columns:1fr}
-    .left{position:static;height:auto;border-right:none;border-bottom:1px solid var(--hair);padding:26px 22px 20px}
-    .right{padding:24px 22px 50px}
-  }
+/* ═══ 왼쪽 슬라이드 메뉴 ═══ */
+.scrim{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:90}
+body.menu-open .scrim{display:block}
+.drawer{position:fixed;top:0;left:0;bottom:0;width:min(320px,88vw);background:#fff;z-index:95;
+  transform:translateX(-100%);transition:transform .28s ease, width .28s ease;display:flex;flex-direction:row;overflow:hidden}
+body.menu-open .drawer{transform:none;box-shadow:6px 0 30px rgba(0,0,0,.12)}
+.drawer.expanded{width:min(660px,94vw)}
+.dw-main{flex:0 0 min(320px,88vw);display:flex;flex-direction:column;overflow-y:auto}
+.dw-side{flex:1;min-width:0;display:none;flex-direction:column;overflow-y:auto;padding:70px 26px 24px;background:#fff}
+.drawer.expanded .dw-side{display:flex;animation:fadeIn .25s ease}
+.ds-title{font-size:17px;font-weight:800;margin-bottom:6px;letter-spacing:-.3px}
+.ds-p{font-size:13px;color:var(--sub);line-height:1.7;margin-bottom:12px}
+.ds-btn{display:block;width:100%;text-align:left;padding:12px 14px;border-radius:12px;background:var(--warm);
+  font-size:13.5px;font-weight:600;margin-top:8px}
+.ds-btn:hover{background:var(--orange-soft);color:var(--orange-deep)}
+.dw-head{padding:18px 20px 6px}
+.dw-close{font-size:22px;color:var(--ink);padding:4px 6px}
+.dw-auth{padding:6px 22px 16px;border-bottom:1px solid var(--hair)}
+.dw-auth .big{font-size:19px;font-weight:800;letter-spacing:-.3px}
+.dw-auth .big u{text-underline-offset:4px;cursor:pointer}
+.dw-auth .who{font-size:13px;color:var(--sub);margin-top:4px}
+.dw-auth .cook{display:inline-block;font-size:12.5px;font-weight:700;color:var(--orange);
+  background:var(--orange-tint);border-radius:999px;padding:3px 12px;margin-top:8px}
+.dw-auth .outbtn{display:inline-block;font-size:12px;color:var(--sub);margin-top:8px;text-decoration:underline;text-underline-offset:3px}
+.dw-nav{flex:1;padding:6px 0 20px}
+.dw-item{display:flex;align-items:center;gap:10px;width:100%;padding:15px 22px;font-size:15px;font-weight:700;
+  text-align:left;border-bottom:1px solid var(--hair)}
+.dw-item:hover{background:var(--orange-tint)}
+.dw-item.on{background:var(--orange-soft);color:var(--orange-deep)}
+.dw-item .tag{font-size:11px;font-weight:700;color:#fff;background:var(--orange);border-radius:999px;padding:2px 10px}
+.dw-item .chev{margin-left:auto;font-size:11px;color:var(--faint);transition:transform .2s}
+.dw-group.open .dw-item .chev{transform:rotate(180deg)}
+.dw-sub{max-height:0;overflow:hidden;transition:max-height .25s ease;background:var(--warm)}
+.dw-group.open .dw-sub{max-height:600px}
+.dw-subitem{display:block;width:100%;padding:12px 22px 12px 34px;font-size:13.5px;font-weight:500;
+  color:var(--sub);text-align:left;border-bottom:1px solid var(--hair)}
+.dw-subitem:hover{color:var(--orange)}
+.dw-foot{padding:16px 22px;border-top:1px solid var(--hair);font-size:11px;color:var(--sub);line-height:1.8}
 
-  /* ── 왼쪽: 홈 ── */
-  .mark{width:240px;height:300px;margin:14px 0 6px}
-  @media(max-width:840px){.mark{width:130px;height:163px;margin:8px 0 4px}}
-  .brand-sub{font-size:19px;color:var(--sub)}
-  h1.brand{font-size:33px;font-weight:800;letter-spacing:.01em;margin-top:2px}
-  .tagline{font-size:14.5px;color:var(--sub);margin-top:10px;line-height:1.75}
-  .home-btns{display:flex;flex-direction:column;gap:11px;margin-top:auto;padding-top:36px}
-  @media(max-width:840px){.home-btns{margin-top:26px;padding-top:0}}
-  .hbtn{display:flex;align-items:center;justify-content:space-between;font-family:'Gowun Dodum';font-size:16px;
-        color:var(--ink);background:#FBF8F0;border:1px solid rgba(26,24,21,0.10);border-radius:14px;
-        padding:15px 20px;cursor:pointer;text-align:left;transition:.15s}
-  .hbtn:hover{border-color:var(--ink)}
-  .hbtn.on{border-color:var(--ink);background:var(--paper2)}
-  .hbtn .arr{color:var(--sub)}
-  #leftHome{display:flex;flex-direction:column;flex:1}
-  .auth{margin-top:auto;padding-top:44px}
-  @media(max-width:840px){.auth{padding-top:30px}}
-  .gbtn.soon{color:var(--sub);cursor:default;border-style:dashed}
-  .gbtn.soon:hover{border-color:var(--hair)}
-  .login-row{display:flex;gap:8px;flex-wrap:wrap}
-  .gbtn{font-family:'Gowun Dodum';font-size:14px;color:var(--ink);background:#FBF8F0;border:1px solid var(--hair);
-        border-radius:12px;padding:10px 18px;cursor:pointer;transition:.15s}
-  .gbtn:hover{border-color:var(--ink)}
-  .whoami{font-size:12px;color:var(--sub);margin-bottom:8px}
-  .mytrips{margin-top:14px}
-  .mytrips h4{font-size:13px;color:var(--sub);font-weight:400;margin-bottom:6px}
-  .mytrip{font-size:14px;padding:9px 2px;border-bottom:1px solid var(--hair);display:flex;justify-content:space-between;gap:8px}
-  .mytrip .d{color:var(--sub);font-size:12px;white-space:nowrap}
-  .foot{font-size:11.5px;color:var(--sub);margin-top:22px;line-height:1.9}
+/* ═══ 히어로 ═══ */
+.hero{position:relative;min-height:100svh;display:flex;align-items:center;overflow:hidden}
+.hero .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hero .shade{position:absolute;inset:0;background:linear-gradient(105deg,rgba(20,14,10,.62) 0%,rgba(20,14,10,.35) 45%,rgba(20,14,10,.15) 75%)}
+.hero-in{position:relative;z-index:2;max-width:1200px;margin:0 auto;padding:100px 30px 70px;width:100%}
+.hero .eyebrow{font-size:clamp(14px,1.6vw,17px);color:#FFE9DB;font-weight:600}
+.hero h1{font-size:clamp(34px,5.6vw,62px);line-height:1.25;color:#fff;font-weight:800;letter-spacing:-.02em;margin-top:12px}
+.hero .modni-line{display:flex;align-items:center;gap:10px;margin-top:18px}
+.mface{display:flex;align-items:center;justify-content:center;background:#FFF6EE;border-radius:50%;flex-shrink:0}
+.hero .modni-line .mface{width:48px;height:48px}
+.hero .modni-line .mface img{width:34px;height:34px}
+.hero .modni-line span{font-size:clamp(14px,1.7vw,18px);color:#FFF3EA}
+.store-row{display:flex;gap:12px;margin-top:34px;flex-wrap:wrap}
+.store{display:flex;align-items:center;gap:10px;background:rgba(28,22,18,.82);color:#fff;
+  border:1px solid rgba(255,255,255,.25);border-radius:14px;padding:12px 22px;font-size:14px;font-weight:700}
+.store small{display:block;font-size:10.5px;font-weight:400;opacity:.7}
+.store:hover{background:rgba(28,22,18,.95)}
+.scroll-hint{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:2;color:#fff;
+  font-size:12px;opacity:.85;text-align:center;animation:hint 2s ease-in-out infinite}
+@keyframes hint{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,7px)}}
 
-  /* ── 왼쪽: 코스 상세 모드 ── */
-  .backlink{font-size:14px;color:var(--sub);cursor:pointer;background:none;border:none;font:inherit;padding:0}
-  .backlink:hover{color:var(--ink)}
-  .dt-title{font-family:'Nanum Myeongjo';font-size:22px;font-weight:800;line-height:1.4;margin-top:14px}
-  .dt-meta{font-size:13px;color:var(--sub);margin-top:6px}
-  .dt-summary{font-size:13.5px;color:var(--deep);margin-top:12px;line-height:1.75;background:var(--st1);
-              border-radius:12px;padding:12px 14px}
-  .dt-days{margin-top:18px}
-  .day-h{font-family:'Nanum Myeongjo';font-size:15px;font-weight:700;margin:20px 0 4px;display:flex;gap:8px;align-items:baseline}
-  .day-h .c{font-size:12.5px;color:var(--sub);font-family:'Gowun Dodum';font-weight:400}
-  .day-wrap{display:grid;grid-template-columns:1fr 340px;gap:18px;align-items:start}
-  @media(max-width:1180px){.day-wrap{grid-template-columns:1fr}.day-map{order:-1}}
-  .day-map{height:320px;border:1px solid var(--hair);border-radius:12px;overflow:hidden;
-      position:sticky;top:14px;filter:grayscale(.2) sepia(.12);z-index:0}
-  .day-map .leaflet-control-attribution{font-size:8px;background:rgba(252,251,247,.7)}
-  .map-pin{width:24px;height:24px;border-radius:50%;background:var(--ink);color:#FCFBF7;
-      font:700 12px 'Pretendard Variable',Pretendard,sans-serif;display:flex;align-items:center;justify-content:center;
-      border:1.5px solid #FCFBF7;box-shadow:0 1px 4px rgba(26,24,21,.35)}
-  .travel-chip{display:inline-block;background:rgba(252,251,247,.94);border:1px solid var(--hair);
-      border-radius:999px;padding:1px 8px;font:600 10.5px 'Pretendard Variable',Pretendard,sans-serif;color:var(--deep);
-      white-space:nowrap;box-shadow:0 1px 3px rgba(26,24,21,.2);transform:translate(-50%,-50%)}
-  .pin-no{display:inline-flex;width:17px;height:17px;border-radius:50%;background:var(--ink);color:#FCFBF7;
-      font-size:10.5px;font-weight:700;align-items:center;justify-content:center;margin-right:7px;vertical-align:1px}
-  .slot{display:grid;grid-template-columns:44px 1fr;gap:10px;padding:9px 0;border-bottom:1px solid var(--hair)}
-  .slot .t{font-size:12.5px;color:var(--sub);padding-top:2px}
-  .slot .ti{font-size:13.5px;line-height:1.5;font-weight:600}
-  .slot .ty{font-size:10.5px;color:var(--sub);border:1px solid var(--hair);border-radius:999px;padding:0 7px;margin-left:6px;white-space:nowrap}
-  .slot .tip{font-size:12px;color:var(--sub);margin-top:3px;line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .guide-btn{display:inline-flex;align-items:center;gap:4px;font:600 11px 'Pretendard Variable',Pretendard,sans-serif;
-      color:var(--red);background:none;border:1px solid rgba(179,55,43,0.45);border-radius:999px;
-      padding:1px 9px;margin-left:7px;cursor:pointer;vertical-align:2px}
-  .guide-btn:hover{background:#FBF1EF}
-  .bucket-card{grid-column:1 / -1;background:var(--st1);border:1px solid var(--hair);border-radius:14px;
-      padding:15px 16px 14px;margin:10px 0 4px}
-  .bucket-card h5{font-family:'Nanum Myeongjo';font-size:15px;font-weight:800}
-  .bucket-card .cat{font-size:11px;color:var(--sub);border:1px solid var(--hair);border-radius:999px;padding:0 8px;margin-left:8px;vertical-align:2px}
-  .bucket-card .desc{font-size:13px;color:var(--deep);line-height:1.75;margin-top:8px}
-  .bucket-card .vinfo{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;margin-top:11px;font-size:12.5px}
-  .bucket-card .vinfo dt{color:var(--sub)}
-  .bucket-card .vinfo dd{color:var(--ink)}
-  .bucket-card .tips{margin-top:11px;border-top:1px dashed var(--hair);padding-top:10px}
-  .bucket-card .tips .tl{font-family:'Nanum Brush Script';font-size:17px;color:var(--red)}
-  .bucket-card .tips p{font-size:12.5px;color:var(--deep);line-height:1.7;margin-top:4px}
-  .bucket-photo{display:block;max-width:100%;max-height:240px;width:auto;height:auto;
-      border-radius:12px;border:1px solid var(--hair);margin:12px auto 0}
-  .photo-credit{text-align:center!important}
-  .photo-credit{font-size:10.5px;color:var(--sub);margin-top:4px;text-align:right}
-  .pspots{margin-top:11px;border-top:1px dashed var(--hair);padding-top:10px}
-  .pspots .tl{font-family:'Nanum Brush Script';font-size:17px;color:var(--ink)}
-  .pspots p{font-size:12.5px;color:var(--deep);line-height:1.7;margin-top:4px}
-  .pspots p b{font-weight:700}
-  .audio-row{display:flex;align-items:center;gap:10px;margin-top:13px;border-top:1px dashed var(--hair);padding-top:12px}
-  .audio-btn{width:38px;height:38px;border-radius:50%;border:1.6px solid var(--ink);background:#FBF8F0;
-      cursor:pointer;font-size:14px;color:var(--ink);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-  .audio-btn:hover{background:#fff}
-  .audio-row .al{font-size:12.5px;color:var(--sub)}
-  .take{display:block;width:100%;margin-top:22px;font-family:'Gowun Dodum';font-size:15px;color:var(--red);
-        background:none;border:1.5px solid var(--red);border-radius:13px;padding:13px;cursor:pointer}
-  .take:hover{background:#FBF1EF}
-  .take-note{font-size:12px;color:var(--sub);text-align:center;margin-top:8px;display:none}
+/* ═══ 스크롤 섹션 공통 ═══ */
+.sect{max-width:1080px;margin:0 auto;padding:110px 30px 30px}
+.sect .eyebrow{font-size:14px;font-weight:800;color:var(--orange);letter-spacing:.02em}
+.sect h2{font-size:clamp(26px,3.6vw,42px);font-weight:800;letter-spacing:-.02em;line-height:1.3;margin-top:10px}
+.sect .lead{font-size:clamp(14px,1.6vw,17px);color:var(--sub);margin-top:14px;max-width:560px;line-height:1.75}
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease, transform .7s ease}
+.reveal.in{opacity:1;transform:none}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:center;margin-top:36px}
+@media(max-width:900px){.duo{grid-template-columns:1fr}}
 
-  /* ── 오른쪽 공통 ── */
-  .rtab{display:none}
-  .rtab.on{display:block}
-  .r-title{font-family:'Nanum Myeongjo';font-size:24px;font-weight:800}
-  .r-sub{font-size:14px;color:var(--sub);margin-top:6px}
+/* 모형 카드 (일정·호텔 비주얼) */
+.mock{background:#fff;border:1px solid var(--hair);border-radius:22px;padding:22px;box-shadow:0 18px 50px rgba(244,88,28,.08)}
+.mock .mh{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.mock .mh .badge{font-size:11.5px;font-weight:700;color:var(--orange);background:var(--orange-tint);border-radius:999px;padding:3px 10px}
+.mock .mh b{font-size:15px}
+.mslot{display:grid;grid-template-columns:46px 1fr;gap:10px;padding:10px 0;border-bottom:1px dashed var(--hair);font-size:13.5px}
+.mslot:last-child{border-bottom:none}
+.mslot .t{color:var(--sub);font-size:12px;padding-top:2px}
+.mslot b{font-weight:700}
+.mslot p{font-size:12px;color:var(--sub);margin-top:2px}
+.hcard .hrow{display:flex;justify-content:space-between;align-items:baseline;margin-top:4px}
+.hcard .price{font-size:17px;font-weight:800;color:var(--orange)}
+.hcard .ref{font-size:11px;color:var(--faint)}
+.hbtns{display:flex;gap:8px;margin-top:12px}
+.hbtns span{flex:1;text-align:center;font-size:12.5px;font-weight:700;border-radius:11px;padding:11px 0}
+.hbtns .b1{background:var(--orange);color:#fff}
+.hbtns .b2{background:var(--orange-tint);color:var(--orange-deep);border:1px solid var(--line)}
+.mock .foot-note{font-size:11px;color:var(--faint);margin-top:10px;text-align:center}
 
-  /* 안내 탭 */
-  .feat{margin-top:30px;max-width:640px;display:grid;grid-template-columns:1fr 1fr;gap:0 28px}
-  @media(max-width:840px){.feat{grid-template-columns:1fr}}
-  .feat .row{padding:14px 2px;border-bottom:1px solid var(--hair);display:grid;grid-template-columns:38px 1fr;gap:12px;align-items:start}
-  .feat .row .fic{width:30px;height:30px;margin-top:1px}
-  .feat .row b{font-family:'Nanum Myeongjo';font-size:15px;font-weight:800}
-  .feat .row p{font-size:13px;color:var(--sub);margin-top:3px;line-height:1.68}
-  .hl{margin-top:30px;max-width:620px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  @media(max-width:840px){.hl{grid-template-columns:1fr}}
-  .hl .box{background:var(--st3);border-radius:16px;padding:20px 20px 18px;position:relative}
-  .hl .box.red{border:1.5px solid var(--red)}
-  .hl h3{font-family:'Nanum Myeongjo';font-size:16px;font-weight:800;line-height:1.45}
-  .hl h3 .brush{font-size:20px;color:var(--red);margin-right:2px}
-  .hl p{font-size:13px;color:var(--deep);margin-top:8px;line-height:1.75}
-  .hl .go{display:inline-block;margin-top:12px;font-size:13px;color:var(--red);border-bottom:1px solid var(--red);cursor:pointer}
-  .play{display:inline-block;margin-top:26px;font-size:14px;color:var(--bg);background:var(--ink);border-radius:12px;padding:12px 22px}
-  .play small{color:#B8B2A6;margin-left:8px}
+/* ═══ 마켓 섹션 ═══ */
+.picks{display:flex;gap:14px;margin-top:30px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:8px}
+.picks::-webkit-scrollbar{height:6px}
+.picks::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.pick{position:relative;flex:0 0 min(420px,80vw);height:200px;border-radius:20px;overflow:hidden;
+  cursor:pointer;scroll-snap-align:start;background:var(--orange-tint)}
+.pick img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.pick:hover img{transform:scale(1.04)}
+.pick .shade{position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(0,0,0,.55))}
+.pick .badge{position:absolute;top:12px;left:12px;background:#fff;color:var(--ink);
+  font-size:11px;font-weight:700;border-radius:999px;padding:3px 10px}
+.pick .pt{position:absolute;left:16px;bottom:32px;right:16px;color:#fff;font-size:17px;font-weight:800;
+  letter-spacing:-.3px;text-shadow:0 1px 4px rgba(0,0,0,.4)}
+.pick .pm{position:absolute;left:16px;bottom:11px;color:#fff;font-size:12px;opacity:.9}
+.mkt-tools{display:flex;gap:10px;margin-top:26px;flex-wrap:wrap;align-items:center}
+.search{flex:1;min-width:220px;display:flex;align-items:center;gap:9px;background:#fff;
+  border:1px solid var(--line);border-radius:14px;padding:11px 15px}
+.search input{flex:1;border:none;background:none;font:inherit;font-size:14px;color:var(--ink);outline:none}
+.search input::placeholder{color:var(--faint)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chips button,.sorts button{font-size:12.5px;font-weight:600;color:var(--ink);background:#fff;
+  border:1px solid var(--line);border-radius:999px;padding:7px 15px}
+.chips button.on,.sorts button.on{background:var(--orange);border-color:var(--orange);color:#fff}
+.m-sub{font-size:16px;font-weight:800;margin:30px 0 10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.regions{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px}
+.regions::-webkit-scrollbar{height:6px}
+.regions::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.region{position:relative;flex:0 0 150px;height:96px;border-radius:14px;overflow:hidden;cursor:pointer;background:var(--orange-tint)}
+.region img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.region .shade{position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(0,0,0,.5))}
+.region .rt{position:absolute;left:10px;bottom:22px;color:#fff;font-size:14px;font-weight:800;text-shadow:0 1px 3px rgba(0,0,0,.4)}
+.region .rc{position:absolute;left:10px;bottom:6px;color:#fff;font-size:11px;opacity:.9}
+.sorts{display:flex;gap:8px}
+.grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-top:4px}
+.mcard{display:flex;gap:12px;align-items:center;background:#fff;border:1px solid var(--hair);
+  border-radius:16px;padding:13px 15px;cursor:pointer;transition:.13s}
+.mcard:hover{border-color:var(--orange);box-shadow:0 6px 18px rgba(244,88,28,.08)}
+.thumb{width:56px;height:56px;flex:0 0 56px;border-radius:13px;object-fit:cover;background:var(--orange-tint)}
+.thumb-fallback{width:56px;height:56px;flex:0 0 56px;border-radius:13px;background:var(--orange-tint);
+  color:var(--orange);font-size:19px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.m-body{min-width:0;flex:1}
+.m-t{font-size:14.5px;line-height:1.4;font-weight:700;letter-spacing:-.2px}
+.m-meta{font-size:11.5px;color:var(--sub);margin-top:3px}
+.m-hearts{font-size:12.5px;color:var(--sub);font-weight:600;flex-shrink:0}
+.m-badge{font-size:10.5px;color:var(--orange-deep);background:var(--orange-tint);border-radius:999px;padding:1px 8px;margin-left:6px;vertical-align:1px}
+.empty{font-size:13.5px;color:var(--sub);padding:36px 0;text-align:center}
+.rank-list{background:#fff;border:1px solid var(--hair);border-radius:18px;overflow:hidden;margin-top:4px}
+.rank-item{display:flex;align-items:center;gap:12px;padding:12px 15px;cursor:pointer;border-bottom:1px solid var(--hair);transition:.12s}
+.rank-item:last-child{border-bottom:none}
+.rank-item:hover{background:var(--orange-tint)}
+.rank-no{font-size:16px;font-weight:800;color:var(--orange);width:18px;text-align:center;flex:0 0 18px}
+.rank-body{min-width:0;flex:1}
+.rank-body h4{font-size:13.5px;letter-spacing:-.2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rank-body span{font-size:11.5px;color:var(--sub)}
+.rank-heart{font-size:12px;font-weight:600;color:var(--sub);white-space:nowrap}
 
-  /* 마켓 탭 */
-  .search{display:flex;align-items:center;gap:9px;border-bottom:1.5px solid var(--ink);padding:8px 2px;margin-top:22px;max-width:560px}
-  .search input{flex:1;border:none;background:none;font:inherit;font-size:15px;color:var(--ink);outline:none}
-  .search input::placeholder{color:var(--sub)}
-  .sorts{display:flex;gap:20px;margin-top:14px;align-items:baseline}
-  .sorts button{position:relative;font-family:'Gowun Dodum';font-size:15px;color:var(--sub);background:none;border:none;cursor:pointer;padding:0 0 5px}
-  .sorts button.on{color:var(--ink)}
-  .sorts button.on::after{content:'';position:absolute;left:0;right:0;bottom:0;height:2px;
-      background:var(--ink);border-radius:2px;transform:rotate(-0.6deg)}
-  .m-note{font-size:13px;color:var(--sub);margin-top:22px}
-  .cards{margin-top:6px;max-width:620px}
-  .mcard{padding:16px 2px 14px;border-bottom:1px solid var(--hair);cursor:pointer}
-  .mcard:hover .m-t{text-decoration:underline;text-underline-offset:4px}
-  .mcard.sel{background:var(--st0);border-radius:10px;padding-left:12px;padding-right:12px}
-  .m-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-  .m-t{font-size:16px;line-height:1.4;font-weight:600}
-  .m-hearts{display:flex;align-items:center;gap:5px;margin-top:4px;flex-shrink:0}
-  .m-hearts svg{width:20px;height:20px}
-  .m-hearts span{font-size:15px}
-  .m-hearts .chev{width:15px;height:15px;margin-left:5px}
-  .m-sum{font-size:13.5px;color:var(--sub);margin-top:7px;line-height:1.65;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .m-tags{display:flex;gap:10px;margin-top:9px;flex-wrap:wrap}
-  .m-tags span{font-size:12.5px;color:var(--deep)}
-  .m-badge{font-size:11px;color:var(--sub);border:1px solid var(--hair);border-radius:999px;padding:1px 8px;margin-left:8px;vertical-align:2px}
-  .empty{font-size:14px;color:var(--sub);padding:40px 0;text-align:center}
+/* ═══ CTA ═══ */
+.cta-band{margin-top:110px;background:linear-gradient(180deg,var(--warm),var(--orange-soft));border-top:1px solid var(--hair);padding:80px 30px;text-align:center;color:var(--ink)}
+.cta-band .mface{width:92px;height:92px;margin:0 auto;background:#fff}
+.cta-band .mface img{width:64px;height:64px}
+.cta-band h2{font-size:clamp(24px,3.4vw,38px);font-weight:800;letter-spacing:-.02em;margin-top:14px}
+.cta-band p{font-size:14.5px;color:var(--sub);margin-top:8px}
+.cta-band .store-row{justify-content:center}
+.cta-band .store{background:var(--ink);border-color:var(--ink)}
 
-  /* 서베이 안내 탭 */
-  .survey-box{margin-top:30px;max-width:520px;background:var(--st3);border-radius:16px;padding:26px;text-align:center}
-  .survey-box svg{width:180px;height:130px}
-  .survey-box p{font-size:14px;color:var(--deep);margin-top:12px;line-height:1.8}
+/* ═══ 푸터 ═══ */
+footer{background:#fff;border-top:1px solid var(--hair);padding:44px 30px 60px}
+.foot-in{max-width:1080px;margin:0 auto}
+.foot-top{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:flex-start}
+.foot-co{font-size:13px;color:var(--sub);line-height:2}
+.foot-co b{color:var(--ink);font-size:14px}
+.foot-links{font-size:13px;color:var(--sub);display:flex;gap:14px;flex-wrap:wrap;margin-top:18px}
+.foot-links a{text-decoration:underline;text-underline-offset:3px}
+.en-box{background:var(--warm);border:1px solid var(--hair);border-radius:14px;padding:18px 20px;margin-top:26px}
+.en-box h3{font-size:14px;margin-bottom:8px}
+.en-box p{font-size:12.5px;color:var(--sub);margin-bottom:6px;line-height:1.7}
 
-  .hidden{display:none!important}
+/* ═══ 오버레이 (코스 상세 · 내 여행) ═══ */
+.overlay{position:fixed;inset:0;background:var(--bg);z-index:100;overflow-y:auto;display:none}
+.overlay.on{display:block;animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.ov-in{max-width:860px;margin:0 auto;padding:24px 26px 90px}
+.ov-top{position:sticky;top:0;background:rgba(255,253,251,.94);backdrop-filter:blur(8px);
+  padding:12px 0;display:flex;align-items:center;gap:12px;z-index:5;border-bottom:1px solid var(--hair)}
+.backlink{font-size:14px;font-weight:600;color:var(--sub)}
+.backlink:hover{color:var(--orange)}
+.dt-title{font-size:22px;font-weight:800;line-height:1.4;margin-top:16px;letter-spacing:-.4px}
+.dt-meta{font-size:12.5px;color:var(--sub);margin-top:5px}
+.dt-summary{font-size:13px;color:var(--ink);margin-top:12px;line-height:1.75;background:var(--orange-tint);border-radius:12px;padding:12px 14px}
+.dt-days{margin-top:16px}
+.day-h{font-size:15px;font-weight:800;margin:22px 0 4px;display:flex;gap:8px;align-items:baseline}
+.day-h .c{font-size:12px;color:var(--sub);font-weight:400}
+.day-wrap{display:grid;grid-template-columns:1fr 320px;gap:16px;align-items:start}
+@media(max-width:900px){.day-wrap{grid-template-columns:1fr}.day-map{order:-1}}
+.day-map{height:300px;border:1px solid var(--line);border-radius:12px;overflow:hidden;position:sticky;top:64px;z-index:0}
+.day-map .leaflet-control-attribution{font-size:8px;background:rgba(255,253,251,.7)}
+.map-pin{width:24px;height:24px;border-radius:50%;background:var(--orange);color:#fff;
+  font:700 12px 'Pretendard Variable',Pretendard,sans-serif;display:flex;align-items:center;justify-content:center;
+  border:1.5px solid #fff;box-shadow:0 1px 4px rgba(29,27,25,.35)}
+.travel-chip{display:inline-block;background:rgba(255,253,251,.94);border:1px solid var(--line);
+  border-radius:999px;padding:1px 8px;font:600 10.5px 'Pretendard Variable',Pretendard,sans-serif;color:var(--ink);
+  white-space:nowrap;box-shadow:0 1px 3px rgba(29,27,25,.2);transform:translate(-50%,-50%)}
+.pin-no{display:inline-flex;width:17px;height:17px;border-radius:50%;background:var(--orange);color:#fff;
+  font-size:10.5px;font-weight:700;align-items:center;justify-content:center;margin-right:7px;vertical-align:1px}
+.slot{display:grid;grid-template-columns:46px 1fr;gap:10px;padding:9px 0;border-bottom:1px solid var(--hair)}
+.slot .t{font-size:12px;color:var(--sub);padding-top:2px}
+.slot .ti{font-size:13.5px;line-height:1.5;font-weight:600}
+.slot .ty{font-size:10.5px;color:var(--sub);border:1px solid var(--line);border-radius:999px;padding:0 7px;margin-left:6px;white-space:nowrap}
+.slot .tip{font-size:12px;color:var(--sub);margin-top:3px;line-height:1.6;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.guide-btn{display:inline-flex;align-items:center;gap:4px;font:600 11px 'Pretendard Variable',Pretendard,sans-serif;
+  color:var(--orange-deep);background:none;border:1px solid var(--line);border-radius:999px;
+  padding:1px 9px;margin-left:7px;vertical-align:2px}
+.guide-btn:hover{background:var(--orange-tint)}
+.bucket-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px 16px 14px;margin:10px 0 4px}
+.bucket-card h5{font-size:14.5px;font-weight:800}
+.bucket-card .cat{font-size:11px;color:var(--sub);border:1px solid var(--line);border-radius:999px;padding:0 8px;margin-left:8px;vertical-align:2px}
+.bucket-card .desc{font-size:13px;color:var(--ink);line-height:1.75;margin-top:8px}
+.bucket-card .vinfo{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;margin-top:11px;font-size:12.5px}
+.bucket-card .vinfo dt{color:var(--sub)}
+.bucket-card .vinfo dd{color:var(--ink)}
+.bucket-card .tips{margin-top:11px;border-top:1px dashed var(--line);padding-top:10px}
+.bucket-card .tips .tl{font-size:12.5px;font-weight:800;color:var(--orange)}
+.bucket-card .tips p{font-size:12.5px;color:var(--ink);line-height:1.7;margin-top:4px}
+.bucket-photo{display:block;max-width:100%;max-height:240px;width:auto;height:auto;
+  border-radius:12px;border:1px solid var(--hair);margin:12px auto 0}
+.photo-credit{font-size:10.5px;color:var(--faint);margin-top:4px;text-align:center}
+.pspots{margin-top:11px;border-top:1px dashed var(--line);padding-top:10px}
+.pspots .tl{font-size:12.5px;font-weight:800;color:var(--ink)}
+.pspots p{font-size:12.5px;color:var(--ink);line-height:1.7;margin-top:4px}
+.audio-row{display:flex;align-items:center;gap:10px;margin-top:13px;border-top:1px dashed var(--line);padding-top:12px}
+.audio-btn{width:38px;height:38px;border-radius:50%;border:1.6px solid var(--orange);background:#fff;
+  font-size:14px;color:var(--orange);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.audio-btn:hover{background:var(--orange-tint)}
+.audio-row .al{font-size:12.5px;color:var(--sub)}
+.take{display:block;width:100%;margin-top:22px;font-size:14.5px;font-weight:800;color:#fff;
+  background:var(--orange);border-radius:13px;padding:14px;text-align:center}
+.take:hover{filter:brightness(1.07)}
+.take-note{font-size:12px;color:var(--sub);text-align:center;margin-top:8px;display:none}
+.btn-go{display:inline-block;margin-top:24px;background:var(--orange);color:#fff;font-size:14px;font-weight:700;
+  border-radius:999px;padding:13px 26px;transition:.15s}
+.btn-go:hover{filter:brightness(1.07)}
+.take-note .applink{color:var(--orange);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+
+/* 내 여행 오버레이 카드 */
+.trip-card{background:#fff;border:1px solid var(--hair);border-radius:16px;padding:16px 18px;margin-top:12px}
+.trip-row1{display:flex;align-items:center;gap:9px}
+.badge-plan{font-size:11.5px;font-weight:700;color:var(--orange);background:var(--orange-tint);border-radius:999px;padding:3px 10px}
+.badge-done{font-size:11.5px;font-weight:700;color:var(--green);background:var(--green-soft);border-radius:999px;padding:3px 10px}
+.trip-row1 .dep{font-size:12px;color:var(--sub)}
+.trip-row1 .dday{margin-left:auto;font-size:15px;font-weight:800;color:var(--orange)}
+.trip-card h4{font-size:16px;font-weight:800;margin-top:8px;letter-spacing:-.3px}
+.trip-card .tm{font-size:12.5px;color:var(--sub);margin-top:2px}
 </style>
 </head>
 <body>
-<div class="split">
 
-  <!-- ══════ 왼쪽 ══════ -->
-  <aside class="left">
-    <!-- 홈 모드 -->
-    <div id="leftHome">
-      <div class="brush brand-sub">모든이의 꿈 · 모드니</div>
-      <svg class="mark" viewBox="0 0 240 300" fill="none" stroke="#1c1a17" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round">
-      <!-- ㅗ 가로획 = 땅 -->
-      <g class="d1">
-        <path class="mark-line" d="M50 250 Q120 242 192 250"></path>
-        <path class="mark-line" d="M68 262 L75 255"></path>
-        <path class="mark-line" d="M170 262 L177 255"></path>
-      </g>
-      <!-- ㅗ 세로획 = 표지판 기둥 -->
-      <g class="d2">
-        <path class="mark-line" d="M120 250 L120 122"></path>
-      </g>
-      <!-- ㅁ = 방향 표지판 (오른쪽으로 가리킴) -->
-      <g class="d3">
-        <path class="mark-line" d="M72 48 L150 45 L188 84 L150 123 L75 124 Z"></path>
-      </g>
-      <!-- 빨간 보따리: 기둥에 묶어 늘어뜨린 봇짐 -->
-      <g class="d3" stroke="#B3372B">
-        <path class="mark-line" stroke-width="3" d="M121 165 Q145 172 154 194"></path>
-        <path class="mark-line" stroke-width="3.2" d="M154 194 Q172 192 174 210 Q175 228 156 230 Q138 231 137 214 Q136 198 151 194.5"></path>
-        <path class="mark-line" stroke-width="2.6" d="M150 193 Q154 186 159 192.5"></path>
-      </g>
-    </svg>
-      <h1 class="serif brand">여행의 모든 것</h1>
-      <p class="tagline">취향을 말하면 모드니가 밑그림을 그리고,<br>일정과 호텔, 예약으로 채워 드립니다.</p>
-      <div class="home-btns">
-        <button class="hbtn" id="btnMarket">마켓에서 여행 고르기 <span class="arr">→</span></button>
-        <button class="hbtn" id="btnSurvey">나만의 여행 만들기 <span class="arr">→</span></button>
-      </div>
-      <div class="auth">
-        <div class="whoami hidden" id="whoami"></div>
-        <div class="login-row">
-          <button class="gbtn" id="btnLogin">Google로 로그인</button>
-          <button class="gbtn soon" type="button" title="곧 만나요!">카카오로 로그인 <span style="font-size:11px">(준비 중)</span></button>
-          <button class="gbtn hidden" id="btnLogout">로그아웃</button>
-        </div>
-        <div class="mytrips hidden" id="myTrips">
-          <h4>내 여행</h4>
-          <div id="myTripsList"></div>
-        </div>
-        <div class="foot">
-          (주)하우스두둥 · 핵심 기술 특허 출원 중 · <a href="terms.html">이용약관</a> · <a href="privacy.html">개인정보처리방침</a><br>
-          문의 <a href="mailto:horace1201@gmail.com">horace1201@gmail.com</a>
-        </div>
-      </div>
+<!-- ═══ 상단바 ═══ -->
+<header class="topbar" id="topbar">
+  <button class="tb-burger" onclick="toggleMenu()" aria-label="메뉴"><span></span><span></span><span></span></button>
+  <button class="tb-login" id="tbLogin">로그인</button>
+  <div class="sp"></div>
+  <button class="tb-login" id="langBtn" style="letter-spacing:.04em">ENG</button>
+  <div class="tb-brand"><img src="assets/icon.png" alt="">여행의 모든것</div>
+</header>
+
+<!-- ═══ 왼쪽 슬라이드 메뉴 ═══ -->
+<div class="scrim" onclick="toggleMenu()"></div>
+<nav class="drawer" id="drawer">
+  <div class="dw-main">
+    <div class="dw-head"><button class="dw-close" onclick="toggleMenu()" aria-label="닫기">✕</button></div>
+    <div class="dw-auth" id="dwAuth">
+      <div class="big"><u onclick="login()">로그인/회원가입</u></div>
     </div>
-
-    <!-- 코스 상세 모드 -->
-    <div id="leftDetail" class="hidden">
-      <button class="backlink" id="btnBack">← 처음으로</button>
-      <div id="detailBody">
-        <div class="empty">일정을 펼치는 중…</div>
-      </div>
+    <div class="dw-nav">
+      <button class="dw-item" data-sub="trips">내 여행 <span class="chev">›</span></button>
+      <button class="dw-item" data-sub="market">여행 마켓 <span class="tag">코스 담아가기</span><span class="chev">›</span></button>
+      <button class="dw-item" onclick="goSect('plan')">AI 맞춤 일정</button>
+      <button class="dw-item" data-sub="feats">기능 소개 <span class="chev">›</span></button>
+      <button class="dw-item" onclick="goSect('cta')">앱 다운로드</button>
+      <button class="dw-item" data-sub="company">회사 · 파트너 <span class="chev">›</span></button>
     </div>
-  </aside>
+    <div class="dw-foot">© (주)하우스두둥 · 핵심 기술 특허 출원 중<br>문의 horace1201@gmail.com</div>
+  </div>
+  <div class="dw-side" id="dwSide"></div>
+</nav>
 
-  <!-- ══════ 오른쪽 ══════ -->
-  <main class="right">
+<!-- ═══ 히어로 ═══ -->
+<section class="hero">
+  <img class="bg" src="https://images.unsplash.com/photo-1547234935-80c7145ec969?w=1800&q=70&auto=format&fit=crop" alt="우유니 소금사막"
+       onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1570077188670-6a96d69a8f83?w=1800&q=70&auto=format&fit=crop'">
+  <div class="shade"></div>
+  <div class="hero-in">
+    <p class="eyebrow" id="heroEyebrow">계획부터 추억까지, AI 여행 메이트</p>
+    <h1 id="heroTitle">여행의 모든 것을,<br>한 곳에서</h1>
+    <div class="modni-line">
+      <span class="mface"><img src="assets/modni_symbol.png" alt="모드니"></span>
+      <span id="heroModni">모든이의 꿈 · <b>모드니</b>가 함께 그려 드려요</span>
+    </div>
+    <div class="store-row">
+      <a class="store" href="#cta">▶ <span>Google Play<small>곧 출시</small></span></a>
+      <a class="store" href="#cta"> <span>App Store<small>준비 중</small></span></a>
+    </div>
+  </div>
+  <div class="scroll-hint">아래로 스크롤<br>⌄</div>
+</section>
 
-    <!-- 안내 탭 -->
-    <section class="rtab on" id="tabIntro">
-      <h2 class="r-title">여행의 모든 것을, 한 곳에서</h2>
-      <p class="r-sub">AI 여행 메이트 모드니가 코스 제안부터 Day별 일정, 호텔·예약 연결, 여행 후 추억 영상까지 함께합니다.<br><span style="font-size:11.5px;color:var(--sub)">✦ 핵심 기술 특허 출원 중</span></p>
-      <div class="feat">
-        <div class="row"><svg class="fic" viewBox="0 0 48 48" fill="none" stroke="#1A1815" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="icon-line" stroke-width="2.7" d="M24 39 C11 29 8 17 16 12.5 C21 10 24 15 24 17.5"></path><path class="icon-line" stroke-width="2.4" d="M25 38 C38 28 40 16 32 12 C27 10 24.5 14 24.5 17"></path></svg><div><b>맞춤 코스 제안</b><p>취향·동행·예산을 물어보고 모드니가 코스를 여러 개 그려 드려요. "온천 위주로", "걷기는 줄여줘" — 말만 하면 AI가 취향 따라 일정을 다시 그립니다.</p></div></div>
-        <div class="row"><svg class="fic" viewBox="0 0 48 48" fill="none" stroke="#1A1815" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="icon-line" stroke-width="2.5" d="M10 15 L38 13.5 L39.5 38 L9.5 39.5 L10 16.5"></path><path class="icon-line" stroke-width="2.6" d="M16 9 L16.5 17"></path><path class="icon-line" stroke-width="2.6" d="M31 8.5 L31.5 16.5"></path><path class="icon-line" stroke-width="2.2" d="M11 22 L38.5 21"></path><path class="icon-line" stroke-width="2.3" d="M27.5 30 Q29.5 27.5 31.5 30 Q29.5 32.5 27.8 30.4"></path></svg><div><b>홈 투 홈 일정표</b><p>집을 나서는 순간부터 돌아오는 순간까지 — 공항 이동, 체크인, 동선과 식사까지 시간 단위로 상세하게 그려 드려요.</p></div></div>
-        <div class="row"><svg class="fic" viewBox="0 0 48 48" fill="none" stroke="#1A1815" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="icon-line" stroke-width="2.6" d="M10 20 L17 19.5 L25 12 L25.5 36 L17.5 29.5 L10.5 30 L10 21"></path><path class="icon-line" stroke-width="2.3" d="M31 18 Q35 24 31.5 30"></path><path class="icon-line" stroke-width="2.2" d="M36 14 Q42 24 36.5 34"></path></svg><div><b>여행지 음성 가이드</b><p>장소마다 도슨트처럼 들려주는 오디오 가이드. 미리 담아두면 인터넷이 안 되는 비상상황에도 가이드와 길 안내를 받을 수 있어요.</p></div></div>
-        <div class="row"><svg class="fic" aria-hidden="true" viewBox="0 0 48 48" fill="none" stroke="#1A1815" stroke-linecap="round" stroke-linejoin="round">
-          <path class="icon-line" stroke-width="2.8" d="M8 17 L7.5 37"></path>
-          <path class="icon-line" stroke-width="2.4" d="M8 28 Q24 26.5 41 28"></path>
-          <path class="icon-line" stroke-width="2.6" d="M41 23 L41.5 37"></path>
-          <path class="icon-line" stroke-width="2.2" d="M12 24 Q16 21 20 24"></path>
-        </svg><div><b>호텔 스마트 추천</b><p>묵기 좋은 지역과 예산에 맞는 호텔을 골라, 날짜·인원이 채워진 예약 페이지로 바로 연결해요.</p></div></div>
-        <div class="row"><svg class="fic" viewBox="0 0 48 48" fill="none" stroke="#1A1815" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="icon-line" stroke-width="2.4" d="M7 29 Q22 21 41 11"></path><path class="icon-line" stroke-width="2.8" d="M40 12 Q35 24 29 37"></path><path class="icon-line" stroke-width="2.3" d="M30 36 Q25 31 20 28"></path><path class="icon-line" stroke-width="2.6" d="M8 29 Q14 28.5 19 28"></path><path class="icon-line" stroke-width="2.2" d="M20 28 Q30 20 39 13"></path></svg><div><b>항공·렌터카·액티비티</b><p>여행에 필요한 예약 검색을 한 곳에서 연결해요. 항공, 렌터카, 골프, 입장권까지.</p></div></div>
-        <div class="row"><svg class="fic" viewBox="0 0 48 48" fill="none" stroke="#1A1815" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="icon-line" stroke-width="2.5" d="M12 8.5 L34 7.5 L36.5 40 L10.5 41 L12 10"></path><path class="icon-line" stroke-width="2.2" d="M16 16 L31 15.3"></path><path class="icon-line" stroke-width="2.2" d="M16.5 22 L31.5 21.4"></path><path class="icon-line" stroke-width="2.3" d="M16.5 28 L26 27.6"></path><path class="icon-line" stroke-width="2.6" d="M28 30 Q34 28 37 33 Q34.5 39 29 36.5 Q26 34 28.4 30.5"></path><path class="icon-line" stroke-width="2.4" d="M37 37.5 L41.5 42"></path></svg><div><b>예약 확인증 자동 정리</b><p>예약 확인증은 사진 한 장이면 끝 — 모드니가 읽어서 일정 속 제자리에 정리해 둬요.</p></div></div>
-        <div class="row"><svg class="fic" viewBox="0 0 48 48" fill="none" stroke="#1A1815" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="icon-line" stroke-width="2.5" d="M10 11 L37.5 9.5 L39 38 L9.5 39.5 L10 12.5"></path><path class="icon-line" stroke-width="2.7" d="M16 24 Q20 30 22.5 30.5 Q28 22 34 15.5"></path></svg><div><b>준비물·예산 챙기기</b><p>여행별 준비물 체크리스트와 경비 계획까지, 떠나기 전 챙길 것들을 한눈에.</p></div></div>
-        <div class="row"><svg class="fic" viewBox="0 0 48 48" fill="none" stroke="#1A1815" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="icon-line" stroke-width="2.6" d="M15 32 Q13 18 24 13 Q35 17 34 31.5"></path><path class="icon-line" stroke-width="2.4" d="M10.5 33.5 Q24 31 38 32.5"></path><path class="icon-line" stroke-width="2.3" d="M21 38 Q24 41.5 27.3 38.3"></path><path class="icon-line" stroke-width="2.2" d="M23 9 Q24.5 7 26 9.2"></path></svg><div><b>필요한 순간의 알림</b><p>여행 준비부터 일정까지, 놓치기 쉬운 순간들을 모드니가 챙겨서 알려 드려요.</p></div></div>
-        <div class="row"><svg class="fic" viewBox="0 0 48 48" fill="none" stroke="#B3372B" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="icon-line" stroke-width="2.3" d="M14 8 Q23 11 26.5 19"></path><path class="icon-line" stroke-width="2.6" d="M26.5 19 Q37 18 38 28.5 Q38.5 39 27.5 40 Q17 40.5 16.5 30.5 Q16 21 25 19.2"></path><path class="icon-line" stroke-width="2.2" d="M24.5 18.5 Q27 14.5 30 18.2"></path></svg><div><b>여행 마켓</b><p>모드니와 여행자들이 완성한 진짜 일정을 구경하는 곳. 자랑하는 사람과 담아가는 사람이 만나요.</p></div></div>
-        <div class="row"><svg class="fic" viewBox="0 0 48 48" fill="none" stroke="#1A1815" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="icon-line" stroke-width="2.5" d="M9 14 L38.5 12.5 L40 36 L8.5 37.5 L9 15.5"></path><path class="icon-line" stroke-width="2.6" d="M20 19 Q28 24 20.5 30 L20 20"></path><path class="icon-line" stroke-width="2.2" d="M9.5 20 L14 19.8"></path><path class="icon-line" stroke-width="2.2" d="M10 28 L14.5 27.7"></path><path class="icon-line" stroke-width="2.2" d="M34 18.5 L38.8 18.2"></path><path class="icon-line" stroke-width="2.2" d="M34.5 27 L39.3 26.7"></path></svg><div><b>추억 영상</b><p>다녀온 뒤 사진을 고르면 장소 자막과 음악이 어우러진 나만의 여행 영상이 완성돼요.</p></div></div>
-      </div>
+<!-- ═══ S1. 일정 ═══ -->
+<section class="sect" id="sect-plan">
+  <div class="reveal">
+    <p class="eyebrow">여행 전 · 계획 — 예약 — 준비</p>
+    <h2>나만의 여행 일정,<br>모드니가 3분 만에 그려요</h2>
+    <p class="lead">취향·동행·예산을 말하면 코스를 여러 개 그려 드려요. "온천 위주로", "걷기는 줄여줘" — 말만 하면 다시 그립니다. 집을 나서는 순간부터 돌아오는 순간까지, 홈 투 홈 일정표.</p>
+    <button class="btn-go" id="planCta" onclick="goSect('cta')">나만의 일정 만들기 — 앱에서 →</button>
+  </div>
+  <div class="duo">
+    <div class="mock reveal">
+      <div class="mh"><span class="badge">Day 2</span><b>오사카 · 벚꽃 코스</b></div>
+      <div class="mslot"><span class="t">09:30</span><div><b>오사카성 공원</b><p>벚꽃 명소 — 니시노마루 정원이 포인트</p></div></div>
+      <div class="mslot"><span class="t">12:00</span><div><b>이치란 본점</b><p>돈코츠 라멘 — 웨이팅 30분 예상</p></div></div>
+      <div class="mslot"><span class="t">14:00</span><div><b>도톤보리 · 신사이바시</b><p>글리코상 포토스팟 → 쇼핑</p></div></div>
+      <div class="mslot"><span class="t">18:30</span><div><b>우메다 공중정원</b><p>노을 시간 맞춰 전망대</p></div></div>
+      <div class="foot-note">실제 앱 일정표 예시 화면</div>
+    </div>
+    <div class="mock reveal" style="transition-delay:.15s">
+      <div class="mh"><span class="badge">떠나기 전</span><b>준비도 모드니가 챙겨요</b></div>
+      <div class="mslot"><span class="t">🧾</span><div><b>예약을 한꺼번에</b><p>호텔·항공·렌터카·티켓 — 일정에 맞춰 한 번에</p></div></div>
+      <div class="mslot"><span class="t">📸</span><div><b>예약 확인증 자동 정리</b><p>사진 한 장이면 일정 속 제자리에</p></div></div>
+      <div class="mslot"><span class="t">🎒</span><div><b>준비물 목록 · 체크리스트</b><p>여행 스타일에 맞게 자동으로 만들어 드려요</p></div></div>
+      <div class="mslot"><span class="t">🔔</span><div><b>필요한 순간의 알림</b><p>놓치기 쉬운 순간만, 조용하게</p></div></div>
+    </div>
+  </div>
+</section>
 
-      <div class="hl">
-        <div class="box">
-          <h3><span class="brush">자랑</span>하고 싶은 여행이라면</h3>
-          <p>내가 완성한 일정을 마켓에 발행해 보세요. 다른 여행자들이 하트를 누르고, 내 여행을 담아갑니다.</p>
-        </div>
-        <div class="box red">
-          <h3>짜기 귀찮다면, <span class="brush">통째로</span></h3>
-          <p>마음에 드는 일정을 그대로 담아오세요. 내 날짜에 맞게 전체 일정이 바뀌고, 호텔·항공 예약까지 한 번에 이어집니다.</p>
-          <span class="go" id="goMarket">마켓 구경하기 →</span>
-        </div>
-      </div>
-      <span class="play">Google Play<small>곧 출시</small></span>
-    </section>
+<!-- ═══ S2. 마켓 (라이브) ═══ -->
+<section class="sect" id="sect-market">
+  <div class="reveal">
+    <p class="eyebrow">여행 마켓 · 이미 완성된 여행</p>
+    <h2>일정을 통째로 가져오면,<br>더 간편해요</h2>
+    <p class="lead">직접 짜는 게 번거롭다면, 여행자들이 완성한 진짜 일정을 그대로 담아오세요 — 내 날짜에 맞게 전체 일정이 다시 그려지고, 예약까지 한 번에 이어집니다.</p>
+  </div>
 
-    <!-- 마켓 탭 -->
-    <section class="rtab" id="tabMarket">
-      <h2 class="r-title">마켓</h2>
-      <div class="search">
-        <svg viewBox="0 0 24 24" style="width:19px;height:19px" fill="none" stroke="#6B665E" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10" r="5.5"/><path d="M15 14.5 L20 19.5"/></svg>
-        <input id="q" type="search" placeholder="여행지, 태그로 검색" autocomplete="off">
-      </div>
+  <div class="picks reveal" id="picks"></div>
+
+  <div class="mkt-tools reveal">
+    <div class="search"><span style="color:var(--faint)">🔍</span><input id="q" type="search" placeholder="여행지, 태그로 검색" autocomplete="off"></div>
+    <div class="chips" id="chips">
+      <button data-filter="all" class="on">전체</button>
+      <button data-filter="modni">모드니 ✨</button>
+      <button data-filter="short">짧은 여행</button>
+      <button data-filter="long">긴 여행</button>
+    </div>
+  </div>
+
+  <div class="reveal" style="margin-top:10px">
+    <div class="m-sub">지역별로 둘러보기</div>
+    <div class="regions" id="regions"></div>
+  </div>
+
+  <div class="reveal">
+    <div class="m-sub">인기 코스 TOP 5</div>
+    <div class="rank-list" id="top5" style="max-width:680px"><div class="empty">코스를 불러오는 중…</div></div>
+  </div>
+
+  <div class="reveal">
+    <div class="m-sub">전체 코스
       <div class="sorts">
         <button data-sort="latest" class="on">최신순</button>
-        <button data-sort="downloads">담기 많은 순</button>
-        <button data-sort="hearts">하트 순</button>
+        <button data-sort="downloads">담기순</button>
+        <button data-sort="hearts">하트순</button>
       </div>
-      <div class="m-note">마음에 드는 코스를 내 일정으로 담아보세요</div>
-      <div class="cards" id="cards"><div class="empty">코스를 불러오는 중…</div></div>
-    </section>
+    </div>
+    <div class="grid-cards" id="cards"><div class="empty">코스를 불러오는 중…</div></div>
+  </div>
+</section>
 
-    <!-- 서베이 안내 탭 -->
-    <section class="rtab" id="tabSurvey">
-      <h2 class="r-title">나만의 여행 만들기</h2>
-      <p class="r-sub">모드니에게 취향을 알려주면, 나만의 코스와 일정이 완성돼요.</p>
-      <div class="survey-box">
-        <svg viewBox="0 0 200 160" fill="none" stroke="#1A1815" stroke-linecap="round" stroke-linejoin="round">
-          <path stroke-width="2.3" d="M22 150 Q100 145 178 150"></path>
-          <g style="transform:rotate(9deg); transform-origin:58px 148px;">
-            <path stroke-width="2.7" d="M58 100 L58 148"></path>
-            <path stroke-width="2.6" d="M34 64 L70 61.5 L88 80 L70 98 L36 99 L35 66"></path>
-          </g>
-          <path class="mo-writeline" stroke-width="2.3" d="M96 138 q8 -12 16 0 q8 12 16 0 q8 -12 16 0 q8 12 16 0"></path>
-          <g class="mo-pen" style="offset-path:path('M96 138 q8 -12 16 0 q8 12 16 0 q8 -12 16 0 q8 12 16 0');">
-            <path stroke-width="2.5" d="M0 -2 L11 -17"></path>
-            <path stroke-width="2.2" d="M5 -12 Q10 -16 11 -10"></path>
-          </g>
-        </svg>
-        <p>여행 만들기는 <b>앱에서</b> 준비하고 있어요.<br>Google Play 출시와 함께 만나요!</p>
-        <span class="play" style="margin-top:16px">Google Play<small>곧 출시</small></span>
+<!-- ═══ S3. 호텔·예약 ═══ -->
+<section class="sect" id="sect-hotel">
+  <div class="reveal">
+    <p class="eyebrow">여행 전 · 호텔 — 예약</p>
+    <h2>예산에 맞는 호텔,<br>날짜까지 채워서 연결해요</h2>
+    <p class="lead">묵기 좋은 지역과 예산에 맞는 호텔을 골라, 날짜·인원이 채워진 예약 페이지로 바로 연결합니다. 항공·렌터카·액티비티 검색도 한 곳에서.</p>
+  </div>
+  <div class="duo">
+    <div class="mock hcard reveal">
+      <div class="mh"><span class="badge">난바 · 도톤보리</span><b>호텔 스마트 추천</b></div>
+      <div style="font-size:15px;font-weight:800;margin-top:6px">크로스 호텔 오사카</div>
+      <div style="font-size:12px;color:var(--sub)">도톤보리 도보 1분 · ★8.7</div>
+      <div class="hrow"><span class="price">1박 189,000원~</span><span class="ref">조회 시점 기준</span></div>
+      <div class="hbtns"><span class="b1">지금 예약하기</span><span class="b2">더 많은 호텔 보기</span></div>
+      <div class="foot-note">실제 앱 호텔 추천 카드 예시</div>
+    </div>
+    <div class="mock reveal" style="transition-delay:.15s">
+      <div class="mh"><span class="badge">한 곳에서</span><b>예약 검색 연결</b></div>
+      <div class="mslot"><span class="t">✈️</span><div><b>항공</b><p>날짜·공항 채워진 검색으로 바로</p></div></div>
+      <div class="mslot"><span class="t">🚗</span><div><b>렌터카</b><p>여행 일정에 맞춘 픽업·반납</p></div></div>
+      <div class="mslot"><span class="t">🎟️</span><div><b>투어 · 입장권</b><p>액티비티와 티켓까지</p></div></div>
+      <div class="mslot"><span class="t">⛳</span><div><b>골프</b><p>해외 골프장 예약 연결</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ S2.5 여행 중 ═══ -->
+<section class="sect" id="sect-during">
+  <div class="reveal">
+    <p class="eyebrow">여행 중 · 모드니가 따라다녀요</p>
+    <h2>여행지에서도,<br>모드니는 쉬지 않아요</h2>
+    <p class="lead">낯선 도시에서 헤매는 시간을 줄여 드려요. 맛집 찾기부터 길 위의 가이드, 저녁의 정산까지 — 여행 중의 모든 순간을 함께합니다.</p>
+  </div>
+  <div class="duo">
+    <div class="mock reveal">
+      <div class="mh"><span class="badge">여행 중</span><b>길 위의 모드니</b></div>
+      <div class="mslot"><span class="t">🍜</span><div><b>맛집을 종류별로 추천</b><p>라멘·스시·카페·디저트 — 지금 있는 곳 근처에서 골라서</p></div></div>
+      <div class="mslot"><span class="t">🎧</span><div><b>이동 중 따라다니는 가이드</b><p>장소마다 이야기를 들려줘요 — 도슨트가 필요 없어요</p></div></div>
+      <div class="mslot"><span class="t">🧭</span><div><b>오프라인에서도</b><p>미리 담아두면 인터넷이 끊겨도 가이드와 길 안내</p></div></div>
+    </div>
+    <div class="mock reveal" style="transition-delay:.15s">
+      <div class="mh"><span class="badge">🧾 정산</span><b>영수증 사진만 찍으면 끝</b></div>
+      <div class="mslot"><span class="t">저녁</span><div><b>이자카야 · 46,000엔</b><p>영수증 촬영 → 모드니가 읽고 기록</p></div></div>
+      <div class="mslot"><span class="t">인별</span><div><b>4명 · 각 11,500엔</b><p>인별 비용 정산을 대신 해드려요</p></div></div>
+      <div class="mslot"><span class="t">합계</span><div><b>여행 경비 자동 집계</b><p>예산 대비 지출을 한눈에</p></div></div>
+      <div class="foot-note">실제 앱 정산 기능 예시</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ S4. 추억 ═══ -->
+<section class="sect" id="sect-memory">
+  <div class="reveal">
+    <p class="eyebrow">여행 후 · 여행의 끝은 앱의 끝이 아니에요</p>
+    <h2>다녀온 뒤엔, 추억 영상으로</h2>
+    <p class="lead">사진을 고르면 장소 자막과 음악이 어우러진 나만의 여행 영상이 완성돼요. 자랑하고 싶은 일정은 마켓에 발행해 보세요 — 다른 여행자들이 하트를 누르고 담아갑니다.</p>
+  </div>
+</section>
+
+<!-- ═══ CTA ═══ -->
+<section class="cta-band" id="cta">
+  <span class="mface"><img src="assets/modni_symbol.png" alt="모드니"></span>
+  <h2 id="ctaTitle">모드니와 첫 여행, 함께 그려볼까요?</h2>
+  <p id="ctaP">Google Play 출시와 함께 만나요 — App Store도 준비 중이에요.</p>
+  <div class="store-row">
+    <span class="store">▶ <span>Google Play<small>곧 출시</small></span></span>
+    <span class="store"> <span>App Store<small>준비 중</small></span></span>
+  </div>
+</section>
+
+<!-- ═══ 푸터 ═══ -->
+<footer id="company">
+  <div class="foot-in">
+    <div class="foot-top">
+      <div class="foot-co">
+        <b>(주)하우스두둥 사업자정보</b><br>
+        AI 여행 플래닝 「여행의 모든것」 · 핵심 기술 특허 출원 중<br>
+        문의 <a href="mailto:horace1201@gmail.com" style="color:var(--orange)">horace1201@gmail.com</a>
       </div>
-    </section>
+    </div>
+    <div class="foot-links">
+      <a href="terms.html">서비스 이용약관</a>
+      <a href="privacy.html"><b>개인정보 처리방침</b></a>
+      <a href="mailto:horace1201@gmail.com">고객센터</a>
+    </div>
+    <div class="en-box">
+      <h3>🌐 About All About Trip <span style="font-size:11px;color:var(--faint);font-weight:400">(for our global partners)</span></h3>
+      <p><b>All About Trip</b> is an AI travel-planning app for the Korean market by House Dudung Inc. Our AI companion "Modni" builds each user's complete trip — optimal itinerary, optimal zones, and optimal hotels matched to budget and preferences — designed to maximize booking completion.</p>
+      <p>We connect users directly to partner booking pages with dates and guests pre-filled. Partnership inquiries: <b>horace1201@gmail.com</b></p>
+    </div>
+  </div>
+</footer>
 
-  </main>
+<!-- ═══ 오버레이: 코스 상세 ═══ -->
+<div class="overlay" id="ovDetail">
+  <div class="ov-in">
+    <div class="ov-top"><button class="backlink" onclick="closeOverlay()">← 돌아가기</button></div>
+    <div id="detailBody"><div class="empty">일정을 펼치는 중…</div></div>
+  </div>
+</div>
+
+<!-- ═══ 오버레이: 내 여행 ═══ -->
+<div class="overlay" id="ovTrips">
+  <div class="ov-in">
+    <div class="ov-top"><button class="backlink" onclick="closeOverlay()">← 돌아가기</button></div>
+    <h2 style="font-size:22px;font-weight:800;margin-top:16px">내 여행</h2>
+    <p style="font-size:13px;color:var(--orange);margin-top:4px">모드니와 함께한 여행들이에요</p>
+    <div id="tripsBody"><div class="empty">로그인하면 내 여행을 볼 수 있어요.</div></div>
+  </div>
 </div>
 
 <script>
 /* ─────────────────────────────────────────
-   여행의 모든것 웹 1차 — 홈+안내+마켓+상세 (모노크롬 · 모드니 시안)
+   여행의 모든것 웹 3차 — 풀스크린 랜딩 + 왼쪽 슬라이드 메뉴 + 스크롤 리빌 (트리플 스타일)
+   보존: 마켓(라이브) · 코스 상세(지도·가이드·오디오) · Google 인증 · 내 여행 · 꿈조각
 ───────────────────────────────────────── */
 const SUPABASE_URL = "https://gecmrywieyntzzwthvlg.supabase.co";
 const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdlY21yeXdpZXludHp6d3RodmxnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0NzU0ODIsImV4cCI6MjA5NDA1MTQ4Mn0.Cakqtz_AOHgNIVWHXyl_v-Dj7bSIJKoPSNbkbAqRemg";
@@ -373,47 +529,208 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 const $ = (id) => document.getElementById(id);
 
 const TYPE_KO = { flight:"항공", checkin:"체크인", checkout:"체크아웃", visit:"관광", meal:"식사", move:"이동" };
-const PIN_ICON = `<svg viewBox="0 0 48 48" style="width:13px;height:13px;vertical-align:-2px" fill="none" stroke="#B3372B" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M24 40 C15 29 12.5 21 17 14.5 Q24 6.5 31 14 C35.5 20.5 33.5 28.5 24.5 39"></path><path d="M24 14.5 Q28 15 27.5 19 Q27 22.5 23.5 22 Q20.5 21.5 21 18 Q21.3 15.3 23.5 14.7"></path></svg>`;
+const stripPrefix = (t) => (t||"").replace(/^\(모드니 무료\)\s*/, "");
 
-let courses = [];          // 마켓 목록 캐시
-let sortKey = "latest";
-let selectedId = null;
-
-/* ── 오른쪽 탭 전환 ── */
-function showTab(name){
-  ["tabIntro","tabMarket","tabSurvey"].forEach(t => $(t).classList.toggle("on", t === name));
-  document.querySelector(".right").classList.toggle("market", name === "tabMarket");
-  $("btnMarket").classList.toggle("on", name === "tabMarket");
-  $("btnSurvey").classList.toggle("on", name === "tabSurvey");
-  if (name !== "tabMarket") closeDetail();
+/* ── 도시 이미지 (앱 lib/cityImages.ts 포팅) ── */
+const IMG = (id) => `https://images.unsplash.com/photo-${id}?w=800&q=60&auto=format&fit=crop`;
+const BASE_IMG = {
+  eiffel:IMG('1502602898657-3e91760cbb34'), riviera:IMG('1491166617655-0723a0999cfc'),
+  lavender:IMG('1499002238440-d264edd596ec'), garden:IMG('1470240731273-7821a6eeb6bd'),
+  acropolis:IMG('1555993539-1732b0258235'), santorini:IMG('1570077188670-6a96d69a8f83'),
+  mykonos:IMG('1601581875039-e899893d520c'), toronto:IMG('1517935706615-2717063c2225'),
+  falls:IMG('1432405972618-c60b0225b8f9'), osaka:IMG('1590559899731-a382839e5549'),
+  kyoto:IMG('1493976040374-85c8e12f0c0e'), sakura:IMG('1522383225653-ed111181a951'),
+  bangkok:IMG('1508009603885-50cf7c579365'), taipei:IMG('1470004914212-05527e49370b'),
+  sagrada:IMG('1583422409516-2895a77efded'), hoian:IMG('1559592413-7cec4d0cae2b'),
+  rome:IMG('1552832230-c0197dd311b5'), venice:IMG('1514890547357-a9ee288728e0'),
+  phuket:IMG('1552465011-b4e21bf6e79a'), doiinthanon:IMG('1512553353614-82a7370096dc'),
+  palawan:IMG('1518509562904-e7ef99cdcc86'), bali:IMG('1537996194471-e657df975ab4'),
+  singapore:IMG('1525625293386-3f8f99389edd'),
+};
+const CITY_IMAGES = {
+  파리:BASE_IMG.eiffel, 니스:BASE_IMG.riviera, 아를:BASE_IMG.lavender, 지베르니:BASE_IMG.garden,
+  아테네:BASE_IMG.acropolis, 산토리니:BASE_IMG.santorini, 미코노스:BASE_IMG.mykonos,
+  토론토:BASE_IMG.toronto, 나이아가라:BASE_IMG.falls, 몬트리올:BASE_IMG.toronto, 퀘벡시티:BASE_IMG.toronto,
+  오사카:BASE_IMG.osaka, 교토:BASE_IMG.kyoto, 나라:BASE_IMG.kyoto, 고베:BASE_IMG.osaka,
+  사가:BASE_IMG.osaka, 후쿠오카:BASE_IMG.osaka, 아오모리:BASE_IMG.sakura, 히로사키:BASE_IMG.sakura,
+  방콕:BASE_IMG.bangkok, 치앙마이:BASE_IMG.doiinthanon, 푸켓:BASE_IMG.phuket, 끄라비:BASE_IMG.phuket,
+  세부:BASE_IMG.palawan, 보라카이:BASE_IMG.palawan, 발리:BASE_IMG.bali, 우붓:BASE_IMG.bali,
+  싱가포르:BASE_IMG.singapore, 타이베이:BASE_IMG.taipei, 가오슝:BASE_IMG.taipei,
+  바르셀로나:BASE_IMG.sagrada, 마드리드:BASE_IMG.sagrada,
+  다낭:BASE_IMG.hoian, 호이안:BASE_IMG.hoian, 후에:BASE_IMG.hoian,
+  로마:BASE_IMG.rome, 피렌체:BASE_IMG.rome, 베네치아:BASE_IMG.venice,
+};
+const COUNTRY_IMAGES = {
+  캐나다:BASE_IMG.toronto, 일본:BASE_IMG.kyoto, 프랑스:BASE_IMG.eiffel, 그리스:BASE_IMG.santorini,
+  스페인:BASE_IMG.sagrada, 이탈리아:BASE_IMG.rome, 베트남:BASE_IMG.hoian, 태국:BASE_IMG.bangkok,
+  대만:BASE_IMG.taipei, 필리핀:BASE_IMG.palawan, 인도네시아:BASE_IMG.bali, 싱가포르:BASE_IMG.singapore,
+};
+const CITY_ALIAS = { 베니스:'베네치아', 타이페이:'타이베이', 퀘벡:'퀘벡시티', 후쿠오카시:'후쿠오카',
+  발리섬:'발리', 세부시티:'세부', 치앙마이시:'치앙마이' };
+function resolveCityImage(region){
+  if (!region) return null;
+  const tokens = String(region).split(/[·,/\s]+/).map(t=>t.trim()).filter(Boolean);
+  for (const t of tokens){ const u = CITY_IMAGES[t] ?? (CITY_ALIAS[t] ? CITY_IMAGES[CITY_ALIAS[t]] : undefined); if (u) return { token:t, url:u }; }
+  for (const t of tokens){ const u = COUNTRY_IMAGES[t]; if (u) return { token:t, url:u }; }
+  return null;
 }
-$("btnMarket").addEventListener("click", () => { showTab("tabMarket"); loadMarket(); });
-$("btnSurvey").addEventListener("click", () => showTab("tabSurvey"));
-document.addEventListener("click", (e) => { if (e.target && e.target.id === "goMarket"){ showTab("tabMarket"); loadMarket(); } });
+function thumbHtml(region, title){
+  const r = resolveCityImage(region);
+  if (r) return `<img class="thumb" src="${r.url}" alt="" loading="lazy">`;
+  const ch = (region || title || "여").trim().charAt(0);
+  return `<div class="thumb-fallback">${ch}</div>`;
+}
 
-/* ── 왼쪽 상세 열기/닫기 ── */
-function openDetail(){ document.querySelector(".left").classList.add("detail-mode"); $("leftHome").classList.add("hidden"); $("leftDetail").classList.remove("hidden");
-  if (window.matchMedia("(max-width:840px)").matches) window.scrollTo({top:0, behavior:"smooth"}); }
-function closeDetail(){ document.querySelector(".left").classList.remove("detail-mode"); $("leftDetail").classList.add("hidden"); $("leftHome").classList.remove("hidden");
-  selectedId = null; document.querySelectorAll(".mcard.sel").forEach(c=>c.classList.remove("sel")); }
-$("btnBack").addEventListener("click", () => showTab("tabIntro"));
+/* ── 기능 목록 (드로어 아코디언) ── */
+const FEATURES = [
+  ["🗺️ 맞춤 코스 제안","plan"],["🕐 홈 투 홈 일정표","plan"],["🧾 예약을 한꺼번에","hotel"],
+  ["🏨 호텔 스마트 추천","hotel"],["📸 예약 확인증 자동 정리","plan"],["🎒 준비물 체크리스트","plan"],
+  ["🍜 맛집 종류별 추천","during"],["🎧 따라다니는 음성 가이드","during"],["💸 영수증 인별 정산","during"],
+  ["🧳 여행 마켓","market"],["🎬 추억 영상","memory"],
+];
+/* ── 2단 드로어: 항목 클릭 → 오른쪽으로 다음 단계 (뒤로가기 포함) ── */
+const BACK_BTN = `<button class="backlink" style="margin-bottom:14px" onclick="closeSub()">← 뒤로</button>`;
+function subPane(key){
+  if (key === "trips"){
+    return BACK_BTN + `<h3 class="ds-title">내 여행</h3>
+      <p class="ds-p">모드니와 함께한 여행들 — 로그인하면 웹에서도 볼 수 있어요.</p>` +
+      (currentUser
+        ? `<button class="ds-btn" onclick="openTrips()">내 여행 열기 →</button>`
+        : `<button class="ds-btn" onclick="login()">Google로 로그인</button>`);
+  }
+  if (key === "market"){
+    const top = courses.slice().sort((a,b)=>(b.hearts||0)-(a.hearts||0)).slice(0,3);
+    return BACK_BTN + `<h3 class="ds-title">여행 마켓</h3>
+      <p class="ds-p">완성된 일정을 통째로 담아오면, 내 날짜에 맞게 다시 그려져요.</p>
+      <button class="ds-btn" onclick="goSect('market')">마켓 구경하기 →</button>` +
+      top.map(c => `<button class="ds-btn" onclick="selectCourse('${c.id}')">♡ ${c.hearts||0} · ${esc(stripPrefix(c.market_title))}</button>`).join("");
+  }
+  if (key === "feats"){
+    return BACK_BTN + `<h3 class="ds-title">기능 소개</h3>
+      <p class="ds-p">누르면 해당 설명으로 이동해요.</p>` +
+      FEATURES.map(f => `<button class="ds-btn" onclick="goSect('${f[1]}')">${f[0]}</button>`).join("");
+  }
+  if (key === "company"){
+    return BACK_BTN + `<h3 class="ds-title">회사 · 파트너</h3>
+      <p class="ds-p">(주)하우스두둥 — AI 여행 플래닝 「여행의 모든것」</p>
+      <button class="ds-btn" onclick="goSect('company')">회사 · 파트너 소개 →</button>
+      <a class="ds-btn" href="terms.html">이용약관 ↗</a>
+      <a class="ds-btn" href="privacy.html">개인정보처리방침 ↗</a>
+      <a class="ds-btn" href="mailto:horace1201@gmail.com">문의 메일 ↗</a>`;
+  }
+  return "";
+}
+function openSub(key){
+  $("dwSide").innerHTML = subPane(key);
+  $("drawer").classList.add("expanded");
+  document.querySelectorAll(".dw-item[data-sub]").forEach(b => b.classList.toggle("on", b.dataset.sub === key));
+}
+function closeSub(){
+  $("drawer").classList.remove("expanded");
+  document.querySelectorAll(".dw-item[data-sub]").forEach(b => b.classList.remove("on"));
+}
+document.querySelectorAll(".dw-item[data-sub]").forEach(b => {
+  b.addEventListener("click", () => openSub(b.dataset.sub));
+});
 
-/* ── 마켓 로드 ── */
+/* ── 메뉴 · 이동 ── */
+function toggleMenu(){
+  document.body.classList.toggle("menu-open");
+  if (!document.body.classList.contains("menu-open")) closeSub();
+}
+function goSect(key){
+  document.body.classList.remove("menu-open");
+  closeSub();
+  const el = document.getElementById("sect-" + key) || document.getElementById(key);
+  if (el) el.scrollIntoView({ behavior:"smooth", block:"start" });
+}
+
+/* ── 상단바: 스크롤 시 배경 ── */
+const topbar = $("topbar");
+window.addEventListener("scroll", () => {
+  topbar.classList.toggle("solid", window.scrollY > window.innerHeight * 0.7);
+}, { passive:true });
+
+/* ── 스크롤 리빌 ── */
+const io = new IntersectionObserver((es) => {
+  es.forEach(e => { if (e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } });
+}, { threshold: 0.12 });
+document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+
+/* ── 마켓 데이터 ── */
+let courses = [];
+let sortKey = "latest";
+let filterKey = "all";
+let currentUser = null;
+
 async function loadMarket(){
-  if (courses.length) return;
   try {
     const { data, error } = await sb.from("market_courses")
       .select("id, market_title, summary, region, nights, tags, hearts, download_count, is_sample, published_at")
       .eq("status", "published");
     if (error) throw error;
     courses = data || [];
-    renderCards();
+    renderPicks(); renderTop5(); renderRegions(); renderCards();
   } catch (e) {
     $("cards").innerHTML = '<div class="empty">코스를 불러오지 못했어요. 잠시 후 새로고침해 주세요.</div>';
+    $("top5").innerHTML = '<div class="empty">코스를 불러오지 못했어요.</div>';
   }
 }
-
 function esc(s){ const d = document.createElement("div"); d.textContent = s ?? ""; return d.innerHTML; }
+
+function renderPicks(){
+  const picks = courses.filter(c => c.is_sample).sort((a,b)=>(b.hearts||0)-(a.hearts||0)).slice(0, 5);
+  if (!picks.length){ $("picks").innerHTML = ""; return; }
+  $("picks").innerHTML = picks.map(c => {
+    const r = resolveCityImage(c.region);
+    return `<div class="pick" data-id="${c.id}">
+      ${r?`<img src="${r.url}" alt="" loading="lazy">`:""}
+      <div class="shade"></div>
+      <span class="badge">에디터 픽</span>
+      <div class="pt">${esc(stripPrefix(c.market_title))}</div>
+      <div class="pm">모드니 ✨ · 담기 ${c.download_count||0} · ♡ ${c.hearts||0}</div>
+    </div>`;
+  }).join("");
+  document.querySelectorAll(".pick").forEach(p => p.addEventListener("click", () => selectCourse(p.dataset.id)));
+}
+
+function renderTop5(){
+  const top = courses.slice().sort((a,b) => (b.hearts||0) - (a.hearts||0)).slice(0, 5);
+  if (!top.length){ $("top5").innerHTML = '<div class="empty">아직 코스가 없어요.</div>'; return; }
+  $("top5").innerHTML = top.map((c, i) => `
+    <div class="rank-item" data-id="${c.id}">
+      <span class="rank-no">${i+1}</span>
+      ${thumbHtml(c.region, c.market_title)}
+      <div class="rank-body">
+        <h4>${esc(stripPrefix(c.market_title))}</h4>
+        <span>${esc(c.region||"")}${c.nights?` · ${c.nights}박`:""}${c.download_count?` · 담기 ${c.download_count}`:""}</span>
+      </div>
+      <span class="rank-heart">♡ ${c.hearts||0}</span>
+    </div>`).join("");
+  document.querySelectorAll(".rank-item").forEach(r => r.addEventListener("click", () => selectCourse(r.dataset.id)));
+}
+
+function renderRegions(){
+  const groups = {};
+  for (const c of courses){
+    const r = resolveCityImage(c.region);
+    const key = r?.token || (c.region||"").split(/[·,/\s]+/)[0] || "기타";
+    if (!groups[key]) groups[key] = { count:0, url:r?.url || null };
+    groups[key].count++;
+  }
+  const list = Object.entries(groups).sort((a,b)=>b[1].count-a[1].count).slice(0, 10);
+  $("regions").innerHTML = list.map(([name, g]) => `
+    <div class="region" data-q="${esc(name)}">
+      ${g.url?`<img src="${g.url}" alt="" loading="lazy">`:""}
+      <div class="shade"></div>
+      <div class="rt">${esc(name)}</div>
+      <div class="rc">코스 ${g.count}</div>
+    </div>`).join("");
+  document.querySelectorAll(".region").forEach(r => r.addEventListener("click", () => {
+    $("q").value = r.dataset.q; renderCards();
+    $("cards").scrollIntoView({ behavior:"smooth", block:"start" });
+  }));
+}
 
 function renderCards(){
   const q = ($("q").value || "").trim().toLowerCase();
@@ -423,6 +740,9 @@ function renderCards(){
     (c.summary||"").toLowerCase().includes(q) ||
     (c.region||"").toLowerCase().includes(q) ||
     (c.tags||[]).some(t => (t||"").toLowerCase().includes(q)));
+  if (filterKey === "modni") list = list.filter(c => c.is_sample);
+  if (filterKey === "short") list = list.filter(c => (c.nights||0) <= 5);
+  if (filterKey === "long")  list = list.filter(c => (c.nights||0) >= 8);
   if (sortKey === "latest") list.sort((a,b) => (b.published_at||"").localeCompare(a.published_at||""));
   if (sortKey === "downloads") list.sort((a,b) => (b.download_count||0) - (a.download_count||0));
   if (sortKey === "hearts") list.sort((a,b) => (b.hearts||0) - (a.hearts||0));
@@ -430,20 +750,13 @@ function renderCards(){
   if (!list.length){ $("cards").innerHTML = '<div class="empty">아직 조건에 맞는 코스가 없어요.</div>'; return; }
 
   $("cards").innerHTML = list.map(c => `
-    <div class="mcard${c.id===selectedId?" sel":""}" data-id="${c.id}">
-      <div class="m-top">
-        <span class="m-t">${esc(c.market_title)}${c.is_sample?'<span class="m-badge">모드니 무료</span>':''}</span>
-        <span class="m-hearts">
-          <svg viewBox="0 0 48 48" fill="none" stroke="#1A1815" stroke-linecap="round">
-            <path stroke-width="2.7" d="M24 39 C11 29 8 17 16 12.5 C21 10 24 15 24 17.5"/>
-            <path stroke-width="2.4" d="M25 38 C38 28 40 16 32 12 C27 10 24.5 14 24.5 17"/>
-          </svg>
-          <span>${c.hearts||0}</span>
-          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="#6B665E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5 Q14 8.5 16.5 12 Q14 15.5 9.5 19.5"/></svg>
-        </span>
+    <div class="mcard" data-id="${c.id}">
+      ${thumbHtml(c.region, c.market_title)}
+      <div class="m-body">
+        <div class="m-t">${esc(stripPrefix(c.market_title))}${c.is_sample?'<span class="m-badge">모드니 ✨</span>':''}</div>
+        <div class="m-meta">${esc(c.region||"")}${c.nights?` · ${c.nights}박`:""}${c.download_count?` · 담기 ${c.download_count}`:""}</div>
       </div>
-      <div class="m-sum">${esc(c.summary || (c.region ? c.region + " 여행" : ""))}</div>
-      <div class="m-tags">${(c.tags||[]).slice(0,4).map(t=>`<span>#${esc(t)}</span>`).join("")}</div>
+      <span class="m-hearts">♡ ${c.hearts||0}</span>
     </div>`).join("");
 
   document.querySelectorAll(".mcard").forEach(card => {
@@ -458,12 +771,30 @@ document.querySelectorAll(".sorts button").forEach(b => {
     b.classList.add("on"); sortKey = b.dataset.sort; renderCards();
   });
 });
+document.querySelectorAll("#chips button").forEach(b => {
+  b.addEventListener("click", () => {
+    document.querySelectorAll("#chips button").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on"); filterKey = b.dataset.filter; renderCards();
+  });
+});
 
-/* ── 코스 상세 (왼쪽 패널) ── */
+/* ── 오버레이 ── */
+function openOverlay(id){
+  $(id).classList.add("on");
+  document.body.style.overflow = "hidden";
+  document.body.classList.remove("menu-open");
+  closeSub();
+}
+function closeOverlay(){
+  stopAudio();
+  document.querySelectorAll(".overlay").forEach(o => o.classList.remove("on"));
+  document.body.style.overflow = "";
+}
+
+/* ── 코스 상세 ── */
 async function selectCourse(id){
-  selectedId = id;
-  document.querySelectorAll(".mcard").forEach(c => c.classList.toggle("sel", c.dataset.id === id));
-  openDetail();
+  openOverlay("ovDetail");
+  $("ovDetail").scrollTop = 0;
   $("detailBody").innerHTML = '<div class="empty">일정을 펼치는 중…</div>';
   try {
     const { data, error } = await sb.from("market_courses")
@@ -477,7 +808,6 @@ async function selectCourse(id){
   }
 }
 
-/* ── 버킷 시드: 코스 도시들로 조회 후 이름 매칭 ── */
 const norm = (s) => (s||"").toLowerCase().replace(/[^0-9a-z가-힣]/g, "");
 async function loadSeeds(snap){
   try {
@@ -508,7 +838,7 @@ function renderDetail(c, seeds){
   const days = snap.days || [];
   seedById = {};
   dayMaps.forEach(m => m.remove()); dayMaps = [];
-  const mapData = {};   // dayIdx → [{lat,lng,no,title}]
+  const mapData = {};
   const daysHtml = days.map((d, i) => {
     const pts = [];
     const slots = (d.slots || []).map(s => {
@@ -516,7 +846,6 @@ function renderDetail(c, seeds){
       const seed = matchSeed(s, seeds);
       if (seed) seedById[seed.id] = seed;
       const gbtn = seed ? `<button class="guide-btn" data-seed="${seed.id}">✦ 가이드</button>` : "";
-      // 좌표 있는 슬롯(항공 제외)에 순번 핀 부여
       let pin = "";
       const lat = parseFloat(s.lat), lng = parseFloat(s.lng);
       if (Number.isFinite(lat) && Number.isFinite(lng) && s.type !== "flight"){
@@ -540,19 +869,20 @@ function renderDetail(c, seeds){
   }).join("");
 
   $("detailBody").innerHTML = `
-    <div class="dt-title serif">${esc(c.market_title)}</div>
+    <div class="dt-title">${esc(stripPrefix(c.market_title))}</div>
     <div class="dt-meta">${esc(c.region||"")}${c.nights?` · ${c.nights}박`:""}${c.is_sample?" · 모드니 무료 코스":""}</div>
     ${ (snap.summary || c.summary) ? `<div class="dt-summary">${esc(snap.summary || c.summary)}</div>` : "" }
     <div class="dt-days">${daysHtml || '<div class="empty">일정 준비 중이에요.</div>'}</div>
     <button class="take" id="btnTake">이 여행 담아가기</button>
-    <div class="take-note" id="takeNote">담기는 앱에서 할 수 있어요 — Google Play 출시와 함께 만나요! ✦</div>
+    <div class="take-note" id="takeNote">담은 일정은 <b>앱에서 이어갈 수 있어요</b> — Google Play 출시와 함께 만나요! ✦
+      <button class="applink" onclick="closeOverlay();goSect('cta')">앱 다운로드 안내 →</button></div>
   `;
   $("btnTake").addEventListener("click", () => { $("takeNote").style.display = "block"; });
   document.querySelectorAll(".guide-btn").forEach(b => b.addEventListener("click", () => toggleBucket(b)));
   initDayMaps(mapData);
 }
 
-/* ── 이동수단 미니 아이콘 (시안 손그림 문법) ── */
+/* ── 이동수단 아이콘 ── */
 function mIcon(paths, sw){
   return `<svg viewBox="0 0 48 48" style="width:13px;height:13px;vertical-align:-2px;margin-right:3px" fill="none" stroke="currentColor" stroke-width="${sw||3.4}" stroke-linecap="round" stroke-linejoin="round">` +
     paths.map(d => `<path d="${d}"></path>`).join("") + `</svg>`;
@@ -572,8 +902,6 @@ function modeIconOf(emoji){
   if (/⛴|🚢|⛵/.test(emoji)) return MODE_ICON.ship;
   return "";
 }
-
-/* ── 이동시간 파싱: travelToNext에서 소요시간 + 손그림 아이콘 ── */
 function parseTravel(s){
   const raw = s.travelToNext || "";
   if (!raw) return null;
@@ -587,7 +915,7 @@ function parseTravel(s){
   return icon + dur;
 }
 
-/* ── Day별 미니 지도 (Leaflet · 무채색) ── */
+/* ── Day별 미니 지도 ── */
 function initDayMaps(mapData){
   if (typeof L === "undefined") return;
   Object.entries(mapData).forEach(([i, pts]) => {
@@ -595,7 +923,6 @@ function initDayMaps(mapData){
     if (!el) return;
     const map = L.map(el, { scrollWheelZoom:false, zoomControl:true });
     dayMaps.push(map);
-    // 클릭하면 휠 확대 허용, 벗어나면 다시 잠금 (페이지 스크롤 보호)
     map.on("click", () => map.scrollWheelZoom.enable());
     el.addEventListener("mouseleave", () => map.scrollWheelZoom.disable());
     L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
@@ -608,8 +935,7 @@ function initDayMaps(mapData){
       }).addTo(map).bindTooltip(p.title, { direction:"top", offset:[0,-12] });
     });
     if (latlngs.length > 1){
-      L.polyline(latlngs, { color:"#B3372B", weight:2, dashArray:"6 6", opacity:.85 }).addTo(map);
-      // 구간 중간에 이동시간 칩
+      L.polyline(latlngs, { color:"#F4581C", weight:2, dashArray:"6 6", opacity:.85 }).addTo(map);
       for (let k = 0; k < pts.length - 1; k++){
         const t = pts[k].travel;
         if (!t) continue;
@@ -623,7 +949,7 @@ function initDayMaps(mapData){
   });
 }
 
-/* ── 버킷 카드 토글 ── */
+/* ── 버킷 카드 ── */
 function toggleBucket(btn){
   const slotEl = btn.closest(".slot");
   const open = slotEl.nextElementSibling;
@@ -643,8 +969,8 @@ function toggleBucket(btn){
     <div class="photo-slot"></div>
     ${d.desc?`<div class="desc">${esc(d.desc)}</div>`:""}
     ${viRows?`<dl class="vinfo">${viRows}</dl>`:""}
-    ${tips.length?`<div class="tips"><span class="tl">모드니 팁</span>${tips.map(t=>`<p>✦ ${esc(t)}</p>`).join("")}</div>`:""}
-    ${spots.length?`<div class="pspots"><span class="tl">사진 명소</span>${spots.map(p=>`<p>${PIN_ICON} <b>${esc(p.spot||"")}</b>${p.tip?` — ${esc(p.tip)}`:""}</p>`).join("")}</div>`:""}
+    ${tips.length?`<div class="tips"><span class="tl">✦ 모드니 팁</span>${tips.map(t=>`<p>✦ ${esc(t)}</p>`).join("")}</div>`:""}
+    ${spots.length?`<div class="pspots"><span class="tl">📷 사진 명소</span>${spots.map(p=>`<p>📍 <b>${esc(p.spot||"")}</b>${p.tip?` — ${esc(p.tip)}`:""}</p>`).join("")}</div>`:""}
     ${s.audio_url?`<div class="audio-row"><button class="audio-btn" data-url="${esc(s.audio_url)}" aria-label="음성 가이드 재생">▶</button><span class="al">음성 가이드 듣기 — 모드니가 읽어 드려요</span></div>`:""}
   `;
   slotEl.after(card);
@@ -667,7 +993,6 @@ function toggleBucket(btn){
   if (ab) ab.addEventListener("click", () => playAudio(ab));
 }
 
-/* ── 위키피디아 대표 사진 (무료 · 실패 시 조용히 생략) ── */
 async function loadPhoto(name, slotDiv){
   if (!name || !slotDiv) return;
   try {
@@ -680,19 +1005,18 @@ async function loadPhoto(name, slotDiv){
     img.className = "bucket-photo";
     img.alt = name;
     img.loading = "lazy";
-    img.onerror = () => { slotDiv.innerHTML = ""; };   // 로드 실패 시 사진 영역 통째로 제거
+    img.onerror = () => { slotDiv.innerHTML = ""; };
     img.onload = () => {
       const cr = document.createElement("div");
       cr.className = "photo-credit";
       cr.textContent = "사진: 위키미디어";
       slotDiv.appendChild(cr);
     };
-    img.src = src;                                      // 원본 썸네일 그대로 (확대 강제 제거)
+    img.src = src;
     slotDiv.appendChild(img);
   } catch(e){ /* 없으면 패스 */ }
 }
 
-/* ── 오디오 재생 (한 번에 하나) ── */
 let audioEl = null, audioBtn = null;
 function stopAudio(){
   if (audioEl){ audioEl.pause(); audioEl = null; }
@@ -709,54 +1033,140 @@ function playAudio(btn){
   audioEl.addEventListener("ended", stopAudio);
 }
 
-/* ── 인증 ── */
-async function boot(){
-  const { data:{ session } } = await sb.auth.getSession();
-  applyAuth(session);
+/* ── 내 여행 ── */
+function calcDday(dateStr){
+  if (!dateStr) return "";
+  const d = new Date(dateStr + "T00:00:00");
+  if (isNaN(d)) return "";
+  const today = new Date(); today.setHours(0,0,0,0);
+  const days = Math.round((d - today) / 86400000);
+  if (days > 0) return "D-" + days;
+  if (days === 0) return "D-day";
+  return "";
 }
-sb.auth.onAuthStateChange((event, session) => applyAuth(session));
-
-$("btnLogin").addEventListener("click", async () => {
-  await sb.auth.signInWithOAuth({ provider:"google",
-    options:{ redirectTo: location.origin + location.pathname } });
-});
-$("btnLogout").addEventListener("click", () => sb.auth.signOut());
-
-function applyAuth(session){
-  const on = !!session;
-  $("btnLogin").classList.toggle("hidden", on);
-  $("btnLogout").classList.toggle("hidden", !on);
-  $("whoami").classList.toggle("hidden", !on);
-  $("myTrips").classList.toggle("hidden", !on);
-  if (on){
-    $("whoami").textContent = session.user?.email || "";
-    loadMyTrips();
-  } else {
-    $("myTripsList").innerHTML = "";
+async function openTrips(){
+  openOverlay("ovTrips");
+  if (!currentUser){
+    $("tripsBody").innerHTML = `<div class="empty">로그인하면 내 여행을 볼 수 있어요.<br><br>
+      <button class="take" style="max-width:280px;margin:0 auto" onclick="login()">Google로 로그인</button></div>`;
+    return;
+  }
+  $("tripsBody").innerHTML = '<div class="empty">여행을 불러오는 중…</div>';
+  try {
+    const { data, error } = await sb.from("trips")
+      .select("id, title, region, depart_date, nights, itin_title:itinerary->>title")
+      .order("depart_date", { ascending:false }).limit(12);
+    if (error) throw error;
+    if (!data || !data.length){
+      $("tripsBody").innerHTML = '<div class="empty">아직 만든 여행이 없어요 — 앱에서 첫 여행을 그려보세요.</div>';
+      return;
+    }
+    $("tripsBody").innerHTML = data.map(t => {
+      const done = !!t.itin_title;
+      const dday = done ? "" : calcDday(t.depart_date);
+      const dep = t.depart_date ? t.depart_date.slice(5).replace("-", ".") + " 출발" : "";
+      return `<div class="trip-card">
+        <div class="trip-row1">
+          <span class="${done?"badge-done":"badge-plan"}">${done?"완료":"계획 중"}</span>
+          <span class="dep">${esc(dep)}</span>
+          ${dday?`<span class="dday">${dday}</span>`:""}
+        </div>
+        <h4>${esc(t.title || t.region || "여행")}</h4>
+        <div class="tm">${esc(t.region||"")}${t.nights?` · ${t.nights}박`:""}</div>
+      </div>`;
+    }).join("") + '<div class="empty" style="padding:20px 0">이어서 만들기·삭제는 앱에서 할 수 있어요 ✦</div>';
+  } catch(e){
+    $("tripsBody").innerHTML = '<div class="empty">여행을 불러오지 못했어요.</div>';
   }
 }
 
-async function loadMyTrips(){
-  try {
-    const { data, error } = await sb.from("trips")
-      .select("id, title, region, depart_date, nights, status")
-      .order("depart_date", { ascending:false }).limit(6);
-    if (error) throw error;
-    if (!data || !data.length){
-      $("myTripsList").innerHTML = '<div style="font-size:12.5px;color:var(--sub);padding:6px 0">아직 만든 여행이 없어요 — 앱에서 첫 여행을 그려보세요.</div>';
-      return;
-    }
-    $("myTripsList").innerHTML = data.map(t => `
-      <div class="mytrip">
-        <span>${esc(t.title || t.region || "여행")}</span>
-        <span class="d">${esc(t.depart_date||"")}${t.nights?` · ${t.nights}박`:""}</span>
-      </div>`).join("");
-  } catch(e){
-    $("myTripsList").innerHTML = "";
+/* ── 인증 ── */
+async function login(){
+  await sb.auth.signInWithOAuth({ provider:"google",
+    options:{ redirectTo: location.origin + location.pathname } });
+}
+$("tbLogin").addEventListener("click", () => {
+  if (currentUser) toggleMenu(); else login();
+});
+
+async function boot(){
+  const { data:{ session } } = await sb.auth.getSession();
+  applyAuth(session);
+  loadMarket();
+}
+sb.auth.onAuthStateChange((event, session) => applyAuth(session));
+
+async function applyAuth(session){
+  currentUser = session?.user || null;
+  if (currentUser){
+    const nm = currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || (currentUser.email||"").split("@")[0];
+    $("tbLogin").textContent = nm + "님";
+    let cook = "";
+    try {
+      const { data } = await sb.from("cookie_wallets").select("balance").eq("user_id", currentUser.id).maybeSingle();
+      if (data?.balance != null) cook = `<span class="cook">✨ 꿈조각 ${data.balance}</span>`;
+    } catch(e){ /* 무시 */ }
+    $("dwAuth").innerHTML = `
+      <div class="big">${esc(nm)}님, 반가워요!</div>
+      <div class="who">${esc(currentUser.email||"")}</div>
+      ${cook}
+      <br><button class="outbtn" onclick="sb.auth.signOut()">로그아웃</button>`;
+  } else {
+    $("tbLogin").textContent = "로그인";
+    $("dwAuth").innerHTML = `<div class="big"><u onclick="login()">로그인/회원가입</u></div>`;
   }
 }
 
 boot();
+
+/* ── KOR/ENG 토글 (UI·마케팅 카피만 — 마켓 코스 데이터는 원문 유지) ── */
+const EN_TEXTS = [
+  ["#heroEyebrow", "Your AI travel mate — from planning to memories"],
+  ["#heroTitle", "Everything about travel,<br>in one place"],
+  ["#heroModni", "Everyone's dream · <b>Modni</b> draws your trip with you"],
+  ["#sect-plan .eyebrow", "Before the trip · Plan — Book — Pack"],
+  ["#sect-plan h2", "Your itinerary,<br>drawn by Modni in 3 minutes"],
+  ["#sect-plan .lead", "Tell Modni your taste, companions and budget — it sketches several courses. Say “more hot springs” or “less walking” and it redraws. A home-to-home itinerary, from your doorstep and back."],
+  ["#sect-market .eyebrow", "Travel Market · Trips already completed"],
+  ["#sect-market h2", "Take a whole itinerary —<br>it's even easier"],
+  ["#sect-market .lead", "Browse real itineraries completed by fellow travelers. Take one and it redraws itself to your dates — bookings included. (Course content is in Korean.)"],
+  ["#sect-hotel .eyebrow", "Before the trip · Hotels — Booking"],
+  ["#sect-hotel h2", "Hotels that fit your budget,<br>linked with dates pre-filled"],
+  ["#sect-hotel .lead", "Modni picks the right area and hotels within budget, then links to booking pages with dates and guests already filled in. Flights, rental cars and activities too — all in one place."],
+  ["#sect-during .eyebrow", "During the trip · Modni travels with you"],
+  ["#sect-during h2", "Even on the road,<br>Modni never rests"],
+  ["#sect-during .lead", "Restaurant picks by category, an audio guide that follows you around (no docent needed), and receipt-photo expense splitting — every moment covered."],
+  ["#sect-memory .eyebrow", "After the trip · The end of the trip isn't the end of the app"],
+  ["#sect-memory h2", "Turn your trip into a memory film"],
+  ["#sect-memory .lead", "Pick your photos and get a personal travel film with location captions and music. Proud of your itinerary? Publish it to the Market — other travelers will heart it and take it."],
+  ["#planCta", "Create my itinerary — in the app →"],
+  ["#ctaTitle", "Ready to draw your first trip with Modni?"],
+  ["#ctaP", "Launching soon on Google Play — App Store coming next."],
+];
+let lang = "ko";
+const koStore = new Map();
+$("langBtn").addEventListener("click", () => {
+  lang = (lang === "ko") ? "en" : "ko";
+  $("langBtn").textContent = (lang === "ko") ? "ENG" : "KOR";
+  document.documentElement.lang = lang;
+  EN_TEXTS.forEach(([sel, en]) => {
+    const el = document.querySelector(sel);
+    if (!el) return;
+    if (lang === "en"){ if (!koStore.has(sel)) koStore.set(sel, el.innerHTML); el.innerHTML = en; }
+    else if (koStore.has(sel)){ el.innerHTML = koStore.get(sel); }
+  });
+  // 드로어 메뉴 (순서 고정)
+  const dwKo = ["내 여행 <span class=\"chev\">›</span>",
+    "여행 마켓 <span class=\"tag\">코스 담아가기</span><span class=\"chev\">›</span>",
+    "AI 맞춤 일정","기능 소개 <span class=\"chev\">›</span>","앱 다운로드","회사 · 파트너 <span class=\"chev\">›</span>"];
+  const dwEn = ["My Trips <span class=\"chev\">›</span>",
+    "Travel Market <span class=\"tag\">take a course</span><span class=\"chev\">›</span>",
+    "AI Itinerary","Features <span class=\"chev\">›</span>","Get the App","Company · Partners <span class=\"chev\">›</span>"];
+  document.querySelectorAll(".dw-nav .dw-item").forEach((b, i) => {
+    b.innerHTML = (lang === "en" ? dwEn[i] : dwKo[i]) ?? b.innerHTML;
+  });
+  if (!currentUser) $("tbLogin").textContent = (lang === "en") ? "Sign in" : "로그인";
+});
 </script>
 </body>
 </html>
