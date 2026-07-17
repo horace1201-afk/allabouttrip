@@ -308,6 +308,7 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:44px 30px 60px}
     <div class="dw-nav">
       <button class="dw-item" data-sub="trips">내 여행 <span class="chev">›</span></button>
       <button class="dw-item" data-sub="market">여행 마켓 <span class="tag">코스 담아가기</span><span class="chev">›</span></button>
+      <button class="dw-item" onclick="window.open('https://hotels.allabouttrip.app','_blank','noopener')">호텔 예약 <span class="tag">회원 특가</span></button>
       <button class="dw-item" onclick="goSect('plan')">AI 맞춤 일정</button>
       <button class="dw-item" data-sub="feats">기능 소개 <span class="chev">›</span></button>
       <button class="dw-item" onclick="goSect('cta')">앱 다운로드</button>
@@ -320,8 +321,8 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:44px 30px 60px}
 
 <!-- ═══ 히어로 ═══ -->
 <section class="hero">
-  <img class="bg" src="https://images.unsplash.com/photo-1547234935-80c7145ec969?w=1800&q=70&auto=format&fit=crop" alt="우유니 소금사막"
-       onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1570077188670-6a96d69a8f83?w=1800&q=70&auto=format&fit=crop'">
+  <img class="bg" src="https://images.unsplash.com/photo-1570077188670-6a96d69a8f83?w=1800&q=70&auto=format&fit=crop" alt="산토리니"
+       onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=1800&q=70&auto=format&fit=crop'">
   <div class="shade"></div>
   <div class="hero-in">
     <p class="eyebrow" id="heroEyebrow">계획부터 추억까지, AI 여행 메이트</p>
@@ -1158,9 +1159,11 @@ $("langBtn").addEventListener("click", () => {
   // 드로어 메뉴 (순서 고정)
   const dwKo = ["내 여행 <span class=\"chev\">›</span>",
     "여행 마켓 <span class=\"tag\">코스 담아가기</span><span class=\"chev\">›</span>",
+    "호텔 예약 <span class=\"tag\">회원 특가</span>",
     "AI 맞춤 일정","기능 소개 <span class=\"chev\">›</span>","앱 다운로드","회사 · 파트너 <span class=\"chev\">›</span>"];
   const dwEn = ["My Trips <span class=\"chev\">›</span>",
     "Travel Market <span class=\"tag\">take a course</span><span class=\"chev\">›</span>",
+    "Hotel Booking <span class=\"tag\">member rates</span>",
     "AI Itinerary","Features <span class=\"chev\">›</span>","Get the App","Company · Partners <span class=\"chev\">›</span>"];
   document.querySelectorAll(".dw-nav .dw-item").forEach((b, i) => {
     b.innerHTML = (lang === "en" ? dwEn[i] : dwKo[i]) ?? b.innerHTML;
