@@ -308,7 +308,7 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:44px 30px 60px}
     <div class="dw-nav">
       <button class="dw-item" data-sub="trips">내 여행 <span class="chev">›</span></button>
       <button class="dw-item" data-sub="market">여행 마켓 <span class="tag">코스 담아가기</span><span class="chev">›</span></button>
-      <button class="dw-item" onclick="window.open('https://hotels.allabouttrip.app','_blank','noopener')">호텔 예약 <span class="tag">회원 특가</span></button>
+      <button class="dw-item" onclick="openHotelSite()">호텔 예약 <span class="tag">회원 특가</span></button>
       <button class="dw-item" onclick="goSect('plan')">AI 맞춤 일정</button>
       <button class="dw-item" data-sub="feats">기능 소개 <span class="chev">›</span></button>
       <button class="dw-item" onclick="goSect('cta')">앱 다운로드</button>
@@ -336,8 +336,8 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:44px 30px 60px}
       <a class="store" href="#cta"> <span>App Store<small>준비 중</small></span></a>
     </div>
     <div class="store-row" style="margin-top:12px">
-      <a class="store" id="heroHotel" href="https://hotels.allabouttrip.app" target="_blank" rel="noopener"
-         style="background:var(--orange);border-color:var(--orange)">🏨 <span>호텔 예약<small>로그인하면 회원가로 예약 가능</small></span></a>
+      <a class="store" id="heroHotel" href="#" onclick="return openHotelSite(event)"
+         style="background:var(--orange);border-color:var(--orange)">🏨 <span>호텔 예약<small>로그인하면 회원가로 예약 가능 · Nuitée 제공</small></span></a>
     </div>
   </div>
   <div class="scroll-hint">아래로 스크롤<br>⌄</div>
@@ -1129,7 +1129,7 @@ const EN_TEXTS = [
   ["#heroEyebrow", "Your AI travel mate — from planning to memories"],
   ["#heroTitle", "Everything about travel,<br>in one place"],
   ["#heroModni", "Everyone's dream · <b>Modni</b> draws your trip with you"],
-  ["#heroHotel", "🏨 <span>Hotel Booking<small>sign in for member rates</small></span>"],
+  ["#heroHotel", "🏨 <span>Hotel Booking<small>sign in for member rates · Powered by Nuitée</small></span>"],
   ["#sect-plan .eyebrow", "Before the trip · Plan — Book — Pack"],
   ["#sect-plan h2", "Your itinerary,<br>drawn by Modni in 3 minutes"],
   ["#sect-plan .lead", "Tell Modni your taste, companions and budget — it sketches several courses. Say “more hot springs” or “less walking” and it redraws. A home-to-home itinerary, from your doorstep and back."],
@@ -1174,6 +1174,51 @@ $("langBtn").addEventListener("click", () => {
     b.innerHTML = (lang === "en" ? dwEn[i] : dwKo[i]) ?? b.innerHTML;
   });
   if (!currentUser) $("tbLogin").textContent = (lang === "en") ? "Sign in" : "로그인";
+});
+</script>
+<!-- 호텔 예약 국외이전 고지 모달 (2026-07-18, 변호사 회신 전 임시 고지) -->
+<div id="hotelNotice" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:16px;max-width:420px;width:100%;padding:24px 20px;box-shadow:0 12px 40px rgba(0,0,0,.2)">
+    <h3 id="hnTitle" style="margin:0 0 10px;font-size:17px">호텔 예약 안내</h3>
+    <p id="hnBody" style="margin:0 0 16px;font-size:13.5px;line-height:1.6;color:#444"></p>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button id="hnCancel" style="padding:10px 14px;border:1px solid #ddd;background:#fff;border-radius:10px;cursor:pointer">취소</button>
+      <button id="hnOk" style="padding:10px 16px;border:0;background:var(--orange);color:#fff;border-radius:10px;font-weight:700;cursor:pointer">동의하고 계속</button>
+    </div>
+  </div>
+</div>
+<script>
+const HN_URL = "https://hotels.allabouttrip.app";
+const HN_TXT = {
+  ko: {
+    title: "호텔 예약 안내",
+    body: "본 호텔 예약 서비스는 글로벌 호텔 파트너 Nuitée Travel Limited(아일랜드)가 제공·운영하며, 예약·결제·환불의 계약당사자는 Nuitée입니다. 예약 진행 시 이름·이메일 등 개인정보가 해외 사업자(Nuitée)에 제공·처리됩니다.",
+    ok: "동의하고 계속", cancel: "취소"
+  },
+  en: {
+    title: "Hotel Booking Notice",
+    body: "Hotel bookings are provided and operated by our global partner Nuitée Travel Limited (Ireland), which is the contracting party for bookings, payments and refunds. When you proceed, your personal data (name, email, etc.) will be transferred to and processed overseas by Nuitée.",
+    ok: "Agree & Continue", cancel: "Cancel"
+  }
+};
+function openHotelSite(e){
+  if (e) e.preventDefault();
+  if (localStorage.getItem("aat_hotel_notice_ok") === "1"){ window.open(HN_URL, "_blank", "noopener"); return false; }
+  const t = HN_TXT[(typeof lang !== "undefined" && lang === "en") ? "en" : "ko"];
+  document.getElementById("hnTitle").textContent = t.title;
+  document.getElementById("hnBody").textContent = t.body;
+  document.getElementById("hnOk").textContent = t.ok;
+  document.getElementById("hnCancel").textContent = t.cancel;
+  document.getElementById("hotelNotice").style.display = "flex";
+  return false;
+}
+document.getElementById("hnOk").addEventListener("click", () => {
+  localStorage.setItem("aat_hotel_notice_ok", "1");
+  document.getElementById("hotelNotice").style.display = "none";
+  window.open(HN_URL, "_blank", "noopener");
+});
+document.getElementById("hnCancel").addEventListener("click", () => {
+  document.getElementById("hotelNotice").style.display = "none";
 });
 </script>
 </body>
