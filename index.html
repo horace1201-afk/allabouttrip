@@ -482,6 +482,8 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
       <button class="dw-item" data-sub="feats">기능 소개 <span class="chev">›</span></button>
       <button class="dw-item" onclick="goSect('cta')">앱 다운로드</button>
       <button class="dw-item" data-sub="company">회사 · 파트너 <span class="chev">›</span></button>
+      <!-- 관리자 전용 — 기본 숨김. 아래 스크립트가 admin_emails 화이트리스트 확인 후에만 노출 -->
+      <button class="dw-item" id="menuAdmin" style="display:none" onclick="location.href='/admin.html'">관리자</button>
     </div>
     <div class="dw-foot">© (주)하우스두둥 · 핵심 기술 특허 출원 중<br>문의 <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="731b1c011210164241434233141e121a1f5d101c1e">[email&#160;protected]</a></div>
   </div>
@@ -1865,16 +1867,41 @@ $("langBtn").addEventListener("click", () => {
   const dwKo = ["내 여행 <span class=\"chev\">›</span>",
     "여행 마켓 <span class=\"tag\">코스 담아가기</span><span class=\"chev\">›</span>",
     "호텔 예약 <span class=\"tag\">회원 특가</span>",
-    "기능 소개 <span class=\"chev\">›</span>","앱 다운로드","회사 · 파트너 <span class=\"chev\">›</span>"];
+    "기능 소개 <span class=\"chev\">›</span>","앱 다운로드","회사 · 파트너 <span class=\"chev\">›</span>",
+    "관리자"];
   const dwEn = ["My Trips <span class=\"chev\">›</span>",
     "Travel Market <span class=\"tag\">take a course</span><span class=\"chev\">›</span>",
     "Hotel Booking <span class=\"tag\">member rates</span>",
-    "Features <span class=\"chev\">›</span>","Get the App","Company · Partners <span class=\"chev\">›</span>"];
+    "Features <span class=\"chev\">›</span>","Get the App","Company · Partners <span class=\"chev\">›</span>",
+    "Admin"];
   document.querySelectorAll(".dw-nav .dw-item").forEach((b, i) => {
     b.innerHTML = (lang === "en" ? dwEn[i] : dwKo[i]) ?? b.innerHTML;
   });
   if (!currentUser) $("tbLogin").textContent = (lang === "en") ? "Sign in" : "로그인";
 });
+
+/* ── 관리자 메뉴 조건부 노출 (2026-07-19) ──
+   로그인 세션의 이메일이 app_config.admin_emails에 있을 때만 드로어 "관리자" 항목을 보인다.
+   app_config는 anon SELECT 공개 정책(app_config_select)이라 별도 권한 없이 읽힌다.
+   일반 방문자에겐 완전 무노출 — 실패는 조용히 무시(콘솔 출력 없음).
+   ※ 실제 접근 통제는 admin.html이 호출하는 RPC가 서버측에서 수행한다(이 노출은 편의 기능). */
+(async function revealAdminMenu(){
+  const el = document.getElementById("menuAdmin");
+  if (!el) return;
+  const check = async () => {
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      const email = session?.user?.email?.toLowerCase();
+      if (!email) { el.style.display = "none"; return; }
+      const { data, error } = await sb.from("app_config").select("value").eq("key", "admin_emails").maybeSingle();
+      if (error || !data) return;
+      const list = Array.isArray(data.value) ? data.value.map(String).map(s => s.toLowerCase()) : [];
+      if (list.includes(email)) el.style.display = "flex";
+    } catch { /* 조용히 무시 */ }
+  };
+  check();
+  sb.auth.onAuthStateChange(() => { check(); });
+})();
 </script>
 <!-- 호텔 예약 국외이전 고지 모달 (2026-07-18, 변호사 회신 전 임시 고지) -->
 <div id="hotelNotice" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:center;justify-content:center;padding:20px">
