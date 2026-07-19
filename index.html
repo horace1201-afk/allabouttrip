@@ -31,276 +31,428 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
 :root{
-  /* 앱 디자인 시스템 정본 (lib/theme.ts hub) — coral은 액션·활성 전용 */
-  --orange:#F4581C; --orange-deep:#C6431F; --orange-soft:#FDEDE7; --orange-tint:#FEF5F0;
-  --ink:#211B31; --sub:#8A8494; --faint:#B7B2BF; --line:#EDE9E4; --hair:#F0EDE8;
-  --bg:#FFFFFF; --warm:#FAF8F5; --green:#2E7D5B; --green-soft:#E7F3EC;
+  --orange:#F4581C; --orange-deep:#D84A12; --orange-soft:#FFF2EA; --orange-tint:#FFF6F0;
+  --ink:#1D1B19; --sub:#6B6570; --faint:#B2ABA4; --line:#EEECE9; --hair:#F2F0ED;
+  --bg:#FFFFFF; --warm:#FAF8F5; --green:#3DA364; --green-soft:#E8F4EC;
+  --shadow:0 10px 30px rgba(35,30,25,.07); --shadow-lg:0 24px 60px rgba(244,88,28,.12);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 html,body{background:var(--bg)}
-body{font-family:'Pretendard Variable',Pretendard,-apple-system,'Malgun Gothic',sans-serif;color:var(--ink);line-height:1.6}
+body{font-family:'Pretendard Variable',Pretendard,-apple-system,'Malgun Gothic',sans-serif;color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
+a:hover{color:var(--orange-deep)}
 button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
 .hidden{display:none!important}
 img{max-width:100%}
 
 /* ═══ 상단바 ═══ */
 .topbar{position:fixed;top:0;left:0;right:0;z-index:80;display:flex;align-items:center;gap:12px;
-  padding:14px 22px;transition:background .25s, box-shadow .25s}
-.topbar.solid{background:rgba(255,253,251,.92);backdrop-filter:blur(10px);box-shadow:0 1px 0 var(--hair)}
-.topbar .tb-brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;letter-spacing:-.2px;color:#fff}
-.topbar .tb-brand img{width:26px;height:26px;border-radius:8px}
+  padding:16px 26px;transition:background .25s, box-shadow .25s, padding .25s}
+.topbar.solid{background:rgba(255,255,255,.9);backdrop-filter:blur(14px);box-shadow:0 1px 0 var(--hair);padding:12px 26px}
+.topbar .tb-brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:15px;letter-spacing:-.3px;color:var(--ink)}
+.topbar .tb-brand img{width:28px;height:28px;border-radius:9px}
 .topbar.solid .tb-brand{color:var(--ink)}
 .topbar .sp{flex:1}
-.tb-login{font-size:13.5px;font-weight:700;color:#fff}
+.tb-logo{font-size:21px;font-weight:900;letter-spacing:.03em;color:var(--orange);text-decoration:none;padding:2px 4px;transition:opacity .18s}
+.tb-logo:hover{opacity:.8}
+.tb-login{font-size:13.5px;font-weight:700;color:var(--ink);padding:8px 14px;border-radius:999px;transition:background .2s}
+.tb-login:hover{background:var(--warm)}
 .topbar.solid .tb-login{color:var(--ink)}
-.tb-burger{width:34px;height:34px;display:flex;flex-direction:column;justify-content:center;gap:5px;padding:7px}
-.tb-burger span{height:2.5px;background:#fff;border-radius:2px;transition:.2s}
+.topbar.solid .tb-login:hover{background:var(--warm)}
+#langBtn{letter-spacing:.05em;font-size:12.5px;border:1px solid var(--line)}
+.tb-hotel{font-size:13px;font-weight:800;color:#fff;background:var(--orange);padding:8px 16px;border-radius:999px;
+  transition:.18s;box-shadow:0 6px 16px rgba(244,88,28,.24)}
+.tb-hotel:hover{background:var(--orange-deep)}
+.topbar.solid #langBtn{border-color:var(--line)}
+.tb-burger{width:38px;height:38px;display:flex;flex-direction:column;justify-content:center;gap:5px;padding:9px;border-radius:11px;transition:background .2s}
+.tb-burger:hover{background:var(--warm)}
+.topbar.solid .tb-burger:hover{background:var(--warm)}
+.tb-burger span{height:2.5px;background:var(--ink);border-radius:2px;transition:.2s}
 .topbar.solid .tb-burger span{background:var(--ink)}
 
 /* ═══ 왼쪽 슬라이드 메뉴 ═══ */
-.scrim{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:90}
+.scrim{display:none;position:fixed;inset:0;background:rgba(29,27,25,.42);z-index:90;backdrop-filter:blur(2px)}
 body.menu-open .scrim{display:block}
-.drawer{position:fixed;top:0;left:0;bottom:0;width:min(320px,88vw);background:#fff;z-index:95;
-  transform:translateX(-100%);transition:transform .28s ease, width .28s ease;display:flex;flex-direction:row;overflow:hidden}
-body.menu-open .drawer{transform:none;box-shadow:6px 0 30px rgba(0,0,0,.12)}
-.drawer.expanded{width:min(660px,94vw)}
-.dw-main{flex:0 0 min(320px,88vw);display:flex;flex-direction:column;overflow-y:auto}
-.dw-side{flex:1;min-width:0;display:none;flex-direction:column;overflow-y:auto;padding:70px 26px 24px;background:#fff}
+.drawer{position:fixed;top:0;left:0;bottom:0;width:min(330px,88vw);background:#fff;z-index:95;
+  transform:translateX(-100%);transition:transform .3s cubic-bezier(.22,1,.36,1), width .3s ease;display:flex;flex-direction:row;overflow:hidden}
+body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
+.drawer.expanded{width:min(680px,94vw)}
+.dw-main{flex:0 0 min(330px,88vw);display:flex;flex-direction:column;overflow-y:auto}
+.dw-side{flex:1;min-width:0;display:none;flex-direction:column;overflow-y:auto;padding:70px 28px 24px;background:var(--warm);border-left:1px solid var(--hair)}
 .drawer.expanded .dw-side{display:flex;animation:fadeIn .25s ease}
-.ds-title{font-size:17px;font-weight:800;margin-bottom:6px;letter-spacing:-.3px}
-.ds-p{font-size:13px;color:var(--sub);line-height:1.7;margin-bottom:12px}
-.ds-btn{display:block;width:100%;text-align:left;padding:12px 14px;border-radius:12px;background:var(--warm);
-  font-size:13.5px;font-weight:600;margin-top:8px}
-.ds-btn:hover{background:var(--orange-soft);color:var(--orange-deep)}
-.dw-head{padding:18px 20px 6px}
-.dw-close{font-size:22px;color:var(--ink);padding:4px 6px}
-.dw-auth{padding:6px 22px 16px;border-bottom:1px solid var(--hair)}
-.dw-auth .big{font-size:19px;font-weight:800;letter-spacing:-.3px}
-.dw-auth .big u{text-underline-offset:4px;cursor:pointer}
+.ds-title{font-size:18px;font-weight:800;margin-bottom:6px;letter-spacing:-.4px}
+.ds-p{font-size:13px;color:var(--sub);line-height:1.7;margin-bottom:14px}
+.ds-btn{display:block;width:100%;text-align:left;padding:13px 15px;border-radius:13px;background:#fff;border:1px solid var(--line);
+  font-size:13.5px;font-weight:600;margin-top:9px;transition:.15s}
+.ds-btn:hover{background:var(--orange-soft);border-color:#f7ddc9;color:var(--orange-deep)}
+.ds-group{font-size:11.5px;font-weight:800;letter-spacing:.02em;color:var(--orange-deep);margin:20px 0 4px;text-transform:uppercase}
+.ds-group:first-of-type{margin-top:8px}
+.ds-link{display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left;
+  padding:11px 6px;font-size:14px;font-weight:600;color:var(--ink);border-bottom:1px solid var(--hair);transition:.14s}
+.ds-link:last-child{border-bottom:none}
+.ds-link::after{content:"›";color:var(--faint);font-size:15px}
+.ds-link:hover{color:var(--orange-deep);padding-left:12px}
+.dw-head{padding:20px 22px 6px}
+.dw-close{width:36px;height:36px;border-radius:11px;font-size:20px;color:var(--ink);display:flex;align-items:center;justify-content:center;transition:background .2s}
+.dw-close:hover{background:var(--warm)}
+.dw-auth{padding:8px 24px 18px;border-bottom:1px solid var(--hair)}
+.dw-auth .big{font-size:19px;font-weight:800;letter-spacing:-.4px}
+.dw-auth .big u{text-underline-offset:4px;cursor:pointer;text-decoration-color:var(--orange)}
 .dw-auth .who{font-size:13px;color:var(--sub);margin-top:4px}
-.dw-auth .cook{display:inline-block;font-size:12.5px;font-weight:700;color:var(--orange);
-  background:var(--orange-tint);border-radius:999px;padding:3px 12px;margin-top:8px}
-.dw-auth .outbtn{display:inline-block;font-size:12px;color:var(--sub);margin-top:8px;text-decoration:underline;text-underline-offset:3px}
-.dw-nav{flex:1;padding:6px 0 20px}
-.dw-item{display:flex;align-items:center;gap:10px;width:100%;padding:15px 22px;font-size:15px;font-weight:700;
-  text-align:left;border-bottom:1px solid var(--hair)}
+.dw-auth .cook{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:800;color:var(--orange-deep);
+  background:var(--orange-soft);border-radius:999px;padding:5px 13px;margin-top:10px}
+.dw-auth .outbtn{display:inline-block;font-size:12px;color:var(--sub);margin-top:10px;text-decoration:underline;text-underline-offset:3px}
+.dw-nav{flex:1;padding:8px 0 20px}
+.dw-item{display:flex;align-items:center;gap:10px;width:100%;padding:16px 24px;font-size:15px;font-weight:700;
+  text-align:left;border-bottom:1px solid var(--hair);transition:.15s}
 .dw-item:hover{background:var(--orange-tint)}
 .dw-item.on{background:var(--orange-soft);color:var(--orange-deep)}
-.dw-item .tag{font-size:11px;font-weight:700;color:#fff;background:var(--orange);border-radius:999px;padding:2px 10px}
-.dw-item .chev{margin-left:auto;font-size:11px;color:var(--faint);transition:transform .2s}
+.dw-item .tag{font-size:10.5px;font-weight:800;color:#fff;background:var(--orange);border-radius:999px;padding:3px 10px}
+.dw-item .chev{margin-left:auto;font-size:13px;color:var(--faint);transition:transform .2s}
 .dw-group.open .dw-item .chev{transform:rotate(180deg)}
 .dw-sub{max-height:0;overflow:hidden;transition:max-height .25s ease;background:var(--warm)}
 .dw-group.open .dw-sub{max-height:600px}
-.dw-subitem{display:block;width:100%;padding:12px 22px 12px 34px;font-size:13.5px;font-weight:500;
+.dw-subitem{display:block;width:100%;padding:12px 24px 12px 36px;font-size:13.5px;font-weight:500;
   color:var(--sub);text-align:left;border-bottom:1px solid var(--hair)}
 .dw-subitem:hover{color:var(--orange)}
-.dw-foot{padding:16px 22px;border-top:1px solid var(--hair);font-size:11px;color:var(--sub);line-height:1.8}
+.dw-foot{padding:18px 24px;border-top:1px solid var(--hair);font-size:11px;color:var(--sub);line-height:1.8}
 
-/* ═══ 히어로 ═══ */
-.hero{position:relative;min-height:100svh;display:flex;align-items:center;overflow:hidden}
-.hero .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.hero .shade{position:absolute;inset:0;background:linear-gradient(105deg,rgba(20,14,10,.62) 0%,rgba(20,14,10,.35) 45%,rgba(20,14,10,.15) 75%)}
-.hero-in{position:relative;z-index:2;max-width:1200px;margin:0 auto;padding:100px 30px 70px;width:100%}
-.hero .eyebrow{font-size:clamp(14px,1.6vw,17px);color:#FFE9DB;font-weight:600}
-.hero h1{font-size:clamp(34px,5.6vw,62px);line-height:1.25;color:#fff;font-weight:800;letter-spacing:-.02em;margin-top:12px}
-.hero .modni-line{display:flex;align-items:center;gap:10px;margin-top:18px}
-.mface{display:flex;align-items:center;justify-content:center;background:#FFF6EE;border-radius:50%;flex-shrink:0}
-.hero .modni-line .mface{width:48px;height:48px}
-.hero .modni-line .mface img{width:34px;height:34px}
-.hero .modni-line span{font-size:clamp(14px,1.7vw,18px);color:#FFF3EA}
+/* ═══ 히어로 (사진 없이 · 브랜드 아이덴티티) ═══ */
+.hero{position:relative;min-height:100svh;display:flex;align-items:center;overflow:hidden;
+  background:radial-gradient(120% 90% at 88% 8%,#FFE7D6 0%,rgba(255,231,214,0) 55%),
+             radial-gradient(90% 70% at 8% 100%,#FFF0E4 0%,rgba(255,240,228,0) 60%),
+             linear-gradient(168deg,#FFFDFB 0%,#FFF6EF 60%,#FFF1E8 100%)}
+.hero .brandart{position:absolute;top:0;right:0;bottom:0;width:min(52%,720px);z-index:0;pointer-events:none;opacity:.9}
+@media(max-width:820px){.hero .brandart{opacity:.35;width:80%}}
+.hero-in{position:relative;z-index:2;max-width:1180px;margin:0 auto;padding:128px 30px 92px;width:100%;
+  display:grid;grid-template-columns:1.05fr .95fr;gap:52px;align-items:center}
+@media(max-width:900px){.hero-in{grid-template-columns:1fr;gap:40px;padding-top:118px}}
+.hero-copy{min-width:0}
+.hero-panel{background:linear-gradient(180deg,#fff 0%,var(--orange-tint) 240%);border:1px solid var(--line);border-radius:26px;padding:22px 24px 26px;box-shadow:0 24px 60px rgba(244,88,28,.12)}
+.hp-head{display:flex;align-items:center;gap:12px;padding:0 0 18px;margin-bottom:6px;border-bottom:1px solid var(--hair)}
+.hp-head .mface{width:44px;height:44px;background:var(--orange-soft);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.hp-head .mface img{width:30px;height:30px}
+.hp-head b{font-size:15.5px;font-weight:800;letter-spacing:-.3px}
+.hp-head span{font-size:12px;color:var(--sub)}
+.hp-flow{position:relative;padding-left:6px}
+.cap{position:relative;display:flex;align-items:flex-start;gap:15px;padding:14px 0}
+.cap+.cap{border-top:none}
+.cap::before{content:"";position:absolute;left:19px;top:44px;bottom:-14px;width:2px;background:var(--line)}
+.cap:last-child::before{display:none}
+.cap .ci{position:relative;z-index:1;width:40px;height:40px;border-radius:50%;background:#fff;border:1.5px solid #f7ddc9;color:var(--orange);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.18s}
+.cap:hover .ci{background:var(--orange);border-color:var(--orange);color:#fff;box-shadow:0 6px 16px rgba(244,88,28,.28)}
+.cap .ci svg{width:20px;height:20px}
+.cap>div{padding-top:2px}
+.cap b{display:block;font-size:14.5px;font-weight:800;letter-spacing:-.2px}
+.cap p{font-size:12px;color:var(--sub);margin-top:3px;line-height:1.5}
+.hero .eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:clamp(12px,1.3vw,13.5px);color:var(--orange-deep);font-weight:800;letter-spacing:.01em;
+  background:#fff;border:1px solid #f7ddc9;border-radius:999px;padding:7px 15px;box-shadow:0 4px 14px rgba(244,88,28,.1)}
+.hero .eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--orange)}
+.hero h1{font-size:clamp(36px,5.6vw,64px);line-height:1.14;color:var(--ink);font-weight:800;letter-spacing:-.035em;margin-top:16px;text-wrap:balance}
+.hero h1 .hl{color:var(--orange)}
+.hero-intro{display:flex;align-items:center;gap:12px;margin-bottom:26px}
+.hero-right{display:flex;flex-direction:column;gap:14px}
+.hero-right .eyebrow{align-self:flex-start}
+.hero-mark{flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.hero-mark img{width:52px;height:52px;animation:modniFloat 3s ease-in-out infinite}
+@keyframes modniFloat{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-6px) rotate(-4deg)}}
+.hero-intro-t{position:relative;font-size:12.5px;line-height:1.55;color:var(--ink);font-weight:500;
+  background:#fff;border:1px solid var(--line);border-radius:16px 16px 16px 4px;padding:11px 15px;box-shadow:var(--shadow)}
+.hero-intro-t::before{content:"";position:absolute;left:-7px;bottom:9px;width:12px;height:12px;background:#fff;
+  border-left:1px solid var(--line);border-bottom:1px solid var(--line);transform:rotate(45deg);border-radius:0 0 0 3px}
+.hero .hero-sub{font-size:clamp(13.5px,1.5vw,16px);color:var(--sub);margin-top:16px;line-height:1.8;max-width:460px}
+.mface{display:flex;align-items:center;justify-content:center;background:#fff;border-radius:50%;flex-shrink:0}
+.hero .modni-line .mface{width:56px;height:56px;background:var(--orange-soft)}
+.hero .modni-line .mface img{width:40px;height:40px}
+.hero .modni-line span{font-size:clamp(13.5px,1.6vw,16px);color:var(--ink);font-weight:600}
+.hero .modni-line span b{color:var(--orange-deep)}
+.journey{display:flex;align-items:center;gap:9px;margin-top:30px;flex-wrap:wrap}
+.journey .jc{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--line);border-radius:12px;
+  padding:9px 14px;font-size:13px;font-weight:700;color:var(--ink)}
+.journey .jc svg{width:17px;height:17px;color:var(--orange)}
+.journey .arw{color:var(--faint);font-size:12px}
+@media(max-width:560px){.journey .arw{display:none}}
 .store-row{display:flex;gap:12px;margin-top:34px;flex-wrap:wrap}
-.store{display:flex;align-items:center;gap:10px;background:rgba(28,22,18,.82);color:#fff;
-  border:1px solid rgba(255,255,255,.25);border-radius:14px;padding:12px 22px;font-size:14px;font-weight:700}
-.store small{display:block;font-size:10.5px;font-weight:400;opacity:.7}
-.store:hover{background:rgba(28,22,18,.95)}
-.scroll-hint{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:2;color:#fff;
-  font-size:12px;opacity:.85;text-align:center;animation:hint 2s ease-in-out infinite}
+.store{display:inline-flex;align-items:center;gap:11px;background:#fff;color:var(--ink);
+  border:1px solid var(--line);border-radius:15px;padding:13px 22px;font-size:14px;font-weight:800;transition:.18s;box-shadow:0 4px 14px rgba(35,30,25,.05)}
+.store small{display:block;font-size:10.5px;font-weight:500;color:var(--sub);margin-top:1px}
+.store:hover{border-color:var(--orange);color:var(--orange-deep);transform:translateY(-1px)}
+.store.primary{background:var(--orange)!important;border-color:var(--orange)!important;color:#fff!important;box-shadow:0 10px 26px rgba(244,88,28,.3)}
+.store.primary small{color:rgba(255,255,255,.82)!important}
+.store.primary:hover{background:var(--orange-deep)!important;color:#fff!important}
+.hero-cta{margin-top:28px;display:flex;flex-direction:column;gap:14px;align-items:flex-start}
+.hero-cta .store.primary{padding:16px 26px;font-size:15px}
+.store-mini{display:flex;gap:10px;flex-wrap:wrap}
+.store-mini a{display:inline-flex;align-items:baseline;gap:7px;font-size:13px;font-weight:700;color:var(--sub);
+  border:1px solid var(--line);border-radius:999px;padding:9px 16px;background:#fff;transition:.15s}
+.store-mini a span{font-size:11px;font-weight:500;color:var(--faint)}
+.store-mini a:hover{border-color:var(--orange);color:var(--orange-deep)}
+.scroll-hint{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);z-index:2;color:var(--sub);
+  font-size:12px;opacity:.9;text-align:center;line-height:1.7;animation:hint 2s ease-in-out infinite}
 @keyframes hint{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,7px)}}
 
 /* ═══ 스크롤 섹션 공통 ═══ */
-.sect{max-width:1080px;margin:0 auto;padding:110px 30px 30px}
-.sect .eyebrow{font-size:14px;font-weight:800;color:var(--orange);letter-spacing:.02em}
-.sect h2{font-size:clamp(26px,3.6vw,42px);font-weight:800;letter-spacing:-.02em;line-height:1.3;margin-top:10px}
-.sect .lead{font-size:clamp(14px,1.6vw,17px);color:var(--sub);margin-top:14px;max-width:560px;line-height:1.75}
-.reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease, transform .7s ease}
+.sect{max-width:1080px;margin:0 auto;padding:120px 30px 30px}
+.sect .eyebrow{font-size:13px;font-weight:800;color:var(--orange);letter-spacing:.04em;text-transform:uppercase}
+.sect h2{font-size:clamp(27px,3.7vw,44px);font-weight:800;letter-spacing:-.03em;line-height:1.28;margin-top:12px;text-wrap:balance}
+.sect .lead{font-size:clamp(14px,1.55vw,17px);color:var(--sub);margin-top:16px;max-width:580px;line-height:1.8}
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s cubic-bezier(.22,1,.36,1), transform .7s cubic-bezier(.22,1,.36,1)}
 .reveal.in{opacity:1;transform:none}
-.duo{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:center;margin-top:36px}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:stretch;margin-top:40px}
 @media(max-width:900px){.duo{grid-template-columns:1fr}}
 
-/* 모형 카드 (일정·호텔 비주얼) */
-.mock{background:#fff;border:1px solid var(--hair);border-radius:22px;padding:22px;box-shadow:0 18px 50px rgba(244,88,28,.08)}
-.mock .mh{display:flex;align-items:center;gap:9px;margin-bottom:10px}
-.mock .mh .badge{font-size:11.5px;font-weight:700;color:var(--orange);background:var(--orange-tint);border-radius:999px;padding:3px 10px}
-.mock .mh b{font-size:15px}
-.mslot{display:grid;grid-template-columns:46px 1fr;gap:10px;padding:10px 0;border-bottom:1px dashed var(--hair);font-size:13.5px}
+/* 모형 카드 */
+.mock{background:#fff;border:1px solid var(--line);border-radius:22px;padding:24px;box-shadow:var(--shadow)}
+.mock .mh{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.mock .mh .badge{font-size:11.5px;font-weight:800;color:var(--orange-deep);background:var(--orange-soft);border-radius:999px;padding:4px 11px}
+.mock .mh b{font-size:15.5px;font-weight:800;letter-spacing:-.2px}
+.mslot{display:grid;grid-template-columns:44px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--hair);font-size:13.5px;align-items:start}
 .mslot:last-child{border-bottom:none}
-.mslot .t{color:var(--sub);font-size:12px;padding-top:2px}
-.mslot b{font-weight:700}
-.mslot p{font-size:12px;color:var(--sub);margin-top:2px}
-.hcard .hrow{display:flex;justify-content:space-between;align-items:baseline;margin-top:4px}
-.hcard .price{font-size:17px;font-weight:800;color:var(--orange)}
+.mslot .t{color:var(--sub);font-size:12px;font-weight:700;padding-top:3px;text-align:center}
+.mslot .ic{width:40px;height:40px;border-radius:12px;background:var(--orange-soft);display:flex;align-items:center;justify-content:center;color:var(--orange)}
+.mslot .ic svg{width:20px;height:20px}
+.mslot b{font-weight:800;letter-spacing:-.2px}
+.mslot p{font-size:12.5px;color:var(--sub);margin-top:3px;line-height:1.55}
+.hcard .hrow{display:flex;justify-content:space-between;align-items:baseline;margin-top:10px}
+.hcard .price{font-size:18px;font-weight:800;color:var(--orange)}
 .hcard .ref{font-size:11px;color:var(--faint)}
-.hbtns{display:flex;gap:8px;margin-top:12px}
-.hbtns span{flex:1;text-align:center;font-size:12.5px;font-weight:700;border-radius:11px;padding:11px 0}
-.hbtns .b1{background:var(--orange);color:#fff}
-.hbtns .b2{background:var(--orange-tint);color:var(--orange-deep);border:1px solid var(--line)}
-.mock .foot-note{font-size:11px;color:var(--faint);margin-top:10px;text-align:center}
+.hbtns{display:flex;gap:9px;margin-top:14px}
+.hbtns span{flex:1;text-align:center;font-size:13px;font-weight:800;border-radius:12px;padding:12px 0}
+.hbtns .b1{background:var(--orange);color:#fff;box-shadow:0 8px 18px rgba(244,88,28,.22)}
+.hbtns .b2{background:#fff;color:var(--orange-deep);border:1px solid var(--line)}
+.mock .foot-note{font-size:11px;color:var(--faint);margin-top:14px;text-align:center}
 
 /* ═══ 마켓 섹션 ═══ */
-.picks{display:flex;gap:14px;margin-top:30px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:8px}
+.picks{display:flex;gap:16px;margin-top:34px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:10px}
 .picks::-webkit-scrollbar{height:6px}
 .picks::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
-.pick{position:relative;flex:0 0 min(420px,80vw);height:200px;border-radius:20px;overflow:hidden;
-  cursor:pointer;scroll-snap-align:start;background:var(--orange-tint)}
-.pick img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .4s}
-.pick:hover img{transform:scale(1.04)}
-.pick .shade{position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(0,0,0,.55))}
-.pick .badge{position:absolute;top:12px;left:12px;background:#fff;color:var(--ink);
-  font-size:11px;font-weight:700;border-radius:999px;padding:3px 10px}
-.pick .pt{position:absolute;left:16px;bottom:32px;right:16px;color:#fff;font-size:17px;font-weight:800;
-  letter-spacing:-.3px;text-shadow:0 1px 4px rgba(0,0,0,.4)}
-.pick .pm{position:absolute;left:16px;bottom:11px;color:#fff;font-size:12px;opacity:.9}
-.mkt-tools{display:flex;gap:10px;margin-top:26px;flex-wrap:wrap;align-items:center}
-.search{flex:1;min-width:220px;display:flex;align-items:center;gap:9px;background:#fff;
-  border:1px solid var(--line);border-radius:14px;padding:11px 15px}
+.pick{position:relative;flex:0 0 min(420px,80vw);height:210px;border-radius:22px;overflow:hidden;
+  cursor:pointer;scroll-snap-align:start;background:var(--orange-soft);box-shadow:var(--shadow)}
+.pick img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s}
+.pick:hover img{transform:scale(1.05)}
+.pick .shade{position:absolute;inset:0;background:linear-gradient(180deg,transparent 32%,rgba(29,20,14,.62))}
+.pick .badge{position:absolute;top:14px;left:14px;background:#fff;color:var(--orange-deep);
+  font-size:11px;font-weight:800;border-radius:999px;padding:4px 12px;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.pick .pt{position:absolute;left:18px;bottom:34px;right:18px;color:#fff;font-size:18px;font-weight:800;
+  letter-spacing:-.3px;text-shadow:0 1px 6px rgba(0,0,0,.4)}
+.pick .pm{position:absolute;left:18px;bottom:13px;color:#fff;font-size:12px;opacity:.92}
+.mkt-tools{display:flex;gap:11px;margin-top:30px;flex-wrap:wrap;align-items:center}
+.search{flex:1;min-width:220px;display:flex;align-items:center;gap:10px;background:#fff;
+  border:1px solid var(--line);border-radius:14px;padding:12px 16px;transition:border-color .15s}
+.search:focus-within{border-color:var(--orange)}
+.search svg{width:17px;height:17px;color:var(--faint);flex-shrink:0}
 .search input{flex:1;border:none;background:none;font:inherit;font-size:14px;color:var(--ink);outline:none}
 .search input::placeholder{color:var(--faint)}
 .chips{display:flex;gap:8px;flex-wrap:wrap}
-.chips button,.sorts button{font-size:12.5px;font-weight:600;color:var(--ink);background:#fff;
-  border:1px solid var(--line);border-radius:999px;padding:7px 15px}
+.chips button,.sorts button{font-size:12.5px;font-weight:700;color:var(--sub);background:#fff;
+  border:1px solid var(--line);border-radius:999px;padding:8px 16px;transition:.15s}
+.chips button:hover,.sorts button:hover{border-color:var(--orange);color:var(--orange-deep)}
 .chips button.on,.sorts button.on{background:var(--orange);border-color:var(--orange);color:#fff}
-.m-sub{font-size:16px;font-weight:800;margin:30px 0 10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
-.regions{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px}
+.m-sub{font-size:17px;font-weight:800;letter-spacing:-.3px;margin:34px 0 12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.regions{display:flex;gap:11px;overflow-x:auto;padding-bottom:8px}
 .regions::-webkit-scrollbar{height:6px}
 .regions::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
-.region{position:relative;flex:0 0 150px;height:96px;border-radius:14px;overflow:hidden;cursor:pointer;background:var(--orange-tint)}
-.region img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.region .shade{position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(0,0,0,.5))}
-.region .rt{position:absolute;left:10px;bottom:22px;color:#fff;font-size:14px;font-weight:800;text-shadow:0 1px 3px rgba(0,0,0,.4)}
-.region .rc{position:absolute;left:10px;bottom:6px;color:#fff;font-size:11px;opacity:.9}
+.region{position:relative;flex:0 0 152px;height:100px;border-radius:16px;overflow:hidden;cursor:pointer;background:var(--orange-soft)}
+.region img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.region:hover img{transform:scale(1.06)}
+.region .shade{position:absolute;inset:0;background:linear-gradient(180deg,transparent 34%,rgba(29,20,14,.56))}
+.region .rt{position:absolute;left:12px;bottom:24px;color:#fff;font-size:14px;font-weight:800;text-shadow:0 1px 3px rgba(0,0,0,.4)}
+.region .rc{position:absolute;left:12px;bottom:8px;color:#fff;font-size:11px;opacity:.9}
+#worldMap{height:clamp(300px,40vw,430px);border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#eef4f8}
+#worldMap .leaflet-container{background:#eef4f8;font-family:inherit}
+.cpill{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;transform:translate(-50%,-50%);
+  background:#fff;border:1.5px solid var(--orange);color:var(--orange-deep);border-radius:999px;
+  padding:6px 12px;font-size:13px;font-weight:800;box-shadow:0 6px 16px rgba(29,20,14,.18);cursor:pointer;transition:.18s}
+.cpill b{background:var(--orange);color:#fff;border-radius:999px;padding:1px 8px;font-size:12px;font-weight:800}
+.cpill:hover{transform:translate(-50%,-50%) scale(1.06)}
+.cpill.on{background:var(--orange);color:#fff}
+.cpill.on b{background:#fff;color:var(--orange-deep)}
+.cpill.off{border-color:var(--line);color:var(--faint);background:rgba(255,255,255,.82);cursor:default;box-shadow:none}
+.cpill.off b{background:var(--line);color:#fff}
+.cpill.off:hover{transform:translate(-50%,-50%)}
 .sorts{display:flex;gap:8px}
-.grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-top:4px}
-.mcard{display:flex;gap:12px;align-items:center;background:#fff;border:1px solid var(--hair);
-  border-radius:16px;padding:13px 15px;cursor:pointer;transition:.13s}
-.mcard:hover{border-color:var(--orange);box-shadow:0 6px 18px rgba(244,88,28,.08)}
-.thumb{width:56px;height:56px;flex:0 0 56px;border-radius:13px;object-fit:cover;background:var(--orange-tint)}
-.thumb-fallback{width:56px;height:56px;flex:0 0 56px;border-radius:13px;background:var(--orange-tint);
-  color:var(--orange);font-size:19px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:13px;margin-top:4px}
+.m-desc{font-size:13.5px;color:var(--sub);margin:0 0 14px;font-weight:600}
+.rank-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:4px}
+@media(max-width:720px){.rank-grid{grid-template-columns:1fr}}
+.rank-grid .rank-item{border:1px solid var(--line);border-radius:16px;background:#fff}
+.rank-grid .rank-item:hover{background:var(--orange-tint);border-color:var(--orange)}
+.all-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:16px;
+  background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px 24px;cursor:pointer;transition:.18s;text-align:left}
+.all-toggle:hover{border-color:var(--orange);box-shadow:var(--shadow)}
+.all-toggle .at-l{display:flex;flex-direction:column;gap:3px}
+.all-toggle .at-t{font-size:16px;font-weight:800;letter-spacing:-.3px;color:var(--ink)}
+.all-toggle .at-s{font-size:12.5px;color:var(--sub);font-weight:600}
+.all-toggle .arw{font-size:24px;line-height:1;color:var(--orange);transition:transform .22s;flex-shrink:0}
+.all-toggle[aria-expanded="true"] .arw{transform:rotate(90deg)}
+.all-panel.hidden{display:none}
+.memvid{position:relative;width:min(240px,62%);margin:0 auto;aspect-ratio:9/16;border-radius:28px;overflow:hidden;box-shadow:var(--shadow);background:var(--orange-soft)}
+.memvid .mv-slide{position:absolute;inset:0;opacity:0;transition:opacity .8s ease}
+.memvid .mv-slide.on{opacity:1}
+.memvid .mv-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(29,20,14,.18) 0%,rgba(29,20,14,.02) 42%,rgba(29,20,14,.74) 100%)}
+.memvid .mv-badge{position:absolute;top:16px;left:16px;display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.42);color:#fff;font-size:11.5px;font-weight:700;border-radius:999px;padding:5px 11px}
+.memvid .mv-play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:66px;height:66px;border-radius:999px;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,0,0,.28)}
+.memvid .mv-cap{position:absolute;left:20px;right:20px;bottom:24px;color:#fff}
+.memvid .mv-cap b{display:block;font-size:20px;font-weight:800;letter-spacing:-.3px;text-shadow:0 1px 8px rgba(0,0,0,.45)}
+.memvid .mv-cap span{font-size:12.5px;opacity:.92;text-shadow:0 1px 6px rgba(0,0,0,.4)}
+.mcard{display:flex;gap:13px;align-items:center;background:#fff;border:1px solid var(--line);
+  border-radius:16px;padding:14px 16px;cursor:pointer;transition:.15s}
+.mcard:hover{border-color:var(--orange);box-shadow:0 8px 22px rgba(244,88,28,.1);transform:translateY(-1px)}
+.thumb{width:58px;height:58px;flex:0 0 58px;border-radius:14px;object-fit:cover;background:var(--orange-soft)}
+.thumb-fallback{width:58px;height:58px;flex:0 0 58px;border-radius:14px;background:var(--orange-soft);
+  color:var(--orange);font-size:20px;font-weight:800;display:flex;align-items:center;justify-content:center}
 .m-body{min-width:0;flex:1}
-.m-t{font-size:14.5px;line-height:1.4;font-weight:700;letter-spacing:-.2px}
-.m-meta{font-size:11.5px;color:var(--sub);margin-top:3px}
-.m-hearts{font-size:12.5px;color:var(--sub);font-weight:600;flex-shrink:0}
-.m-badge{font-size:10.5px;color:var(--orange-deep);background:var(--orange-tint);border-radius:999px;padding:1px 8px;margin-left:6px;vertical-align:1px}
-.empty{font-size:13.5px;color:var(--sub);padding:36px 0;text-align:center}
-.rank-list{background:#fff;border:1px solid var(--hair);border-radius:18px;overflow:hidden;margin-top:4px}
-.rank-item{display:flex;align-items:center;gap:12px;padding:12px 15px;cursor:pointer;border-bottom:1px solid var(--hair);transition:.12s}
+.m-t{font-size:14.5px;line-height:1.4;font-weight:800;letter-spacing:-.2px}
+.m-meta{font-size:11.5px;color:var(--sub);margin-top:4px}
+.m-hearts{font-size:12.5px;color:var(--orange);font-weight:700;flex-shrink:0}
+.m-badge{font-size:10.5px;color:var(--orange-deep);background:var(--orange-soft);border-radius:999px;padding:2px 9px;margin-left:6px;vertical-align:1px;font-weight:700}
+.empty{font-size:13.5px;color:var(--sub);padding:38px 0;text-align:center}
+.rank-list{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-top:4px}
+.rank-item{display:flex;align-items:center;gap:13px;padding:13px 16px;cursor:pointer;border-bottom:1px solid var(--hair);transition:.13s}
 .rank-item:last-child{border-bottom:none}
 .rank-item:hover{background:var(--orange-tint)}
-.rank-no{font-size:16px;font-weight:800;color:var(--orange);width:18px;text-align:center;flex:0 0 18px}
+.rank-no{font-size:16px;font-weight:800;color:var(--orange);width:20px;text-align:center;flex:0 0 20px}
 .rank-body{min-width:0;flex:1}
-.rank-body h4{font-size:13.5px;letter-spacing:-.2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rank-body h4{font-size:13.5px;font-weight:800;letter-spacing:-.2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rank-body span{font-size:11.5px;color:var(--sub)}
-.rank-heart{font-size:12px;font-weight:600;color:var(--sub);white-space:nowrap}
+.rank-heart{font-size:12px;font-weight:700;color:var(--orange);white-space:nowrap}
+
+/* ═══ 인앱 캡쳐 · 단계별 ═══ */
+.screens{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;margin-top:44px}
+@media(max-width:820px){.screens{grid-template-columns:repeat(2,1fr);gap:26px}}
+@media(max-width:460px){.screens{grid-template-columns:1fr}}
+.screen{margin:0;text-align:center}
+.phone{position:relative;aspect-ratio:9/19.5;border-radius:34px;background:#1d1b19;padding:9px;
+  box-shadow:0 20px 46px rgba(35,30,25,.16);border:1px solid #efe9e3}
+.phone image-slot{display:block;width:100%;height:100%;border-radius:26px;overflow:hidden;background:var(--orange-tint)}
+.phone .app-rot{position:relative;width:100%;height:100%;border-radius:26px;overflow:hidden;background:#ffffff}
+.app-rot .rot-frame{position:absolute;top:0;left:0;transform-origin:top left;opacity:0;transition:opacity .7s ease;pointer-events:none}
+.app-rot .rot-frame.on{opacity:1}
+.screen figcaption{margin-top:16px}
+.screen figcaption b{display:block;font-size:15px;font-weight:800;letter-spacing:-.2px}
+.screen figcaption span{font-size:12.5px;color:var(--sub)}
+/* 캐러셀 */
+.screens-carousel{margin-top:44px}
+.sc-viewport{overflow:hidden}
+.sc-track{display:flex;transition:transform .55s cubic-bezier(.22,1,.36,1)}
+.sc-track .screen{flex:0 0 100%;display:flex;flex-direction:column;align-items:center;opacity:.4;transform:scale(.9);transition:opacity .45s,transform .45s}
+.sc-track .screen.on{opacity:1;transform:none}
+.sc-track .phone{width:min(272px,74vw)}
+.sc-dots{display:flex;justify-content:center;gap:9px;margin-top:26px}
+.sc-dots button{width:8px;height:8px;border-radius:999px;background:var(--line);transition:.2s;padding:0}
+.sc-dots button.on{width:24px;background:var(--orange)}
+@media(min-width:760px){
+  .sc-track .screen{flex:0 0 42%}
+  .sc-viewport{padding:0 4%}
+}
+.mock-shot{display:flex;flex-direction:column;align-items:center}
+.mock-shot .phone{width:min(280px,72%)}
+.mock-shot .foot-note{margin-top:14px}
 
 /* ═══ CTA ═══ */
-.cta-band{margin-top:110px;background:linear-gradient(180deg,var(--warm),var(--orange-soft));border-top:1px solid var(--hair);padding:80px 30px;text-align:center;color:var(--ink)}
-.cta-band .mface{width:92px;height:92px;margin:0 auto;background:#fff}
+.cta-band{margin-top:120px;background:linear-gradient(165deg,var(--warm) 0%,var(--orange-soft) 100%);border-top:1px solid var(--hair);padding:88px 30px;text-align:center;color:var(--ink)}
+.cta-band .mface{width:96px;height:96px;margin:0 auto;background:#fff;box-shadow:var(--shadow)}
 .cta-band .mface img{width:64px;height:64px}
-.cta-band h2{font-size:clamp(24px,3.4vw,38px);font-weight:800;letter-spacing:-.02em;margin-top:14px}
-.cta-band p{font-size:14.5px;color:var(--sub);margin-top:8px}
-.cta-band .store-row{justify-content:center}
-.cta-band .store{background:var(--ink);border-color:var(--ink)}
+.cta-band h2{font-size:clamp(25px,3.5vw,40px);font-weight:800;letter-spacing:-.03em;margin-top:18px;text-wrap:balance}
+.cta-band p{font-size:14.5px;color:var(--sub);margin-top:10px}
+.cta-band .store-row{justify-content:center;margin-top:30px}
+.cta-band .store{background:var(--ink);border-color:var(--ink);color:#fff;backdrop-filter:none}
+.cta-band .store:hover{background:#000}
 
 /* ═══ 푸터 ═══ */
-footer{background:#fff;border-top:1px solid var(--hair);padding:44px 30px 60px}
+footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
 .foot-in{max-width:1080px;margin:0 auto}
 .foot-top{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:flex-start}
 .foot-co{font-size:13px;color:var(--sub);line-height:2}
 .foot-co b{color:var(--ink);font-size:14px}
-.foot-links{font-size:13px;color:var(--sub);display:flex;gap:14px;flex-wrap:wrap;margin-top:18px}
+.foot-links{font-size:13px;color:var(--sub);display:flex;gap:16px;flex-wrap:wrap;margin-top:20px}
 .foot-links a{text-decoration:underline;text-underline-offset:3px}
-.en-box{background:var(--warm);border:1px solid var(--hair);border-radius:14px;padding:18px 20px;margin-top:26px}
-.en-box h3{font-size:14px;margin-bottom:8px}
-.en-box p{font-size:12.5px;color:var(--sub);margin-bottom:6px;line-height:1.7}
+.en-box{background:var(--warm);border:1px solid var(--hair);border-radius:16px;padding:20px 22px;margin-top:28px}
+.en-box h3{font-size:14px;font-weight:800;margin-bottom:8px}
+.en-box p{font-size:12.5px;color:var(--sub);margin-bottom:6px;line-height:1.75}
 
-/* ═══ 오버레이 (코스 상세 · 내 여행) ═══ */
+/* ═══ 오버레이 ═══ */
 .overlay{position:fixed;inset:0;background:var(--bg);z-index:100;overflow-y:auto;display:none}
 .overlay.on{display:block;animation:fadeIn .25s ease}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 .ov-in{max-width:860px;margin:0 auto;padding:24px 26px 90px}
-.ov-top{position:sticky;top:0;background:rgba(255,253,251,.94);backdrop-filter:blur(8px);
-  padding:12px 0;display:flex;align-items:center;gap:12px;z-index:5;border-bottom:1px solid var(--hair)}
-.backlink{font-size:14px;font-weight:600;color:var(--sub)}
-.backlink:hover{color:var(--orange)}
-.dt-title{font-size:22px;font-weight:800;line-height:1.4;margin-top:16px;letter-spacing:-.4px}
-.dt-meta{font-size:12.5px;color:var(--sub);margin-top:5px}
-.dt-summary{font-size:13px;color:var(--ink);margin-top:12px;line-height:1.75;background:var(--orange-tint);border-radius:12px;padding:12px 14px}
+.ov-top{position:sticky;top:0;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);
+  padding:14px 0;display:flex;align-items:center;gap:12px;z-index:5;border-bottom:1px solid var(--hair)}
+.backlink{font-size:14px;font-weight:700;color:var(--sub);padding:6px 12px;border-radius:10px;transition:.15s}
+.backlink:hover{color:var(--orange);background:var(--warm)}
+.dt-title{font-size:23px;font-weight:800;line-height:1.35;margin-top:18px;letter-spacing:-.5px}
+.dt-meta{font-size:12.5px;color:var(--sub);margin-top:6px}
+.dt-summary{font-size:13px;color:var(--ink);margin-top:14px;line-height:1.75;background:var(--orange-tint);border:1px solid #f7ddc9;border-radius:14px;padding:14px 16px}
 .dt-days{margin-top:16px}
-.day-h{font-size:15px;font-weight:800;margin:22px 0 4px;display:flex;gap:8px;align-items:baseline}
-.day-h .c{font-size:12px;color:var(--sub);font-weight:400}
-.day-wrap{display:grid;grid-template-columns:1fr 320px;gap:16px;align-items:start}
+.see-all{display:flex;align-items:center;justify-content:center;gap:4px;width:100%;margin-top:18px;
+  font-size:14px;font-weight:800;color:var(--orange-deep);background:var(--orange-tint);border:1px solid #f7ddc9;
+  border-radius:14px;padding:15px;transition:.15s}
+.see-all:hover{background:var(--orange-soft)}
+.see-all .c{font-weight:600;color:var(--sub)}
+.day-h{font-size:15px;font-weight:800;margin:24px 0 6px;display:flex;gap:8px;align-items:baseline}
+.day-h .c{font-size:12px;color:var(--sub);font-weight:500}
+.day-wrap{display:grid;grid-template-columns:1fr 320px;gap:18px;align-items:start}
 @media(max-width:900px){.day-wrap{grid-template-columns:1fr}.day-map{order:-1}}
-.day-map{height:300px;border:1px solid var(--line);border-radius:12px;overflow:hidden;position:sticky;top:64px;z-index:0}
-.day-map .leaflet-control-attribution{font-size:8px;background:rgba(255,253,251,.7)}
+.day-map{height:300px;border:1px solid var(--line);border-radius:14px;overflow:hidden;position:sticky;top:66px;z-index:0}
+.day-map .leaflet-control-attribution{font-size:8px;background:rgba(255,255,255,.7)}
 .map-pin{width:24px;height:24px;border-radius:50%;background:var(--orange);color:#fff;
   font:700 12px 'Pretendard Variable',Pretendard,sans-serif;display:flex;align-items:center;justify-content:center;
   border:1.5px solid #fff;box-shadow:0 1px 4px rgba(29,27,25,.35)}
-.travel-chip{display:inline-block;background:rgba(255,253,251,.94);border:1px solid var(--line);
+.travel-chip{display:inline-block;background:rgba(255,255,255,.94);border:1px solid var(--line);
   border-radius:999px;padding:1px 8px;font:600 10.5px 'Pretendard Variable',Pretendard,sans-serif;color:var(--ink);
   white-space:nowrap;box-shadow:0 1px 3px rgba(29,27,25,.2);transform:translate(-50%,-50%)}
 .pin-no{display:inline-flex;width:17px;height:17px;border-radius:50%;background:var(--orange);color:#fff;
   font-size:10.5px;font-weight:700;align-items:center;justify-content:center;margin-right:7px;vertical-align:1px}
-.slot{display:grid;grid-template-columns:46px 1fr;gap:10px;padding:9px 0;border-bottom:1px solid var(--hair)}
-.slot .t{font-size:12px;color:var(--sub);padding-top:2px}
-.slot .ti{font-size:13.5px;line-height:1.5;font-weight:600}
-.slot .ty{font-size:10.5px;color:var(--sub);border:1px solid var(--line);border-radius:999px;padding:0 7px;margin-left:6px;white-space:nowrap}
-.slot .tip{font-size:12px;color:var(--sub);margin-top:3px;line-height:1.6;
+.slot{display:grid;grid-template-columns:46px 1fr;gap:10px;padding:10px 0;border-bottom:1px solid var(--hair)}
+.slot .t{font-size:12px;color:var(--sub);font-weight:700;padding-top:2px}
+.slot .ti{font-size:13.5px;line-height:1.5;font-weight:700}
+.slot .ty{font-size:10.5px;color:var(--sub);border:1px solid var(--line);border-radius:999px;padding:0 7px;margin-left:6px;white-space:nowrap;font-weight:600}
+.slot .tip{font-size:12px;color:var(--sub);margin-top:4px;line-height:1.6;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.guide-btn{display:inline-flex;align-items:center;gap:4px;font:600 11px 'Pretendard Variable',Pretendard,sans-serif;
-  color:var(--orange-deep);background:none;border:1px solid var(--line);border-radius:999px;
-  padding:1px 9px;margin-left:7px;vertical-align:2px}
+.guide-btn{display:inline-flex;align-items:center;gap:4px;font:700 11px 'Pretendard Variable',Pretendard,sans-serif;
+  color:var(--orange-deep);background:none;border:1px solid #f3ddc9;border-radius:999px;
+  padding:2px 10px;margin-left:7px;vertical-align:2px}
 .guide-btn:hover{background:var(--orange-tint)}
-.bucket-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px 16px 14px;margin:10px 0 4px}
+.bucket-card{background:var(--warm);border:1px solid var(--line);border-radius:16px;padding:16px 17px 15px;margin:10px 0 4px}
 .bucket-card h5{font-size:14.5px;font-weight:800}
-.bucket-card .cat{font-size:11px;color:var(--sub);border:1px solid var(--line);border-radius:999px;padding:0 8px;margin-left:8px;vertical-align:2px}
-.bucket-card .desc{font-size:13px;color:var(--ink);line-height:1.75;margin-top:8px}
-.bucket-card .vinfo{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;margin-top:11px;font-size:12.5px}
+.bucket-card .cat{font-size:11px;color:var(--sub);border:1px solid var(--line);border-radius:999px;padding:1px 9px;margin-left:8px;vertical-align:2px;font-weight:600}
+.bucket-card .desc{font-size:13px;color:var(--ink);line-height:1.75;margin-top:9px}
+.bucket-card .vinfo{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin-top:12px;font-size:12.5px}
 .bucket-card .vinfo dt{color:var(--sub)}
-.bucket-card .vinfo dd{color:var(--ink)}
-.bucket-card .tips{margin-top:11px;border-top:1px dashed var(--line);padding-top:10px}
+.bucket-card .vinfo dd{color:var(--ink);font-weight:600}
+.bucket-card .tips{margin-top:12px;border-top:1px solid var(--line);padding-top:11px}
 .bucket-card .tips .tl{font-size:12.5px;font-weight:800;color:var(--orange)}
-.bucket-card .tips p{font-size:12.5px;color:var(--ink);line-height:1.7;margin-top:4px}
+.bucket-card .tips p{font-size:12.5px;color:var(--ink);line-height:1.7;margin-top:5px}
 .bucket-photo{display:block;max-width:100%;max-height:240px;width:auto;height:auto;
   border-radius:12px;border:1px solid var(--hair);margin:12px auto 0}
 .photo-credit{font-size:10.5px;color:var(--faint);margin-top:4px;text-align:center}
-.pspots{margin-top:11px;border-top:1px dashed var(--line);padding-top:10px}
+.pspots{margin-top:12px;border-top:1px solid var(--line);padding-top:11px}
 .pspots .tl{font-size:12.5px;font-weight:800;color:var(--ink)}
-.pspots p{font-size:12.5px;color:var(--ink);line-height:1.7;margin-top:4px}
-.audio-row{display:flex;align-items:center;gap:10px;margin-top:13px;border-top:1px dashed var(--line);padding-top:12px}
-.audio-btn{width:38px;height:38px;border-radius:50%;border:1.6px solid var(--orange);background:#fff;
+.pspots p{font-size:12.5px;color:var(--ink);line-height:1.7;margin-top:5px}
+.audio-row{display:flex;align-items:center;gap:11px;margin-top:14px;border-top:1px solid var(--line);padding-top:13px}
+.audio-btn{width:40px;height:40px;border-radius:50%;border:1.6px solid var(--orange);background:#fff;
   font-size:14px;color:var(--orange);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .audio-btn:hover{background:var(--orange-tint)}
 .audio-row .al{font-size:12.5px;color:var(--sub)}
-.take{display:block;width:100%;margin-top:22px;font-size:14.5px;font-weight:800;color:#fff;
-  background:var(--orange);border-radius:13px;padding:14px;text-align:center}
-.take:hover{filter:brightness(1.07)}
-.take-note{font-size:12px;color:var(--sub);text-align:center;margin-top:8px;display:none}
-.btn-go{display:inline-block;margin-top:24px;background:var(--orange);color:#fff;font-size:14px;font-weight:700;
-  border-radius:999px;padding:13px 26px;transition:.15s}
-.btn-go:hover{filter:brightness(1.07)}
+.take{display:block;width:100%;margin-top:24px;font-size:15px;font-weight:800;color:#fff;
+  background:var(--orange);border-radius:14px;padding:15px;text-align:center;box-shadow:0 10px 24px rgba(244,88,28,.24)}
+.take:hover{background:var(--orange-deep);color:#fff}
+.take-note{font-size:12px;color:var(--sub);text-align:center;margin-top:10px;display:none;line-height:1.7}
+.btn-go{display:inline-block;margin-top:26px;background:var(--orange);color:#fff;font-size:14px;font-weight:800;
+  border-radius:999px;padding:14px 28px;box-shadow:0 10px 24px rgba(244,88,28,.24);transition:.15s}
+.btn-go:hover{background:var(--orange-deep);color:#fff;transform:translateY(-1px)}
 .take-note .applink{color:var(--orange);font-weight:700;text-decoration:underline;text-underline-offset:3px}
 
 /* 내 여행 오버레이 카드 */
-.trip-card{background:#fff;border:1px solid var(--hair);border-radius:16px;padding:16px 18px;margin-top:12px}
+.trip-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-top:12px;box-shadow:0 3px 10px rgba(35,30,25,.04)}
 .trip-row1{display:flex;align-items:center;gap:9px}
-.badge-plan{font-size:11.5px;font-weight:700;color:var(--orange);background:var(--orange-tint);border-radius:999px;padding:3px 10px}
-.badge-done{font-size:11.5px;font-weight:700;color:var(--green);background:var(--green-soft);border-radius:999px;padding:3px 10px}
+.badge-plan{font-size:11.5px;font-weight:800;color:var(--orange-deep);background:var(--orange-soft);border-radius:999px;padding:3px 11px}
+.badge-done{font-size:11.5px;font-weight:800;color:var(--green);background:var(--green-soft);border-radius:999px;padding:3px 11px}
 .trip-row1 .dep{font-size:12px;color:var(--sub)}
 .trip-row1 .dday{margin-left:auto;font-size:15px;font-weight:800;color:var(--orange)}
-.trip-card h4{font-size:16px;font-weight:800;margin-top:8px;letter-spacing:-.3px}
-.trip-card .tm{font-size:12.5px;color:var(--sub);margin-top:2px}
+.trip-card h4{font-size:16px;font-weight:800;margin-top:9px;letter-spacing:-.3px}
+.trip-card .tm{font-size:12.5px;color:var(--sub);margin-top:3px}
 </style>
 </head>
 <body>
@@ -308,10 +460,11 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:44px 30px 60px}
 <!-- ═══ 상단바 ═══ -->
 <header class="topbar" id="topbar">
   <button class="tb-burger" onclick="toggleMenu()" aria-label="메뉴"><span></span><span></span><span></span></button>
-  <button class="tb-login" id="tbLogin">로그인</button>
+  <a class="tb-logo" href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">MODNI</a>
   <div class="sp"></div>
+  <button class="tb-hotel" id="tbHotel" onclick="openHotelSite()">모드니 회원 전용 호텔 예약</button>
   <button class="tb-login" id="langBtn" style="letter-spacing:.04em">ENG</button>
-  <div class="tb-brand"><img src="assets/icon.png" alt="">여행의 모든것</div>
+  <button class="tb-login" id="tbLogin">로그인</button>
 </header>
 
 <!-- ═══ 왼쪽 슬라이드 메뉴 ═══ -->
@@ -326,37 +479,46 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:44px 30px 60px}
       <button class="dw-item" data-sub="trips">내 여행 <span class="chev">›</span></button>
       <button class="dw-item" data-sub="market">여행 마켓 <span class="tag">코스 담아가기</span><span class="chev">›</span></button>
       <button class="dw-item" onclick="openHotelSite()">호텔 예약 <span class="tag">회원 특가</span></button>
-      <button class="dw-item" onclick="goSect('plan')">AI 맞춤 일정</button>
       <button class="dw-item" data-sub="feats">기능 소개 <span class="chev">›</span></button>
       <button class="dw-item" onclick="goSect('cta')">앱 다운로드</button>
       <button class="dw-item" data-sub="company">회사 · 파트너 <span class="chev">›</span></button>
     </div>
-    <div class="dw-foot">© (주)하우스두둥 · 핵심 기술 특허 출원 중<br>문의 horace1201@gmail.com</div>
+    <div class="dw-foot">© (주)하우스두둥 · 핵심 기술 특허 출원 중<br>문의 <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="731b1c011210164241434233141e121a1f5d101c1e">[email&#160;protected]</a></div>
   </div>
   <div class="dw-side" id="dwSide"></div>
 </nav>
 
 <!-- ═══ 히어로 ═══ -->
 <section class="hero">
-  <img class="bg" src="https://images.unsplash.com/photo-1570077188670-6a96d69a8f83?w=1800&q=70&auto=format&fit=crop" alt="산토리니"
-       onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=1800&q=70&auto=format&fit=crop'">
-  <div class="shade"></div>
+
   <div class="hero-in">
-    <p class="eyebrow" id="heroEyebrow">계획부터 추억까지, AI 여행 메이트</p>
-    <h1 id="heroTitle">여행의 모든 것을,<br>한 곳에서</h1>
-    <div class="modni-line">
-      <span class="mface"><img src="assets/modni_symbol.png" alt="모드니"></span>
-      <span id="heroModni">모든이의 꿈 · <b>모드니</b>가 함께 그려 드려요</span>
+   <div class="hero-copy">
+    <div class="hero-intro">
+      <span class="hero-mark"><img src="assets/modni_symbol.png" alt="모드니"></span>
+      <span class="hero-intro-t">모든이의 꿈을 위해 제가 있어요</span>
     </div>
-    <div class="store-row">
-      <a class="store" href="#cta">▶ <span>Google Play<small>곧 출시</small></span></a>
-      <a class="store" href="#cta"> <span>App Store<small>준비 중</small></span></a>
+    <h1 id="heroTitle">여행의 모든 것을,<br><span class="hl">모드니</span>와 한 곳에서</h1>
+    <p class="hero-sub" id="heroModni">떠나기 전 계획·예약부터, 여행 중 길잡이, 다녀온 뒤 추억까지<br>모드니가 처음부터 끝까지 함께 그려 드려요.</p>
+    <div class="hero-cta">
+      <div class="store-mini">
+        <a href="#cta">Google Play <span>곧 출시</span></a>
+        <a href="#cta">App Store <span>준비 중</span></a>
+      </div>
     </div>
-    <div class="store-row" style="margin-top:12px">
-      <a class="store" id="heroHotel" href="#" onclick="return openHotelSite(event)"
-         style="background:var(--orange);border-color:var(--orange)">🏨 <span>호텔 예약<small>로그인하면 회원가로 예약 가능 · Nuitée 제공</small></span></a>
-    </div>
-  </div>
+   </div>
+   <div class="hero-right">
+   <div class="hero-panel" aria-hidden="true">
+     <p class="eyebrow" id="heroEyebrow" style="align-self:flex-start;margin:2px 2px 12px">계획부터 추억까지, AI 여행 메이트</p>
+     <div class="hp-head"><div><b>모드니와 함께라면</b><br><span>여행 한 번의 처음부터 끝까지</span></div></div>
+     <div class="hp-flow">
+     <div class="cap"><span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14"/><path d="M15 6v14"/></svg></span><div><b>AI 맞춤 일정</b><p>취향·예산 말하면 코스를 그려요</p></div></div>
+     <div class="cap"><span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V5a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v16"/><path d="M9 8h1"/><path d="M14 8h1"/><path d="M9 12h1"/><path d="M14 12h1"/></svg></span><div><b>호텔·예약 연결</b><p>예산 맞춤 호텔을 날짜까지 채워서</p></div></div>
+     <div class="cap"><span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h16l-1 3H5Z"/><path d="M5 12v8h14v-8"/><path d="M4 9l1.5-4h13L20 9"/></svg></span><div><b>여행 마켓</b><p>완성된 일정을 통째로 담아가요</p></div></div>
+     <div class="cap"><span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="2.5" y="14" width="4" height="6" rx="2"/><rect x="17.5" y="14" width="4" height="6" rx="2"/></svg></span><div><b>따라다니는 가이드</b><p>장소마다 음성으로 이야기를</p></div></div>
+     <div class="cap"><span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M8 5 6 19"/><path d="M16 5l2 14"/><path d="M3 10h18"/></svg></span><div><b>추억 영상</b><p>다녀온 뒤엔 영상으로 남겨요</p></div></div>
+     </div>
+   </div>
+   </div>
   <div class="scroll-hint">아래로 스크롤<br>⌄</div>
 </section>
 
@@ -369,20 +531,325 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:44px 30px 60px}
     <button class="btn-go" id="planCta" onclick="goSect('cta')">나만의 일정 만들기 — 앱에서 →</button>
   </div>
   <div class="duo">
-    <div class="mock reveal">
-      <div class="mh"><span class="badge">Day 2</span><b>오사카 · 벚꽃 코스</b></div>
-      <div class="mslot"><span class="t">09:30</span><div><b>오사카성 공원</b><p>벚꽃 명소 — 니시노마루 정원이 포인트</p></div></div>
-      <div class="mslot"><span class="t">12:00</span><div><b>이치란 본점</b><p>돈코츠 라멘 — 웨이팅 30분 예상</p></div></div>
-      <div class="mslot"><span class="t">14:00</span><div><b>도톤보리 · 신사이바시</b><p>글리코상 포토스팟 → 쇼핑</p></div></div>
-      <div class="mslot"><span class="t">18:30</span><div><b>우메다 공중정원</b><p>노을 시간 맞춰 전망대</p></div></div>
-      <div class="foot-note">실제 앱 일정표 예시 화면</div>
+    <div class="mock-shot reveal">
+      <div class="phone"><div class="app-rot" id="appRot"><div class="rot-frame" style="width:390px;height:844px;overflow:hidden;background:#ffffff;" data-screen-label="새 여행 서베이"><div style="display:flex;flex-direction:column;height:100%;"><div style="height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;flex-shrink:0;"><span style="font-size:16px;font-weight:600;color:#1d1b19;">1:00</span><div style="display:flex;align-items:center;gap:7px;"><svg width="18" height="12" viewBox="0 0 18 12" fill="#1d1b19"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="#1d1b19" stroke-width="1.6" stroke-linecap="round"><path d="M1 4.2C4.2 1.5 12.8 1.5 16 4.2"/><path d="M3.6 6.8C5.9 4.9 11.1 4.9 13.4 6.8"/><path d="M6.1 9.2C7.3 8.4 9.7 8.4 10.9 9.2"/></svg><div style="display:flex;align-items:center;gap:2px;"><div style="width:24px;height:12px;border-radius:3.5px;border:1.4px solid rgba(29,27,25,.85);padding:1.6px;"><div style="width:80%;height:100%;background:#1d1b19;border-radius:1.5px;"></div></div><div style="width:1.6px;height:4px;background:rgba(29,27,25,.85);border-radius:1px;"></div></div></div></div>
+<div style="display:flex;align-items:center;gap:10px;padding:8px 20px 12px;flex-shrink:0;border-bottom:1px solid #f2f0ed;"><button style="width:34px;height:34px;border:none;background:transparent;display:flex;align-items:center;justify-content:center;margin-left:-8px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d1b19" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button><div style="flex:1;"></div><div style="position:absolute;left:0;right:0;text-align:center;font-size:16px;font-weight:700;color:#1d1b19;pointer-events:none;">새 여행 만들기</div><div style="display:flex;align-items:center;gap:5px;background:#fff;border:1px solid #eeece9;border-radius:999px;padding:6px 12px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="#e8a72c"><path d="M12 2.2 13.7 9.1 20.5 12 13.7 14.9 12 21.8 10.3 14.9 3.5 12 10.3 9.1Z"/></svg><span style="font-size:12.5px;font-weight:600;color:#3c3833;">200</span></div></div>
+<div style="flex:1;overflow:hidden;padding:20px 18px;display:flex;flex-direction:column;gap:14px;background:#faf9f7;">
+ <div style="display:flex;gap:9px;align-items:flex-end;"><div style="width:34px;height:34px;border-radius:999px;background:#fff2ea;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg viewBox="0 0 100 100" fill="none" style="width:62%;height:62%;"><circle cx="50" cy="50" r="43" stroke="#f4581c" stroke-width="6"/><circle cx="41" cy="46" r="4.9" fill="#f4581c"/><circle cx="61" cy="41" r="4.1" fill="#f4581c"/></svg></div><div style="max-width:76%;background:#fff;border:1px solid #eeece9;border-radius:4px 16px 16px 16px;padding:12px 15px;"><div style="font-size:14px;font-weight:700;color:#1d1b19;">안녕하세요! 저는 모드니예요</div><div style="font-size:13px;color:#7a726c;margin-top:3px;line-height:1.5;">여행의 모든 것을 함께 준비해드릴게요</div></div></div>
+ <div style="display:flex;gap:9px;align-items:flex-end;"><div style="width:34px;height:34px;border-radius:999px;background:#fff2ea;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg viewBox="0 0 100 100" fill="none" style="width:62%;height:62%;"><circle cx="50" cy="50" r="43" stroke="#f4581c" stroke-width="6"/><circle cx="41" cy="46" r="4.9" fill="#f4581c"/><circle cx="61" cy="41" r="4.1" fill="#f4581c"/></svg></div><div style="max-width:80%;background:#fff;border:1px solid #eeece9;border-radius:4px 16px 16px 16px;padding:12px 15px;"><div style="font-size:14px;font-weight:700;color:#1d1b19;">어떤 여행을 꿈꾸세요? 편하게 말해주세요</div><div style="font-size:12.5px;color:#9c9690;margin-top:5px;line-height:1.55;">예) 10월에 남편이랑 남프랑스 2주 정도 다녀오려고요</div></div></div>
+ <div style="display:flex;justify-content:flex-end;"><div style="max-width:78%;background:#f4581c;border-radius:16px 16px 4px 16px;padding:12px 15px;"><div style="font-size:13.5px;color:#fff;line-height:1.55;">11월 일본 5박 여행</div></div></div>
+</div>
+<div style="flex-shrink:0;padding:12px 16px 14px;border-top:1px solid #f2f0ed;background:#fff;"><div style="display:flex;align-items:center;gap:9px;background:#f5f2ee;border-radius:999px;padding:8px 8px 8px 16px;"><span style="flex:1;font-size:13.5px;color:#b2aba4;">여행 이야기를 들려주세요…</span><button style="width:38px;height:38px;border:none;border-radius:999px;background:#f4581c;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg></button></div></div>
+<div style="flex-shrink:0;background:#fff;border-top:1px solid #f2f0ed;display:flex;padding:10px 12px 24px;"><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14"/><path d="M15 6v14"/></svg><span style="font-size:10.5px;font-weight:700;color:#f4581c;">계획</span></button><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18"/><path d="M8 3v4"/><path d="M16 3v4"/></svg><span style="font-size:10.5px;font-weight:600;color:#b2aba4;">일정표</span></button><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 8v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-8Z"/></svg><span style="font-size:10.5px;font-weight:600;color:#b2aba4;">예약</span></button><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2Z"/><path d="M8.5 8a3.5 3.5 0 0 1 7 0"/></svg><span style="font-size:10.5px;font-weight:600;color:#b2aba4;">준비물</span></button><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 11h18"/></svg><span style="font-size:10.5px;font-weight:600;color:#b2aba4;">비용</span></button><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 4v16"/><path d="M17 4v16"/></svg><span style="font-size:10.5px;font-weight:600;color:#b2aba4;">추억</span></button></div>
+</div><div style="position:absolute;bottom:9px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:rgba(29,27,25,.28);z-index:3;"></div></div><div class="rot-frame" style="width:390px;height:844px;overflow:hidden;background:#ffffff;" data-screen-label="여행 취향 요약">
+    <div style="position:relative;z-index:2;height:100%;display:flex;flex-direction:column;">
+     <div style="height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;flex-shrink:0;">
+      <span style="font-size:16px;font-weight:600;color:#1d1b19;">1:00</span>
+      <div style="display:flex;align-items:center;gap:7px;">
+       <svg width="18" height="12" viewBox="0 0 18 12" fill="#1d1b19"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+       <svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="#1d1b19" stroke-width="1.6" stroke-linecap="round"><path d="M1 4.2C4.2 1.5 12.8 1.5 16 4.2"/><path d="M3.6 6.8C5.9 4.9 11.1 4.9 13.4 6.8"/><path d="M6.1 9.2C7.3 8.4 9.7 8.4 10.9 9.2"/></svg>
+       <div style="display:flex;align-items:center;gap:2px;"><div style="width:24px;height:12px;border-radius:3.5px;border:1.4px solid rgba(29,27,25,.85);padding:1.6px;"><div style="width:80%;height:100%;background:#1d1b19;border-radius:1.5px;"></div></div><div style="width:1.6px;height:4px;background:rgba(29,27,25,.85);border-radius:1px;"></div></div>
+      </div>
+     </div>
+
+     <div style="display:flex;align-items:center;gap:10px;padding:8px 20px 10px;flex-shrink:0;">
+      <button style="width:34px;height:34px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-left:-8px;">
+       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d1b19" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+      <div style="flex:1;min-width:0;font-size:16px;font-weight:700;color:#1d1b19;">새 여행 만들기</div>
+      <button style="width:34px;height:34px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#3c3833" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 21l-6-4-6 4V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2Z"/></svg></button>
+      <div style="display:flex;align-items:center;gap:5px;background:#fff;border:1px solid #eeece9;border-radius:999px;padding:6px 12px;">
+       <svg width="13" height="13" viewBox="0 0 24 24" fill="#e8a72c"><path d="M12 2.2 13.7 9.1 20.5 12 13.7 14.9 12 21.8 10.3 14.9 3.5 12 10.3 9.1Z"/></svg>
+       <span style="font-size:12.5px;font-weight:600;color:#3c3833;">200</span>
+      </div>
+     </div>
+
+
+     <div class="hscroll" style="flex:1;overflow-y:auto;padding:18px 20px 8px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+       <div style="width:34px;height:34px;border-radius:999px;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg viewBox="0 0 100 100" fill="none" style="width:62%;height:62%;"><circle cx="50" cy="50" r="43" stroke="#f4581c" stroke-width="6"/><circle cx="41" cy="46" r="4.9" fill="#f4581c"/><circle cx="61" cy="41" r="4.1" fill="#f4581c"/></svg></div>
+       <div>
+        <div style="font-size:18px;font-weight:700;color:#1d1b19;letter-spacing:-0.01em;">이런 여행을 꿈꾸시는군요</div>
+        <div style="font-size:12.5px;color:#9c9690;margin-top:2px;">항목을 탭하면 수정할 수 있어요</div>
+       </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;">
+       <div style="display:flex;align-items:center;gap:10px;border:1px solid #eeece9;background:#fff;border-radius:14px;padding:12px 13px;">
+        <div style="width:30px;height:30px;border-radius:10px;background:#fff2ea;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18Z"/></svg></div>
+        <div style="min-width:0;">
+         <div style="font-size:11px;color:#9c9690;">지역</div>
+         <div style="font-size:13px;font-weight:700;color:#1d1b19;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">일본</div>
+        </div>
+       </div>
+       <div style="display:flex;align-items:center;gap:10px;border:1px solid #eeece9;background:#fff;border-radius:14px;padding:12px 13px;">
+        <div style="width:30px;height:30px;border-radius:10px;background:#fff2ea;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M20 13A8 8 0 1 1 11 4a6.5 6.5 0 0 0 9 9Z"/></svg></div>
+        <div style="min-width:0;">
+         <div style="font-size:11px;color:#9c9690;">기간</div>
+         <div style="font-size:13px;font-weight:700;color:#1d1b19;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">5박</div>
+        </div>
+       </div>
+       <div style="display:flex;align-items:center;gap:10px;border:1px solid #eeece9;background:#fff;border-radius:14px;padding:12px 13px;">
+        <div style="width:30px;height:30px;border-radius:10px;background:#fff2ea;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18"/><path d="M8 3v4"/><path d="M16 3v4"/></svg></div>
+        <div style="min-width:0;">
+         <div style="font-size:11px;color:#9c9690;">출발</div>
+         <div style="font-size:13px;font-weight:700;color:#1d1b19;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">11.01 ~ 11.06</div>
+        </div>
+       </div>
+       <div style="display:flex;align-items:center;gap:10px;border:1px solid #eeece9;background:#fff;border-radius:14px;padding:12px 13px;">
+        <div style="width:30px;height:30px;border-radius:10px;background:#fff2ea;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c0-3 2.4-5 5.5-5s5.5 2 5.5 5"/><circle cx="17" cy="9" r="2.6"/><path d="M16 14.3c2.6.3 4.5 2 4.5 4.7"/></svg></div>
+        <div style="min-width:0;">
+         <div style="font-size:11px;color:#9c9690;">동행</div>
+         <div style="font-size:13px;font-weight:700;color:#1d1b19;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">커플 · 2명</div>
+        </div>
+       </div>
+       <div style="display:flex;align-items:center;gap:10px;border:1px solid #eeece9;background:#fff;border-radius:14px;padding:12px 13px;">
+        <div style="width:30px;height:30px;border-radius:10px;background:#fff2ea;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M10.5 13.5 L3 11 L21 4 L14 21 Z"/></svg></div>
+        <div style="min-width:0;">
+         <div style="font-size:11px;color:#9c9690;">출발 공항</div>
+         <div style="font-size:13px;font-weight:700;color:#1d1b19;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">인천 ICN</div>
+        </div>
+       </div>
+       <div style="display:flex;align-items:center;gap:10px;border:1px solid #eeece9;background:#fff;border-radius:14px;padding:12px 13px;">
+        <div style="width:30px;height:30px;border-radius:10px;background:#fff2ea;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 11h18"/></svg></div>
+        <div style="min-width:0;">
+         <div style="font-size:11px;color:#9c9690;">1인 예산</div>
+         <div style="font-size:13px;font-weight:700;color:#1d1b19;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">100만원</div>
+        </div>
+       </div>
+      </div>
+      <div style="border:1px solid #eeece9;background:#faf9f7;border-radius:14px;padding:13px 14px;margin-top:8px;">
+       <span style="font-size:11.5px;color:#9c9690;">여행 스타일</span>
+       <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
+        <span style="background:#fff2ea;color:#d84a12;font-size:12px;font-weight:700;padding:6px 11px;border-radius:999px;">여유로운 아침</span>
+        <span style="background:#fff2ea;color:#d84a12;font-size:12px;font-weight:700;padding:6px 11px;border-radius:999px;">빡빡한 일정</span>
+        <span style="background:#fff2ea;color:#d84a12;font-size:12px;font-weight:700;padding:6px 11px;border-radius:999px;">여러 도시</span>
+        <span style="background:#fff2ea;color:#d84a12;font-size:12px;font-weight:700;padding:6px 11px;border-radius:999px;">비즈니스급 숙소</span>
+        <span style="background:#fff2ea;color:#d84a12;font-size:12px;font-weight:700;padding:6px 11px;border-radius:999px;">식비 10만원/일</span>
+        <span style="background:#fff2ea;color:#d84a12;font-size:12px;font-weight:700;padding:6px 11px;border-radius:999px;">특별활동 30만원</span>
+       </div>
+      </div>
+      <div style="border:1px solid #eeece9;background:#fff;border-radius:14px;padding:13px 14px;margin-top:8px;display:flex;align-items:center;gap:10px;">
+       <div style="width:30px;height:30px;border-radius:10px;background:#fff2ea;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M12 21C7 16.5 3 13.2 3 9.3 3 6.4 5.2 4.5 7.8 4.5c1.6 0 3.2.8 4.2 2.2 1-1.4 2.6-2.2 4.2-2.2 2.6 0 4.8 1.9 4.8 4.8 0 3.9-4 7.2-9 11.7Z"/></svg></div>
+       <span style="font-size:11px;color:#9c9690;flex-shrink:0;">위시리스트</span>
+       <span style="flex:1;text-align:right;font-size:13px;font-weight:700;color:#1d1b19;">하코네 온천 2박</span>
+       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#c5bfb8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M17 3l4 4L8 20l-5 1 1-5Z"/></svg>
+      </div>
+     </div>
+     <div style="flex-shrink:0;padding:12px 20px 14px;border-top:1px solid #f2f0ed;">
+      <button style="width:100%;height:50px;border:none;border-radius:14px;background:#f4581c;color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 8px 20px rgba(244,88,28,.22);">일정 추천 받기</button>
+     </div>
+<div style="flex-shrink:0;background:#fff;border-top:1px solid #f2f0ed;display:flex;padding:10px 12px 24px;">
+      <button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;">
+       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14"/><path d="M15 6v14"/></svg>
+       <span style="font-size:10.5px;font-weight:700;color:#f4581c;">계획</span>
+      </button>
+      <button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;">
+       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18"/><path d="M8 3v4"/><path d="M16 3v4"/></svg>
+       <span style="font-size:10.5px;font-weight:600;color:#b2aba4;">일정표</span>
+      </button>
+      <button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;">
+       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 8v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-8Z"/><path d="M13 5v2"/><path d="M13 11v2"/><path d="M13 17v2"/></svg>
+       <span style="font-size:10.5px;font-weight:600;color:#b2aba4;">예약</span>
+      </button>
+      <button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;">
+       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2Z"/><path d="M8.5 8a3.5 3.5 0 0 1 7 0"/></svg>
+       <span style="font-size:10.5px;font-weight:600;color:#b2aba4;">준비물</span>
+      </button>
+      <button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;">
+       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 11h18"/></svg>
+       <span style="font-size:10.5px;font-weight:600;color:#b2aba4;">비용</span>
+      </button>
+      <button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;">
+       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 4v16"/><path d="M17 4v16"/></svg>
+       <span style="font-size:10.5px;font-weight:600;color:#b2aba4;">추억</span>
+      </button>
+     </div>
+    </div>
+    <div style="position:absolute;bottom:9px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:rgba(29,27,25,.28);z-index:3;"></div>
+   </div><div class="rot-frame" style="width:390px;height:844px;overflow:hidden;background:#ffffff;" data-screen-label="코스 선택 결과">
+    <div style="position:relative;z-index:2;height:100%;display:flex;flex-direction:column;">
+     <div style="height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;flex-shrink:0;">
+      <span style="font-size:16px;font-weight:600;color:#1d1b19;">1:00</span>
+      <div style="display:flex;align-items:center;gap:7px;">
+       <svg width="18" height="12" viewBox="0 0 18 12" fill="#1d1b19"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+       <svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="#1d1b19" stroke-width="1.6" stroke-linecap="round"><path d="M1 4.2C4.2 1.5 12.8 1.5 16 4.2"/><path d="M3.6 6.8C5.9 4.9 11.1 4.9 13.4 6.8"/><path d="M6.1 9.2C7.3 8.4 9.7 8.4 10.9 9.2"/></svg>
+       <div style="display:flex;align-items:center;gap:2px;"><div style="width:24px;height:12px;border-radius:3.5px;border:1.4px solid rgba(29,27,25,.85);padding:1.6px;"><div style="width:80%;height:100%;background:#1d1b19;border-radius:1.5px;"></div></div><div style="width:1.6px;height:4px;background:rgba(29,27,25,.85);border-radius:1px;"></div></div>
+      </div>
+     </div>
+     <div style="display:flex;align-items:center;gap:10px;padding:8px 20px 10px;flex-shrink:0;border-bottom:1px solid #f2f0ed;">
+      <button style="width:34px;height:34px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-left:-8px;">
+       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d1b19" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+      <div style="flex:1;"></div><div style="position:absolute;left:0;right:0;text-align:center;font-size:16px;font-weight:700;color:#1d1b19;pointer-events:none;">코스 선택</div>
+      <button style="width:34px;height:34px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#3c3833" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 21l-6-4-6 4V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2Z"/></svg></button>
+      <div style="display:flex;align-items:center;gap:5px;background:#fff;border:1px solid #eeece9;border-radius:999px;padding:6px 12px;">
+       <svg width="13" height="13" viewBox="0 0 24 24" fill="#e8a72c"><path d="M12 2.2 13.7 9.1 20.5 12 13.7 14.9 12 21.8 10.3 14.9 3.5 12 10.3 9.1Z"/></svg>
+       <span style="font-size:12.5px;font-weight:600;color:#3c3833;">200</span>
+      </div>
+     </div>
+     <div class="hscroll" style="flex:1;overflow-y:auto;padding:18px 20px 8px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+       <svg width="24" height="24" viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="43" stroke="#f4581c" stroke-width="6"/><circle cx="41" cy="46" r="4.9" fill="#f4581c"/><circle cx="61" cy="41" r="4.1" fill="#f4581c"/></svg>
+       <span style="font-size:19px;font-weight:800;color:#1d1b19;letter-spacing:-0.01em;">모드니의 맞춤 여행 플랜</span>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px;">
+       <div style="flex:1;border:1.5px solid #f4581c;background:#fff2ea;border-radius:14px;padding:10px 8px;text-align:center;cursor:pointer;">
+       <div style="font-size:11.5px;font-weight:700;color:#d84a12;">코스 1</div>
+       <div style="font-size:13px;font-weight:700;color:#1d1b19;margin-top:3px;">하코네 온천 여행</div>
+      </div>
+       <div style="flex:1;border:1.5px solid #eeece9;background:#fff;border-radius:14px;padding:10px 8px;text-align:center;cursor:pointer;">
+       <div style="font-size:11.5px;font-weight:700;color:#b2aba4;">코스 2</div>
+       <div style="font-size:13px;font-weight:700;color:#3c3833;margin-top:3px;">하네다 단풍 여행</div>
+      </div>
+       <div style="flex:1;border:1.5px solid #eeece9;background:#fff;border-radius:14px;padding:10px 8px;text-align:center;cursor:pointer;">
+       <div style="font-size:11.5px;font-weight:700;color:#b2aba4;">코스 3</div>
+       <div style="font-size:13px;font-weight:700;color:#3c3833;margin-top:3px;">닛코 단풍 여행</div>
+      </div>
+      </div>
+      <div style="font-size:20px;font-weight:800;color:#1d1b19;letter-spacing:-0.01em;margin-top:20px;">도쿄 + 하코네 단풍 힐링 5박</div>
+      <div style="font-size:13px;color:#9c9690;margin-top:4px;">나리타 IN·OUT — 도쿄 3박 + 하코네 1박 + 가마쿠라 당일치기</div>
+      <div style="font-size:14px;font-weight:800;color:#1d1b19;margin-top:22px;">일정</div>
+      <div style="border:1px solid #eeece9;background:#fff;border-radius:18px;padding:18px 16px 18px;margin-top:10px;">
+       <div style="display:flex;gap:12px;">
+        <div style="width:34px;display:flex;flex-direction:column;align-items:center;flex-shrink:0;">
+         <div style="width:34px;height:34px;border-radius:999px;background:#fbe0d3;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#d1804f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 13.5 L3 11 L21 4 L14 21 Z"/></svg></div>
+         <div style="flex:1;width:2px;background:#f3e0d2;margin:4px 0;"></div>
+        </div>
+        <div style="flex:1;min-width:0;padding-bottom:18px;display:flex;align-items:center;"><span style="font-size:14.5px;font-weight:700;color:#1d1b19;">도쿄 나리타 공항 입국</span></div>
+       </div>
+       <div style="display:flex;gap:12px;">
+        <div style="width:34px;display:flex;flex-direction:column;align-items:center;flex-shrink:0;">
+         <div style="width:34px;height:34px;border-radius:999px;background:#fff2ea;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#d84a12;flex-shrink:0;">도</div>
+         <div style="flex:1;width:2px;background:#f3e0d2;margin:4px 0;"></div>
+        </div>
+        <div style="flex:1;min-width:0;padding-bottom:18px;display:flex;align-items:flex-start;gap:8px;">
+         <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:7px;"><span style="font-size:15px;font-weight:800;color:#1d1b19;">도쿄</span><span style="font-size:12.5px;font-weight:700;color:#d84a12;">3박</span></div>
+          <div style="font-size:12.5px;color:#7a726c;line-height:1.55;margin-top:3px;">시부야·하라주쿠 쇼핑 · 아사쿠사·스카이트리 · 신주쿠 야경·이자카야</div>
+         </div>
+         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c5bfb8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><path d="M9 6l6 6-6 6"/></svg>
+        </div>
+       </div>
+       <div style="display:flex;gap:12px;">
+        <div style="width:34px;display:flex;flex-direction:column;align-items:center;flex-shrink:0;">
+         <div style="width:34px;height:34px;border-radius:999px;background:#fff2ea;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#d84a12;flex-shrink:0;">하</div>
+         <div style="flex:1;width:2px;background:#f3e0d2;margin:4px 0;"></div>
+        </div>
+        <div style="flex:1;min-width:0;padding-bottom:18px;display:flex;align-items:flex-start;gap:8px;">
+         <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:7px;"><span style="font-size:15px;font-weight:800;color:#1d1b19;">하코네</span><span style="font-size:12.5px;font-weight:700;color:#d84a12;">1박</span></div>
+          <div style="font-size:12.5px;color:#7a726c;line-height:1.55;margin-top:3px;">노천온천 료칸 숙박 · 후지산 전망 · 아시 호수 유람선 · 하코네 오픈에어 뮤지엄</div>
+         </div>
+         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c5bfb8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><path d="M9 6l6 6-6 6"/></svg>
+        </div>
+       </div>
+       <div style="display:flex;gap:12px;">
+        <div style="width:34px;display:flex;flex-direction:column;align-items:center;flex-shrink:0;">
+         <div style="width:34px;height:34px;border-radius:999px;background:#fff2ea;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#d84a12;flex-shrink:0;">가</div>
+         <div style="flex:1;width:2px;background:#f3e0d2;margin:4px 0;"></div>
+        </div>
+        <div style="flex:1;min-width:0;padding-bottom:18px;display:flex;align-items:flex-start;gap:8px;">
+         <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:7px;"><span style="font-size:15px;font-weight:800;color:#1d1b19;">가마쿠라</span><span style="font-size:12.5px;font-weight:700;color:#d84a12;">1박</span></div>
+          <div style="font-size:12.5px;color:#7a726c;line-height:1.55;margin-top:3px;">가마쿠라 대불 · 고토쿠인·쓰루가오카 하치만구 · 에노시마 당일치기</div>
+         </div>
+         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c5bfb8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><path d="M9 6l6 6-6 6"/></svg>
+        </div>
+       </div>
+       <div style="display:flex;gap:12px;">
+        <div style="width:34px;display:flex;flex-direction:column;align-items:center;flex-shrink:0;">
+         <div style="width:34px;height:34px;border-radius:999px;background:#fbe0d3;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#d1804f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 13.5 L3 11 L21 4 L14 21 Z"/></svg></div>
+         
+        </div>
+        <div style="flex:1;min-width:0;padding-bottom:0;display:flex;align-items:center;"><span style="font-size:14.5px;font-weight:700;color:#1d1b19;">도쿄 나리타 공항 출국</span></div>
+       </div>
+      </div>
+      <div style="border:1px solid #eeece9;background:#faf9f7;border-radius:16px;padding:14px 16px;margin-top:12px;">
+       <div style="display:inline-flex;align-items:center;gap:6px;background:#fff2ea;border-radius:999px;padding:5px 11px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d84a12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="15" rx="3"/><path d="M5 11h14"/><path d="M8 21l1.5-3"/><path d="M16 21l-1.5-3"/></svg><span style="font-size:12px;font-weight:700;color:#d84a12;">대중교통</span></div>
+       <div style="font-size:12.5px;color:#3c3833;line-height:1.6;margin-top:9px;">도쿄→하코네: 신주쿠에서 로망스카(小田急) 약 85분 / 하코네→가마쿠라: 오다와라 경유 JR 약 60분 / 가마쿠라→나리타: 오후나·요코하마·시나가와 경유 N'EX 약 90분</div>
+      </div>
+      <div style="border:1px solid #f3e0d2;background:#fff6f0;border-radius:16px;padding:14px 16px;margin-top:12px;">
+       <div style="display:flex;align-items:center;gap:6px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 1 4 10.5c-.7.6-1 1-1 2H9c0-1-.3-1.4-1-2A6 6 0 0 1 12 3Z"/></svg><span style="font-size:13.5px;font-weight:800;color:#d84a12;">모드니 팁</span></div>
+       <div style="display:flex;flex-direction:column;gap:6px;margin-top:9px;">
+        <div style="display:flex;gap:7px;align-items:flex-start;"><span style="color:#f4581c;font-weight:800;line-height:1.5;">·</span><span style="font-size:13px;color:#3c3833;line-height:1.5;">하코네 1박 온천 료칸 완벽 반영</span></div>
+        <div style="display:flex;gap:7px;align-items:flex-start;"><span style="color:#f4581c;font-weight:800;line-height:1.5;">·</span><span style="font-size:13px;color:#3c3833;line-height:1.5;">LCC 직항으로 항공비 최절감</span></div>
+        <div style="display:flex;gap:7px;align-items:flex-start;"><span style="color:#f4581c;font-weight:800;line-height:1.5;">·</span><span style="font-size:13px;color:#3c3833;line-height:1.5;">도쿄 전후반 분리로 동선 효율 극대화</span></div>
+        <div style="display:flex;gap:7px;align-items:flex-start;"><span style="color:#f4581c;font-weight:800;line-height:1.5;">·</span><span style="font-size:13px;color:#3c3833;line-height:1.5;">아시 호수 유람선 등 체험 콘텐츠까지 packed 구성</span></div>
+       </div>
+      </div>
+      <button style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;border:none;background:#fff2ea;border-radius:14px;padding:15px;margin-top:14px;cursor:pointer;">
+       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4V2"/><path d="M15 10V8"/><path d="M12.5 6.5h-2"/><path d="M19.5 6.5h-2"/><path d="M3 21l9-9"/><path d="M12.5 5.5 18 11"/></svg>
+       <span style="font-size:14.5px;font-weight:800;color:#d84a12;">이 코스 다듬기</span>
+       <span style="font-size:11.5px;font-weight:600;color:#c99a6f;">· 도시·기간 조절</span>
+      </button>
+      <div style="font-size:14px;font-weight:800;color:#1d1b19;margin-top:24px;">1인 예상 예산</div>
+      <div style="border:1px solid #eeece9;background:#fff;border-radius:16px;padding:6px 16px 14px;margin-top:10px;">
+       <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;"><span style="font-size:13.5px;color:#3c3833;">항공권 (왕복)</span><span style="font-size:13.5px;font-weight:700;color:#1d1b19;">20~50만원</span></div>
+       <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;"><span style="font-size:13.5px;color:#3c3833;">숙박</span><span style="font-size:13.5px;font-weight:700;color:#1d1b19;">65~105만원</span></div>
+       <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;"><span style="font-size:13.5px;color:#3c3833;">교통 패스</span><span style="font-size:13.5px;font-weight:700;color:#1d1b19;">5~8만원</span></div>
+       <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;"><span style="font-size:13.5px;color:#3c3833;">현지교통+식비+입장료</span><span style="font-size:13.5px;font-weight:700;color:#1d1b19;">35~55만원</span></div>
+       <div style="height:1px;background:#f2f0ed;margin:6px 0;"></div>
+       <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0 4px;"><span style="font-size:14.5px;font-weight:800;color:#1d1b19;">1인 합계 예상</span><span style="font-size:15px;font-weight:800;color:#f4581c;">125~218만원</span></div>
+      </div>
+     </div>
+     <div style="flex-shrink:0;padding:12px 20px 14px;border-top:1px solid #f2f0ed;">
+      <button style="width:100%;height:50px;border:none;border-radius:14px;background:#f4581c;color:#fff;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 8px 20px rgba(244,88,28,.22);">이 코스로 버킷 담으러 가기</button>
+     </div>
+     <div style="flex-shrink:0;background:#fff;border-top:1px solid #f2f0ed;display:flex;padding:10px 12px 24px;">
+      <button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;">
+       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14"/><path d="M15 6v14"/></svg>
+       <span style="font-size:10.5px;font-weight:700;color:#f4581c;">계획</span>
+      </button>
+      <button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;">
+       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18"/><path d="M8 3v4"/><path d="M16 3v4"/></svg>
+       <span style="font-size:10.5px;font-weight:600;color:#b2aba4;">일정표</span>
+      </button>
+      <button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;">
+       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 8v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-8Z"/><path d="M13 5v2"/><path d="M13 11v2"/><path d="M13 17v2"/></svg>
+       <span style="font-size:10.5px;font-weight:600;color:#b2aba4;">예약</span>
+      </button>
+      <button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;">
+       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2Z"/><path d="M8.5 8a3.5 3.5 0 0 1 7 0"/></svg>
+       <span style="font-size:10.5px;font-weight:600;color:#b2aba4;">준비물</span>
+      </button>
+      <button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;">
+       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 11h18"/></svg>
+       <span style="font-size:10.5px;font-weight:600;color:#b2aba4;">비용</span>
+      </button>
+      <button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;">
+       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 4v16"/><path d="M17 4v16"/></svg>
+       <span style="font-size:10.5px;font-weight:600;color:#b2aba4;">추억</span>
+      </button>
+     </div>
+    </div>
+    <div style="position:absolute;bottom:9px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:rgba(29,27,25,.28);z-index:3;"></div>
+   </div><div class="rot-frame" style="width:390px;height:844px;overflow:hidden;background:#ffffff;" data-screen-label="최종 일정표"><div style="position:relative;z-index:2;height:100%;display:flex;flex-direction:column;"><div style="height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;flex-shrink:0;"><span style="font-size:16px;font-weight:600;color:#1d1b19;">1:00</span><div style="display:flex;align-items:center;gap:7px;"><svg width="18" height="12" viewBox="0 0 18 12" fill="#1d1b19"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="#1d1b19" stroke-width="1.6" stroke-linecap="round"><path d="M1 4.2C4.2 1.5 12.8 1.5 16 4.2"/><path d="M3.6 6.8C5.9 4.9 11.1 4.9 13.4 6.8"/><path d="M6.1 9.2C7.3 8.4 9.7 8.4 10.9 9.2"/></svg><div style="display:flex;align-items:center;gap:2px;"><div style="width:24px;height:12px;border-radius:3.5px;border:1.4px solid rgba(29,27,25,.85);padding:1.6px;"><div style="width:80%;height:100%;background:#1d1b19;border-radius:1.5px;"></div></div><div style="width:1.6px;height:4px;background:rgba(29,27,25,.85);border-radius:1px;"></div></div></div></div><div style="position:relative;display:flex;align-items:center;gap:10px;padding:6px 20px 8px;flex-shrink:0;"><button style="width:34px;height:34px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-left:-8px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d1b19" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button><div style="flex:1;"></div><div style="position:absolute;left:0;right:0;text-align:center;font-size:16px;font-weight:700;color:#1d1b19;pointer-events:none;">최종 일정</div><button style="width:34px;height:34px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#3c3833" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 21l-6-4-6 4V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2Z"/></svg></button><div style="display:flex;align-items:center;gap:5px;background:#fff;border:1px solid #eeece9;border-radius:999px;padding:6px 12px;flex-shrink:0;"><svg width="13" height="13" viewBox="0 0 24 24" fill="#e8a72c"><path d="M12 2.2 13.7 9.1 20.5 12 13.7 14.9 12 21.8 10.3 14.9 3.5 12 10.3 9.1Z"/></svg><span style="font-size:12.5px;font-weight:600;color:#3c3833;">200</span></div></div><div style="display:flex;align-items:flex-start;gap:10px;padding:0 20px 10px;flex-shrink:0;"><div style="flex:1;min-width:0;"><div style="font-size:17px;font-weight:800;color:#1d1b19;letter-spacing:-0.01em;line-height:1.25;">도쿄 + 하코네 단풍 힐링 5박</div><div style="font-size:11.5px;color:#9c9690;line-height:1.4;margin-top:3px;">나리타 IN·OUT · 도쿄 3박 + 하코네 1박 + 가마쿠라 당일치기 커플 코스</div><button style="display:inline-flex;align-items:center;gap:5px;border:none;background:transparent;cursor:pointer;padding:8px 0 0;"><svg width="15" height="15" viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="43" stroke="#f4581c" stroke-width="7"/><circle cx="41" cy="46" r="5.5" fill="#f4581c"/><circle cx="61" cy="41" r="4.6" fill="#f4581c"/></svg><span style="font-size:12.5px;font-weight:800;color:#f4581c;">코스·버킷 다시 보기</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button></div><button style="width:32px;height:32px;border:none;background:transparent;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></button></div><div class="hscroll" style="display:flex;gap:8px;padding:0 20px 12px;overflow-x:auto;flex-shrink:0;"><button style="flex-shrink:0;border:1.5px solid #f4581c;background:#fff2ea;border-radius:14px;padding:8px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;position:relative;"><span style="font-size:14px;font-weight:800;color:#d84a12;">1일</span><span style="font-size:10px;font-weight:600;color:#e0885a;">도쿄</span></button><button style="flex-shrink:0;border:1.5px solid #eeece9;background:#fff;border-radius:14px;padding:8px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;position:relative;"><span style="font-size:14px;font-weight:700;color:#9c9690;">2일</span><span style="font-size:10px;font-weight:600;color:#c2bcb5;">도쿄</span></button><button style="flex-shrink:0;border:1.5px solid #eeece9;background:#fff;border-radius:14px;padding:8px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;position:relative;"><span style="font-size:14px;font-weight:700;color:#9c9690;">3일</span><span style="font-size:10px;font-weight:600;color:#c2bcb5;">하코네</span></button><button style="flex-shrink:0;border:1.5px solid #eeece9;background:#fff;border-radius:14px;padding:8px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;position:relative;"><span style="font-size:14px;font-weight:700;color:#9c9690;">4일</span><span style="font-size:10px;font-weight:600;color:#c2bcb5;">하코네</span></button></div><div class="hscroll" style="flex:1;overflow-y:auto;padding:12px 20px 8px;"><div style="display:flex;align-items:center;gap:6px;padding:2px 0 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.5 7-11a7 7 0 1 0-14 0c0 4.5 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg><span style="font-size:14px;font-weight:800;color:#1d1b19;">도쿄</span><span style="font-size:11px;color:#b2aba4;margin-left:2px;">2026-10-01</span></div><div style="margin-top:12px;">
+              <div style="display:flex;gap:11px;"><div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:4px;"><div style="width:10px;height:10px;border-radius:999px;background:#f4581c;"></div><div style="flex:1;width:2px;background:#f3e0d2;margin:3px 0;"></div></div><div style="flex:1;padding-bottom:12px;"><div style="display:flex;align-items:center;gap:7px;"><span style="font-size:13.5px;font-weight:800;color:#1d1b19;">17:35</span><span style="display:inline-flex;align-items:center;gap:4px;background:#fff2ea;border-radius:7px;padding:2px 7px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16l1.5-5a2 2 0 0 1 1.9-1.4h7.2a2 2 0 0 1 1.9 1.4L20 16"/><path d="M4 16h16v3H4z"/><circle cx="7.5" cy="19" r="1.2"/><circle cx="16.5" cy="19" r="1.2"/></svg><span style="font-size:10.5px;font-weight:700;color:#d84a12;">90분</span></span></div><div style="font-size:14px;font-weight:800;color:#1d1b19;margin-top:5px;">집 출발 → 인천국제공항 이동</div><div style="font-size:12px;color:#9c9690;line-height:1.5;margin-top:3px;">공항까지 90분 소요. 출발 3시간 전 공항 도착 목표로 17:35에 집을 나섭니다.</div></div></div>
+              <div style="display:flex;gap:11px;"><div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;"><div style="flex:1;width:2px;background:#f0ece6;"></div></div><div style="display:flex;align-items:center;gap:6px;padding:2px 0 10px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c2bcb5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4.5" r="1.6"/><path d="M12 8l-2 5 3 2 1 5"/><path d="M10 13l-3 1"/><path d="M13 10l3 2"/></svg><span style="font-size:11.5px;color:#b2aba4;">집에서 공항까지 90분 (버스·지하철·택시 이용)</span></div></div>
+              <div style="display:flex;gap:11px;"><div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:4px;"><div style="width:10px;height:10px;border-radius:999px;background:#f4581c;"></div><div style="flex:1;width:2px;background:#f3e0d2;margin:3px 0;"></div></div><div style="flex:1;padding-bottom:12px;"><div style="display:flex;align-items:center;gap:7px;"><span style="font-size:13.5px;font-weight:800;color:#1d1b19;">19:05</span><span style="display:inline-flex;align-items:center;gap:4px;background:#fff2ea;border-radius:7px;padding:2px 7px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16l1.5-5a2 2 0 0 1 1.9-1.4h7.2a2 2 0 0 1 1.9 1.4L20 16"/><path d="M4 16h16v3H4z"/><circle cx="7.5" cy="19" r="1.2"/><circle cx="16.5" cy="19" r="1.2"/></svg><span style="font-size:10.5px;font-weight:700;color:#d84a12;">40분</span></span></div><div style="font-size:14px;font-weight:800;color:#1d1b19;margin-top:5px;">인천국제공항 도착 → 체크인 카운터</div><div style="font-size:12px;color:#9c9690;line-height:1.5;margin-top:3px;">제1여객터미널 또는 제2여객터미널 항공사 카운터에서 탑승 수속. 편명 확정 후 해당 터미널 확인 필요.</div></div></div>
+              <div style="display:flex;gap:11px;"><div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;"><div style="flex:1;width:2px;background:#f0ece6;"></div></div><div style="display:flex;align-items:center;gap:6px;padding:2px 0 10px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c2bcb5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4.5" r="1.6"/><path d="M12 8l-2 5 3 2 1 5"/><path d="M10 13l-3 1"/><path d="M13 10l3 2"/></svg><span style="font-size:11.5px;color:#b2aba4;">체크인 완료 후 보안검색대 이동</span></div></div>
+              <div style="display:flex;gap:11px;"><div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:4px;"><div style="width:10px;height:10px;border-radius:999px;background:#f4581c;"></div><div style="flex:1;width:2px;background:#f3e0d2;margin:3px 0;"></div></div><div style="flex:1;padding-bottom:12px;"><div style="display:flex;align-items:center;gap:7px;"><span style="font-size:13.5px;font-weight:800;color:#1d1b19;">19:45</span><span style="display:inline-flex;align-items:center;gap:4px;background:#fff2ea;border-radius:7px;padding:2px 7px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4.5" r="1.6"/><path d="M12 8l-2 5 3 2 1 5"/><path d="M10 13l-3 1"/><path d="M13 10l3 2"/></svg><span style="font-size:10.5px;font-weight:700;color:#d84a12;">40분</span></span></div><div style="font-size:14px;font-weight:800;color:#1d1b19;margin-top:5px;">보안검색 + 출국심사</div><div style="font-size:12px;color:#9c9690;line-height:1.5;margin-top:3px;">출국심사 최소 1시간 여유 확보. 자동출입국심사(SES) 이용 시 대기 단축 가능.</div></div></div>
+            </div><div style="height:8px;"></div></div><div style="flex-shrink:0;border-top:1px solid #f2f0ed;">
+            <div style="padding:12px 20px 10px;"><button style="width:100%;border:none;border-radius:15px;background:#f4581c;padding:13px;cursor:pointer;box-shadow:0 8px 20px rgba(244,88,28,.22);"><div style="font-size:15px;font-weight:800;color:#fff;">한꺼번에 예약하기</div><div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.85);margin-top:2px;">항공 · 호텔 · 렌터카 · 입장권</div></button></div>
+            <div style="display:flex;padding:2px 12px 10px;">
+              <button style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;border:none;background:transparent;cursor:pointer;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7a726c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l4 4L8 20l-5 1 1-5Z"/></svg><span style="font-size:12.5px;font-weight:700;color:#3c3833;">일정 변경</span></button>
+              <div style="width:1px;background:#f0ece6;margin:4px 0;"></div>
+              <button style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;border:none;background:transparent;cursor:pointer;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7a726c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 21l-6-4-6 4V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2Z"/></svg><span style="font-size:12.5px;font-weight:700;color:#3c3833;">여행 저장</span></button>
+              <div style="width:1px;background:#f0ece6;margin:4px 0;"></div>
+              <button style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;border:none;background:transparent;cursor:pointer;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7a726c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span style="font-size:12.5px;font-weight:700;color:#3c3833;">공유</span></button>
+            </div>
+          </div><div style="flex-shrink:0;background:#fff;border-top:1px solid #f2f0ed;display:flex;padding:10px 12px 24px;"><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14"/><path d="M15 6v14"/></svg><span style="font-size:10.5px;font-weight:600;color:#b2aba4;">계획</span></button><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18"/><path d="M8 3v4"/><path d="M16 3v4"/></svg><span style="font-size:10.5px;font-weight:700;color:#f4581c;">일정표</span></button><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 8v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-8Z"/></svg><span style="font-size:10.5px;font-weight:600;color:#b2aba4;">예약</span></button><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2Z"/><path d="M8.5 8a3.5 3.5 0 0 1 7 0"/></svg><span style="font-size:10.5px;font-weight:600;color:#b2aba4;">준비물</span></button><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18"/></svg><span style="font-size:10.5px;font-weight:600;color:#b2aba4;">비용</span></button><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M8 5 6 19"/><path d="M16 5l2 14"/><path d="M3 10h18"/></svg><span style="font-size:10.5px;font-weight:600;color:#b2aba4;">추억</span></button></div></div><div style="position:absolute;bottom:9px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:rgba(29,27,25,.28);z-index:3;"></div></div></div></div>
+      <div class="foot-note">실제 앱 일정표 화면</div>
     </div>
     <div class="mock reveal" style="transition-delay:.15s">
-      <div class="mh"><span class="badge">떠나기 전</span><b>준비도 모드니가 챙겨요</b></div>
-      <div class="mslot"><span class="t">🧾</span><div><b>예약을 한꺼번에</b><p>호텔·항공·렌터카·티켓 — 일정에 맞춰 한 번에</p></div></div>
-      <div class="mslot"><span class="t">📸</span><div><b>예약 확인증 자동 정리</b><p>사진 한 장이면 일정 속 제자리에</p></div></div>
-      <div class="mslot"><span class="t">🎒</span><div><b>준비물 목록 · 체크리스트</b><p>여행 스타일에 맞게 자동으로 만들어 드려요</p></div></div>
-      <div class="mslot"><span class="t">🔔</span><div><b>필요한 순간의 알림</b><p>놓치기 쉬운 순간만, 조용하게</p></div></div>
+      <div class="mh"><span class="badge">계획 세우기</span><b>채팅과 서베이로 취향을 다 담아요</b></div>
+      <div class="mslot"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg></span><div><b>말하듯 편하게 대화</b><p>"온천 위주로", "걷기는 줄여줘" — 채팅으로 취향을 그대로</p></div></div>
+      <div class="mslot"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg></span><div><b>몇 번의 서베이면 끝</b><p>동행·기간·예산·스타일까지 탭 몇 번으로 정리돼요</p></div></div>
+      <div class="mslot"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18Z"/><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg></span><div><b>여행 취향을 한눈에 요약</b><p>대화·서베이로 모은 취향을 카드로 깔끔하게 정리</p></div></div>
+      <div class="mslot"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14"/><path d="M15 6v14"/></svg></span><div><b>취향 그대로 코스 완성</b><p>모은 취향으로 나만의 여행 코스를 여러 개 그려 드려요</p></div></div>
+      <div class="mslot"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21C7 16.5 3 13.2 3 9.3 3 6.4 5.2 4.5 7.8 4.5c1.6 0 3.2.8 4.2 2.2 1-1.4 2.6-2.2 4.2-2.2 2.6 0 4.8 1.9 4.8 4.8 0 3.9-4 7.2-9 11.7Z"/></svg></span><div><b>버킷리스트</b><p>가고 싶은 곳·하고 싶은 걸 담아두면 일정에 자연스럽게 녹여요</p></div></div>
+      <div class="mslot"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 13.5 L3 11 L21 4 L14 21 Z"/></svg></span><div><b>항공·호텔 추천</b><p>날짜·예산·동선에 맞는 항공권과 숙소를 골라 드려요</p></div></div>
+      <div class="mslot"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><div><b>최종 일정 — 분 단위 일정표</b><p>시간·이동수단·소요시간까지 들어간 완성본으로 그려 드려요</p></div></div>
     </div>
   </div>
 </section>
@@ -391,41 +858,51 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:44px 30px 60px}
 <section class="sect" id="sect-market">
   <div class="reveal">
     <p class="eyebrow">여행 마켓 · 이미 완성된 여행</p>
-    <h2>일정을 통째로 가져오면,<br>더 간편해요</h2>
+    <h2>내 일정을 올리고,<br>남의 일정을 담아봐요</h2>
     <p class="lead">직접 짜는 게 번거롭다면, 여행자들이 완성한 진짜 일정을 그대로 담아오세요 — 내 날짜에 맞게 전체 일정이 다시 그려지고, 예약까지 한 번에 이어집니다.</p>
   </div>
 
-  <div class="picks reveal" id="picks"></div>
+  <div class="reveal">
+    <div class="m-sub" style="margin-bottom:2px">에디터 픽</div>
+    <p class="m-desc">모드니 에디터가 직접 추천하는 코스!</p>
+    <div class="picks" id="picks"></div>
+  </div>
+
+  <div class="reveal">
+    <div class="m-sub">인기 코스 TOP 5</div>
+    <div class="rank-grid" id="top5"><div class="empty">코스를 불러오는 중…</div></div>
+  </div>
+
+  <div class="reveal" style="margin-top:10px">
+    <div class="m-sub">지역별로 둘러보기 <span id="contHint" style="font-size:12.5px;font-weight:600;color:var(--sub)">대륙을 눌러보세요</span></div>
+    <div id="worldMap"></div>
+  </div>
 
   <div class="mkt-tools reveal">
-    <div class="search"><span style="color:var(--faint)">🔍</span><input id="q" type="search" placeholder="여행지, 태그로 검색" autocomplete="off"></div>
+    <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><input id="q" type="search" placeholder="여행지, 태그로 검색" autocomplete="off"></div>
     <div class="chips" id="chips">
       <button data-filter="all" class="on">전체</button>
-      <button data-filter="modni">모드니 ✨</button>
+      <button data-filter="modni">모드니</button>
       <button data-filter="short">짧은 여행</button>
       <button data-filter="long">긴 여행</button>
     </div>
   </div>
 
-  <div class="reveal" style="margin-top:10px">
-    <div class="m-sub">지역별로 둘러보기</div>
-    <div class="regions" id="regions"></div>
-  </div>
-
   <div class="reveal">
-    <div class="m-sub">인기 코스 TOP 5</div>
-    <div class="rank-list" id="top5" style="max-width:680px"><div class="empty">코스를 불러오는 중…</div></div>
-  </div>
-
-  <div class="reveal">
-    <div class="m-sub">전체 코스
-      <div class="sorts">
-        <button data-sort="latest" class="on">최신순</button>
-        <button data-sort="downloads">담기순</button>
-        <button data-sort="hearts">하트순</button>
+    <button id="allToggle" class="all-toggle" aria-expanded="false">
+      <span class="at-l"><span class="at-t">전체 코스 둘러보기</span><span class="at-s">모든 여행자의 완성 코스를 한눈에</span></span>
+      <span class="arw">›</span>
+    </button>
+    <div id="allPanel" class="all-panel hidden">
+      <div class="m-sub" style="margin-top:20px">전체 코스
+        <div class="sorts">
+          <button data-sort="latest" class="on">최신순</button>
+          <button data-sort="downloads">담기순</button>
+          <button data-sort="hearts">하트순</button>
+        </div>
       </div>
+      <div class="grid-cards" id="cards"><div class="empty">코스를 불러오는 중…</div></div>
     </div>
-    <div class="grid-cards" id="cards"><div class="empty">코스를 불러오는 중…</div></div>
   </div>
 </section>
 
@@ -433,8 +910,9 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:44px 30px 60px}
 <section class="sect" id="sect-hotel">
   <div class="reveal">
     <p class="eyebrow">여행 전 · 호텔 — 예약</p>
-    <h2>예산에 맞는 호텔,<br>날짜까지 채워서 연결해요</h2>
-    <p class="lead">묵기 좋은 지역과 예산에 맞는 호텔을 골라, 날짜·인원이 채워진 예약 페이지로 바로 연결합니다. 항공·렌터카·액티비티 검색도 한 곳에서.</p>
+    <h2>예산에 맞는 호텔,<br>모드니 회원특가로 안내해요</h2>
+    <p class="lead">좋은 지역과 예산에 맞는 호텔을 골라, 날짜·인원이 채워진 모드니 회원전용 예약 페이지로 바로 연결합니다. 항공·렌터카·액티비티 검색도 한 곳에서.</p>
+    <button class="btn-go" id="hotelCta" onclick="openHotelSite()">모드니 회원전용 호텔 예약 →</button>
   </div>
   <div class="duo">
     <div class="mock hcard reveal">
@@ -447,10 +925,114 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:44px 30px 60px}
     </div>
     <div class="mock reveal" style="transition-delay:.15s">
       <div class="mh"><span class="badge">한 곳에서</span><b>예약 검색 연결</b></div>
-      <div class="mslot"><span class="t">✈️</span><div><b>항공</b><p>날짜·공항 채워진 검색으로 바로</p></div></div>
-      <div class="mslot"><span class="t">🚗</span><div><b>렌터카</b><p>여행 일정에 맞춘 픽업·반납</p></div></div>
-      <div class="mslot"><span class="t">🎟️</span><div><b>투어 · 입장권</b><p>액티비티와 티켓까지</p></div></div>
-      <div class="mslot"><span class="t">⛳</span><div><b>골프</b><p>해외 골프장 예약 연결</p></div></div>
+      <div class="mslot"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 13.5 L3 11 L21 4 L14 21 Z"/></svg></span><div><b>항공</b><p>날짜·공항 채워진 검색으로 바로</p></div></div>
+      <div class="mslot"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16l1.5-5a2 2 0 0 1 1.9-1.4h7.2a2 2 0 0 1 1.9 1.4L20 16"/><path d="M4 16h16v3H4z"/><circle cx="7.5" cy="19" r="1.2"/><circle cx="16.5" cy="19" r="1.2"/></svg></span><div><b>렌터카</b><p>여행 일정에 맞춘 픽업·반납</p></div></div>
+      <div class="mslot"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5Z"/></svg></span><div><b>투어 · 입장권</b><p>액티비티와 티켓까지</p></div></div>
+      <div class="mslot"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v14"/><path d="M12 4l7 3-7 3"/><circle cx="12" cy="20" r="2"/></svg></span><div><b>골프</b><p>해외 골프장 예약 연결</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ S2.4 여행 전 · 준비 ═══ -->
+<section class="sect" id="sect-prep">
+  <div class="reveal">
+    <p class="eyebrow">여행 전 · 준비</p>
+    <h2>떠나기 전 준비까지,<br>모드니가 챙겨요</h2>
+    <p class="lead">예약 확인증부터 준비물, 필요한 순간의 알림까지 — 짐 싸기 전부터 공항 가는 길까지 빠짐없이 챙겨 드려요.</p>
+  </div>
+  <div class="duo">
+    <div class="mock reveal">
+      <div class="mh"><span class="badge">떠나기 전</span><b>준비도 빈틈없이 챙겨요</b></div>
+      <div class="mslot"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2Z"/><path d="M8.5 8a3.5 3.5 0 0 1 7 0"/></svg></span><div><b>준비물 목록 자동 생성</b><p>여행 스타일·날씨에 맞춰 챙길 것을 대신 정리해요</p></div></div>
+      <div class="mslot"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/></svg></span><div><b>예약 확인서 한 곳에</b><p>항공·호텔 확인서를 준비물 화면에서 바로 꺼내봐요</p></div></div>
+      <div class="mslot"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4Z"/></svg></span><div><b>출국 카운트다운</b><p>출발까지 D-day로 — 여행이 더 설레요</p></div></div>
+      <div class="mslot"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v5c0 5 3 8 7 10 4-2 7-5 7-10V6Z"/><path d="M9 12l2 2 4-4"/></svg></span><div><b>오프라인 백업</b><p>HTML·PDF·카톡·이메일로 저장해 어디서든 꺼내봐요</p></div></div>
+      <div class="mslot"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h2l2 5-2.5 1.5a12 12 0 0 0 5.5 5.5L16 15l5 2v2a2 2 0 0 1-2 2A16 16 0 0 1 4 5Z"/></svg></span><div><b>비상연락처 자동 정리</b><p>대사관·항공사·보험·카드 분실신고까지 한 번에</p></div></div>
+    </div>
+    <div class="mock-shot reveal" style="transition-delay:.15s">
+      <div class="phone"><div class="app-rot">
+        <div class="rot-frame on" style="width:390px;height:844px;overflow:hidden;background:#ffffff;" data-screen-label="준비물 체크">
+          <div style="display:flex;flex-direction:column;height:100%;background:#faf9f7;">
+            <div style="height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;flex-shrink:0;background:#fff;"><span style="font-size:16px;font-weight:600;color:#1d1b19;">5:00</span><div style="display:flex;align-items:center;gap:7px;"><svg width="18" height="12" viewBox="0 0 18 12" fill="#1d1b19"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="#1d1b19" stroke-width="1.6" stroke-linecap="round"><path d="M1 4.2C4.2 1.5 12.8 1.5 16 4.2"/><path d="M3.6 6.8C5.9 4.9 11.1 4.9 13.4 6.8"/><path d="M6.1 9.2C7.3 8.4 9.7 8.4 10.9 9.2"/></svg><div style="width:24px;height:12px;border-radius:3.5px;border:1.4px solid rgba(29,27,25,.85);padding:1.6px;"><div style="width:80%;height:100%;background:#1d1b19;border-radius:1.5px;"></div></div></div></div>
+            <div style="background:#fff;padding:6px 20px 0;flex-shrink:0;">
+              <div style="display:flex;align-items:center;gap:12px;padding:8px 0 14px;"><div style="width:44px;height:44px;border-radius:14px;background:#fff2ea;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2Z"/><path d="M8.5 8a3.5 3.5 0 0 1 7 0"/></svg></div><div><div style="font-size:22px;font-weight:800;color:#1d1b19;letter-spacing:-.02em;">준비물</div><div style="font-size:13px;color:#9c9690;margin-top:1px;">홍콩 · 3박</div></div></div>
+              <div style="display:flex;gap:22px;">
+                <div style="padding-bottom:12px;border-bottom:2.5px solid #f4581c;display:flex;align-items:center;gap:6px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span style="font-size:14px;font-weight:800;color:#f4581c;">준비물 체크</span></div>
+                <div style="padding-bottom:12px;display:flex;align-items:center;gap:6px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/></svg><span style="font-size:14px;font-weight:600;color:#b2aba4;">예약확인서 (0)</span></div>
+                <div style="padding-bottom:12px;display:flex;align-items:center;gap:6px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4Z"/></svg><span style="font-size:14px;font-weight:600;color:#b2aba4;">출국 카운트다운</span></div>
+              </div>
+            </div>
+            <div style="flex:1;overflow:hidden;padding:16px 18px;display:flex;flex-direction:column;gap:12px;">
+              <div style="background:#fff;border:1px solid #eeece9;border-radius:16px;padding:15px 16px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:14px;font-weight:700;color:#3c3833;">진행률</span><span style="font-size:16px;font-weight:800;color:#1d1b19;">1 / 63</span></div>
+                <div style="height:7px;border-radius:999px;background:#f0ece6;margin-top:10px;overflow:hidden;"><div style="width:9%;height:100%;background:#f4581c;border-radius:999px;"></div></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;padding:0 2px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 1 4 10.5c-.7.6-1 1-1 2H9c0-1-.3-1.4-1-2A6 6 0 0 1 12 3Z"/></svg><span style="font-size:12.5px;color:#9c9690;">항목을 길게 누르면 삭제할 수 있어요</span></div>
+              <div style="background:#fff;border:1px solid #eeece9;border-radius:16px;padding:14px 16px 8px;">
+                <div style="display:flex;align-items:center;gap:11px;"><div style="width:34px;height:34px;border-radius:11px;background:#fff2ea;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3 5 6v4h3v11h8V10h3V6l-3-3a4 4 0 0 1-8 0Z"/></svg></div><div style="flex:1;"><div style="font-size:15px;font-weight:800;color:#1d1b19;">옷/신발</div><div style="font-size:12px;color:#9c9690;margin-top:1px;">1/8 완료</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c5bfb8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
+                <div style="height:1px;background:#f2f0ed;margin:12px 0 4px;"></div>
+                <div style="display:flex;align-items:center;gap:12px;padding:9px 0;"><div style="width:26px;height:26px;border-radius:8px;background:#f4581c;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 6"/></svg></div><div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;color:#b2aba4;text-decoration:line-through;">반팔 티셔츠 4벌</div><div style="font-size:11.5px;color:#c5bfb8;margin-top:1px;">10월 홍콩 평균 24~28℃, 고온다습</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c5bfb8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/><path d="M2 3h3l2.4 12.4a1.6 1.6 0 0 0 1.6 1.3h8.3a1.6 1.6 0 0 0 1.6-1.2L22 8H6"/></svg></div>
+                <div style="display:flex;align-items:center;gap:12px;padding:9px 0;"><div style="width:26px;height:26px;border-radius:8px;border:2px solid #e3ddd6;flex-shrink:0;"></div><div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;color:#1d1b19;">얇은 긴팔 또는 가디건 1벌</div><div style="font-size:11.5px;color:#9c9690;margin-top:1px;">실내 강한 에어컨 대비</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c5bfb8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/><path d="M2 3h3l2.4 12.4a1.6 1.6 0 0 0 1.6 1.3h8.3a1.6 1.6 0 0 0 1.6-1.2L22 8H6"/></svg></div>
+                <div style="display:flex;align-items:center;gap:12px;padding:9px 0;"><div style="width:26px;height:26px;border-radius:8px;border:2px solid #e3ddd6;flex-shrink:0;"></div><div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;color:#1d1b19;">청바지 또는 긴 바지 1벌</div><div style="font-size:11.5px;color:#9c9690;margin-top:1px;">미슐랭 레스토랑 드레스코드 대비</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c5bfb8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/><path d="M2 3h3l2.4 12.4a1.6 1.6 0 0 0 1.6 1.3h8.3a1.6 1.6 0 0 0 1.6-1.2L22 8H6"/></svg></div>
+                <div style="display:flex;align-items:center;gap:12px;padding:9px 0;"><div style="width:26px;height:26px;border-radius:8px;border:2px solid #e3ddd6;flex-shrink:0;"></div><div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;color:#1d1b19;">편한 운동화</div><div style="font-size:11.5px;color:#9c9690;margin-top:1px;">도보 이동 많음</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c5bfb8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/><path d="M2 3h3l2.4 12.4a1.6 1.6 0 0 0 1.6 1.3h8.3a1.6 1.6 0 0 0 1.6-1.2L22 8H6"/></svg></div>
+                <div style="text-align:center;padding:11px 0 6px;font-size:14px;font-weight:800;color:#f4581c;">+ 항목 추가</div>
+              </div>
+              <div style="background:#fff;border:1px solid #eeece9;border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:11px;"><div style="width:34px;height:34px;border-radius:11px;background:#fff2ea;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8"/><path d="M12 16v4"/></svg></div><div style="flex:1;"><div style="font-size:15px;font-weight:800;color:#1d1b19;">전자기기</div><div style="font-size:12px;color:#9c9690;margin-top:1px;">0/10 완료</div></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c5bfb8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></div>
+            </div>
+            <div style="flex-shrink:0;background:#fff;border-top:1px solid #f2f0ed;display:flex;padding:9px 8px 22px;">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14"/><path d="M15 6v14"/></svg><span style="font-size:10px;font-weight:600;color:#b2aba4;">계획</span></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18"/><path d="M8 3v4"/><path d="M16 3v4"/></svg><span style="font-size:10px;font-weight:600;color:#b2aba4;">일정표</span></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 8v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-8Z"/></svg><span style="font-size:10px;font-weight:600;color:#b2aba4;">예약</span></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2Z"/><path d="M8.5 8a3.5 3.5 0 0 1 7 0"/></svg><span style="font-size:10px;font-weight:800;color:#f4581c;">준비물</span></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 11h18"/></svg><span style="font-size:10px;font-weight:600;color:#b2aba4;">비용</span></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 4v16"/><path d="M17 4v16"/></svg><span style="font-size:10px;font-weight:600;color:#b2aba4;">추억</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="rot-frame" style="width:390px;height:844px;overflow:hidden;background:#ffffff;" data-screen-label="출국 카운트다운">
+          <div style="display:flex;flex-direction:column;height:100%;background:#faf9f7;">
+            <div style="height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;flex-shrink:0;background:#fff;"><span style="font-size:16px;font-weight:600;color:#1d1b19;">5:01</span><div style="display:flex;align-items:center;gap:7px;"><svg width="18" height="12" viewBox="0 0 18 12" fill="#1d1b19"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="#1d1b19" stroke-width="1.6" stroke-linecap="round"><path d="M1 4.2C4.2 1.5 12.8 1.5 16 4.2"/><path d="M3.6 6.8C5.9 4.9 11.1 4.9 13.4 6.8"/><path d="M6.1 9.2C7.3 8.4 9.7 8.4 10.9 9.2"/></svg><div style="width:24px;height:12px;border-radius:3.5px;border:1.4px solid rgba(29,27,25,.85);padding:1.6px;"><div style="width:80%;height:100%;background:#1d1b19;border-radius:1.5px;"></div></div></div></div>
+            <div style="background:#fff;padding:6px 20px 0;flex-shrink:0;">
+              <div style="display:flex;align-items:center;gap:12px;padding:8px 0 14px;"><div style="width:44px;height:44px;border-radius:14px;background:#fff2ea;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2Z"/><path d="M8.5 8a3.5 3.5 0 0 1 7 0"/></svg></div><div><div style="font-size:22px;font-weight:800;color:#1d1b19;letter-spacing:-.02em;">준비물</div><div style="font-size:13px;color:#9c9690;margin-top:1px;">홍콩 · 3박</div></div></div>
+              <div style="display:flex;gap:22px;">
+                <div style="padding-bottom:12px;display:flex;align-items:center;gap:6px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span style="font-size:14px;font-weight:600;color:#b2aba4;">준비물 체크</span></div>
+                <div style="padding-bottom:12px;display:flex;align-items:center;gap:6px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/></svg><span style="font-size:14px;font-weight:600;color:#b2aba4;">예약확인서 (0)</span></div>
+                <div style="padding-bottom:12px;border-bottom:2.5px solid #f4581c;display:flex;align-items:center;gap:6px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4Z"/></svg><span style="font-size:14px;font-weight:800;color:#f4581c;">출국 카운트다운</span></div>
+              </div>
+            </div>
+            <div style="flex:1;overflow:hidden;padding:16px 18px;display:flex;flex-direction:column;gap:12px;">
+              <div style="background:#fff2ea;border:1px solid #fbdcc9;border-radius:18px;padding:18px 16px;text-align:center;">
+                <div style="display:inline-flex;align-items:center;gap:6px;color:#f4581c;font-size:14px;font-weight:800;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4Z"/></svg>홍콩 외 2곳까지</div>
+                <div style="font-size:52px;font-weight:800;color:#f4581c;letter-spacing:-.02em;line-height:1.1;margin-top:4px;">D-78</div>
+                <div style="font-size:13px;color:#9c9690;margin-top:4px;">2026-10-01 출발 · 여행이 기다려져요!</div>
+              </div>
+              <div style="background:#fff;border:1px solid #eeece9;border-radius:18px;padding:16px;">
+                <div style="display:flex;align-items:center;gap:8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v5c0 5 3 8 7 10 4-2 7-5 7-10V6Z"/></svg><span style="font-size:16px;font-weight:800;color:#1d1b19;">오프라인 백업</span></div>
+                <div style="font-size:12.5px;color:#9c9690;line-height:1.5;margin-top:8px;">인터넷이 안 터지거나 앱이 안 열려도 여행 자료를 볼 수 있게 미리 저장하세요.</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px;">
+                  <div style="background:#f4581c;border-radius:13px;padding:13px;display:flex;align-items:center;justify-content:center;gap:7px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M11 18h2"/></svg><span style="font-size:13.5px;font-weight:700;color:#fff;">HTML 저장</span></div>
+                  <div style="background:#fff;border:1px solid #eeece9;border-radius:13px;padding:13px;display:flex;align-items:center;justify-content:center;gap:7px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3c3833" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/></svg><span style="font-size:13.5px;font-weight:700;color:#3c3833;">인쇄용 PDF</span></div>
+                  <div style="background:#fff;border:1px solid #eeece9;border-radius:13px;padding:13px;display:flex;align-items:center;justify-content:center;gap:7px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3c3833" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg><span style="font-size:13.5px;font-weight:700;color:#3c3833;">카톡 보내기</span></div>
+                  <div style="background:#fff;border:1px solid #eeece9;border-radius:13px;padding:13px;display:flex;align-items:center;justify-content:center;gap:7px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3c3833" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg><span style="font-size:13.5px;font-weight:700;color:#3c3833;">이메일 보내기</span></div>
+                </div>
+              </div>
+              <div style="background:#fff;border:1px solid #eeece9;border-radius:18px;padding:16px;">
+                <div style="display:flex;align-items:center;gap:8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19a4.5 4.5 0 0 0 0-9 6 6 0 0 0-11.6-1.5A4 4 0 0 0 6 19Z"/><path d="M12 12v5"/><path d="M9.5 14.5 12 12l2.5 2.5"/></svg><span style="font-size:16px;font-weight:800;color:#1d1b19;">현지 날씨 + 옷차림</span></div>
+                <div style="background:#faf8f6;border-radius:12px;padding:20px;text-align:center;margin-top:12px;font-size:12.5px;color:#b2aba4;">날씨 정보를 가져올 수 없어요</div>
+              </div>
+            </div>
+            <div style="flex-shrink:0;background:#fff;border-top:1px solid #f2f0ed;display:flex;padding:9px 8px 22px;">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14"/><path d="M15 6v14"/></svg><span style="font-size:10px;font-weight:600;color:#b2aba4;">계획</span></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18"/><path d="M8 3v4"/><path d="M16 3v4"/></svg><span style="font-size:10px;font-weight:600;color:#b2aba4;">일정표</span></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 8v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-8Z"/></svg><span style="font-size:10px;font-weight:600;color:#b2aba4;">예약</span></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2Z"/><path d="M8.5 8a3.5 3.5 0 0 1 7 0"/></svg><span style="font-size:10px;font-weight:800;color:#f4581c;">준비물</span></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 11h18"/></svg><span style="font-size:10px;font-weight:600;color:#b2aba4;">비용</span></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 4v16"/><path d="M17 4v16"/></svg><span style="font-size:10px;font-weight:600;color:#b2aba4;">추억</span></div>
+            </div>
+          </div>
+        </div>
+      </div></div>
+      <div class="foot-note">실제 앱 준비물 화면</div>
     </div>
   </div>
 </section>
@@ -465,12 +1047,12 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:44px 30px 60px}
   <div class="duo">
     <div class="mock reveal">
       <div class="mh"><span class="badge">여행 중</span><b>길 위의 모드니</b></div>
-      <div class="mslot"><span class="t">🍜</span><div><b>맛집을 종류별로 추천</b><p>라멘·스시·카페·디저트 — 지금 있는 곳 근처에서 골라서</p></div></div>
-      <div class="mslot"><span class="t">🎧</span><div><b>이동 중 따라다니는 가이드</b><p>장소마다 이야기를 들려줘요 — 도슨트가 필요 없어요</p></div></div>
-      <div class="mslot"><span class="t">🧭</span><div><b>오프라인에서도</b><p>미리 담아두면 인터넷이 끊겨도 가이드와 길 안내</p></div></div>
+      <div class="mslot"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3v7a3 3 0 0 0 6 0V3"/><path d="M7 3v18"/><path d="M17 3c-2 0-3 2-3 5s1 4 3 4v9"/></svg></span><div><b>맛집을 종류별로 추천</b><p>라멘·스시·카페·디저트 — 지금 있는 곳 근처에서 골라서</p></div></div>
+      <div class="mslot"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="2.5" y="14" width="4" height="6" rx="2"/><rect x="17.5" y="14" width="4" height="6" rx="2"/></svg></span><div><b>이동 중 따라다니는 가이드</b><p>장소마다 이야기를 들려줘요 — 도슨트가 필요 없어요</p></div></div>
+      <div class="mslot"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5 13 13l-4.5 2.5L11 11Z"/></svg></span><div><b>오프라인에서도</b><p>미리 담아두면 인터넷이 끊겨도 가이드와 길 안내</p></div></div>
     </div>
     <div class="mock reveal" style="transition-delay:.15s">
-      <div class="mh"><span class="badge">🧾 정산</span><b>영수증 사진만 찍으면 끝</b></div>
+      <div class="mh"><span class="badge">정산</span><b>영수증 사진만 찍으면 끝</b></div>
       <div class="mslot"><span class="t">저녁</span><div><b>이자카야 · 46,000엔</b><p>영수증 촬영 → 모드니가 읽고 기록</p></div></div>
       <div class="mslot"><span class="t">인별</span><div><b>4명 · 각 11,500엔</b><p>인별 비용 정산을 대신 해드려요</p></div></div>
       <div class="mslot"><span class="t">합계</span><div><b>여행 경비 자동 집계</b><p>예산 대비 지출을 한눈에</p></div></div>
@@ -486,6 +1068,31 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:44px 30px 60px}
     <h2>다녀온 뒤엔, 추억 영상으로</h2>
     <p class="lead">사진을 고르면 장소 자막과 음악이 어우러진 나만의 여행 영상이 완성돼요. 자랑하고 싶은 일정은 마켓에 발행해 보세요 — 다른 여행자들이 하트를 누르고 담아갑니다.</p>
   </div>
+  <div class="duo">
+    <div class="mock reveal">
+      <div class="mh"><span class="badge">여행 후</span><b>사진만 고르면 영상 완성</b></div>
+      <div class="mslot"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10 9l5 3-5 3Z"/></svg></span><div><b>자동으로 편집돼요</b><p>여행 사진을 고르면 모드니가 하이라이트로 이어 붙여요</p></div></div>
+      <div class="mslot"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span><div><b>장소 자막 · 음악까지</b><p>어디서 찍었는지 자막이 붙고, 분위기 맞는 음악이 깔려요</p></div></div>
+      <div class="mslot"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg></span><div><b>추억 공유하기</b><p>완성된 영상을 함께 다녀온 지인에게 공유해요</p></div></div>
+    </div>
+    <div class="mock-shot reveal" style="transition-delay:.15s">
+      <div class="memvid">
+        <div class="mv-slide on" style="background:linear-gradient(155deg,#ffdcc2 0%,#f7a469 100%);">
+          <div class="mv-shade"></div>
+          <span class="mv-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7Z"/></svg>여행 영상</span>
+          <div class="mv-play"><svg width="26" height="26" viewBox="0 0 24 24" fill="#f4581c"><path d="M8 5v14l11-7Z"/></svg></div>
+          <div class="mv-cap"><b>딸이랑 3박 4일 도쿄여행</b><span>2026 · 도쿄 · 하이라이트 1분</span></div>
+        </div>
+        <div class="mv-slide" style="background:linear-gradient(155deg,#ffe3cb 0%,#f6b079 100%);">
+          <div class="mv-shade"></div>
+          <span class="mv-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7Z"/></svg>여행 영상</span>
+          <div class="mv-play"><svg width="26" height="26" viewBox="0 0 24 24" fill="#f4581c"><path d="M8 5v14l11-7Z"/></svg></div>
+          <div class="mv-cap"><b>우리 부부 미국 서부 로드트립</b><span>2025 · 미국 서부 · 하이라이트 1분</span></div>
+        </div>
+      </div>
+      <div class="foot-note">실제 앱 추억 영상 예시</div>
+    </div>
+  </div>
 </section>
 
 <!-- ═══ CTA ═══ -->
@@ -494,8 +1101,8 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:44px 30px 60px}
   <h2 id="ctaTitle">모드니와 첫 여행, 함께 그려볼까요?</h2>
   <p id="ctaP">Google Play 출시와 함께 만나요 — App Store도 준비 중이에요.</p>
   <div class="store-row">
-    <span class="store">▶ <span>Google Play<small>곧 출시</small></span></span>
-    <span class="store"> <span>App Store<small>준비 중</small></span></span>
+    <span class="store"><span>Google Play<small>곧 출시</small></span></span>
+    <span class="store"><span>App Store<small>준비 중</small></span></span>
   </div>
 </section>
 
@@ -506,18 +1113,18 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:44px 30px 60px}
       <div class="foot-co">
         <b>(주)하우스두둥 사업자정보</b><br>
         AI 여행 플래닝 「여행의 모든것」 · 핵심 기술 특허 출원 중<br>
-        문의 <a href="mailto:horace1201@gmail.com" style="color:var(--orange)">horace1201@gmail.com</a>
+        문의 <a href="/cdn-cgi/l/email-protection#127a7d607371772320222352757f737b7e3c717d7f" style="color:var(--orange)"><span class="__cf_email__" data-cfemail="d8b0b7aab9bbbde9eae8e998bfb5b9b1b4f6bbb7b5">[email&#160;protected]</span></a>
       </div>
     </div>
     <div class="foot-links">
       <a href="terms.html">서비스 이용약관</a>
       <a href="privacy.html"><b>개인정보 처리방침</b></a>
-      <a href="mailto:horace1201@gmail.com">고객센터</a>
+      <a href="/cdn-cgi/l/email-protection#a1c9ced3c0c2c490939190e1c6ccc0c8cd8fc2cecc">고객센터</a>
     </div>
     <div class="en-box">
-      <h3>🌐 About All About Trip <span style="font-size:11px;color:var(--faint);font-weight:400">(for our global partners)</span></h3>
+      <h3>About All About Trip <span style="font-size:11px;color:var(--faint);font-weight:400">(for our global partners)</span></h3>
       <p><b>All About Trip</b> is an AI travel-planning app for the Korean market by House Dudung Inc. Our AI companion "Modni" builds each user's complete trip — optimal itinerary, optimal zones, and optimal hotels matched to budget and preferences — designed to maximize booking completion.</p>
-      <p>We connect users directly to partner booking pages with dates and guests pre-filled. Partnership inquiries: <b>horace1201@gmail.com</b></p>
+      <p>We connect users directly to partner booking pages with dates and guests pre-filled. Partnership inquiries: <b><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2d45425f4c4e481c1f1d1c6d4a404c4441034e4240">[email&#160;protected]</a></b></p>
     </div>
   </div>
 </footer>
@@ -540,7 +1147,7 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:44px 30px 60px}
   </div>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 /* ─────────────────────────────────────────
    여행의 모든것 웹 3차 — 풀스크린 랜딩 + 왼쪽 슬라이드 메뉴 + 스크롤 리빌 (트리플 스타일)
    보존: 마켓(라이브) · 코스 상세(지도·가이드·오디오) · Google 인증 · 내 여행 · 꿈조각
@@ -605,10 +1212,12 @@ function thumbHtml(region, title){
 
 /* ── 기능 목록 (드로어 아코디언) ── */
 const FEATURES = [
-  ["🗺️ 맞춤 코스 제안","plan"],["🕐 홈 투 홈 일정표","plan"],["🧾 예약을 한꺼번에","hotel"],
-  ["🏨 호텔 스마트 추천","hotel"],["📸 예약 확인증 자동 정리","plan"],["🎒 준비물 체크리스트","plan"],
-  ["🍜 맛집 종류별 추천","during"],["🎧 따라다니는 음성 가이드","during"],["💸 영수증 인별 정산","during"],
-  ["🧳 여행 마켓","market"],["🎬 추억 영상","memory"],
+  ["AI 맞춤 일정","plan"],["맞춤 코스 제안","plan"],["홈 투 홈 일정표","plan"],
+  ["준비물 체크리스트","prep"],["예약 확인서 정리","prep"],["출국 카운트다운","prep"],["오프라인 백업","prep"],["비상연락처 정리","prep"],
+  ["예약을 한꺼번에","hotel"],["호텔 스마트 추천","hotel"],
+  ["맛집 종류별 추천","during"],["따라다니는 음성 가이드","during"],["영수증 인별 정산","during"],
+  ["여행 마켓","market"],
+  ["추억 영상","memory"],["추억 공유하기","memory"],
 ];
 /* ── 2단 드로어: 항목 클릭 → 오른쪽으로 다음 단계 (뒤로가기 포함) ── */
 const BACK_BTN = `<button class="backlink" style="margin-bottom:14px" onclick="closeSub()">← 뒤로</button>`;
@@ -628,9 +1237,15 @@ function subPane(key){
       top.map(c => `<button class="ds-btn" onclick="selectCourse('${c.id}')">♡ ${c.hearts||0} · ${esc(stripPrefix(c.market_title))}</button>`).join("");
   }
   if (key === "feats"){
+    const GROUPS = [["plan","계획 · 일정"],["prep","준비"],["hotel","예약"],["during","여행 중"],["market","마켓"],["memory","추억"]];
+    const body = GROUPS.map(([cat,label]) => {
+      const items = FEATURES.filter(f => f[1] === cat);
+      if (!items.length) return "";
+      return `<div class="ds-group">${label}</div>` +
+        items.map(f => `<button class="ds-link" onclick="goSect('${f[1]}')">${f[0]}</button>`).join("");
+    }).join("");
     return BACK_BTN + `<h3 class="ds-title">기능 소개</h3>
-      <p class="ds-p">누르면 해당 설명으로 이동해요.</p>` +
-      FEATURES.map(f => `<button class="ds-btn" onclick="goSect('${f[1]}')">${f[0]}</button>`).join("");
+      <p class="ds-p">누르면 해당 설명으로 이동해요.</p>` + body;
   }
   if (key === "company"){
     return BACK_BTN + `<h3 class="ds-title">회사 · 파트너</h3>
@@ -683,6 +1298,7 @@ document.querySelectorAll(".reveal").forEach(el => io.observe(el));
 let courses = [];
 let sortKey = "latest";
 let filterKey = "all";
+let continentKey = null;
 let currentUser = null;
 
 async function loadMarket(){
@@ -710,7 +1326,7 @@ function renderPicks(){
       <div class="shade"></div>
       <span class="badge">에디터 픽</span>
       <div class="pt">${esc(stripPrefix(c.market_title))}</div>
-      <div class="pm">모드니 ✨ · 담기 ${c.download_count||0} · ♡ ${c.hearts||0}</div>
+      <div class="pm">모드니 · 담기 ${c.download_count||0} · ♡ ${c.hearts||0}</div>
     </div>`;
   }).join("");
   document.querySelectorAll(".pick").forEach(p => p.addEventListener("click", () => selectCourse(p.dataset.id)));
@@ -732,31 +1348,64 @@ function renderTop5(){
   document.querySelectorAll(".rank-item").forEach(r => r.addEventListener("click", () => selectCourse(r.dataset.id)));
 }
 
+const CONTINENTS = [
+  { key:"아시아",   center:[30, 103] },
+  { key:"유럽",     center:[50, 12] },
+  { key:"북미",     center:[42, -100] },
+  { key:"남미",     center:[-18, -62] },
+  { key:"오세아니아", center:[-25, 140] },
+  { key:"아프리카", center:[3, 22] },
+];
+const TOKEN_CONTINENT = {
+  일본:"아시아",오사카:"아시아",교토:"아시아",나라:"아시아",고베:"아시아",사가:"아시아",후쿠오카:"아시아",아오모리:"아시아",히로사키:"아시아",
+  방콕:"아시아",치앙마이:"아시아",푸켓:"아시아",끄라비:"아시아",태국:"아시아",세부:"아시아",보라카이:"아시아",필리핀:"아시아",
+  발리:"아시아",우붓:"아시아",인도네시아:"아시아",싱가포르:"아시아",대만:"아시아",타이베이:"아시아",가오슝:"아시아",
+  다낭:"아시아",호이안:"아시아",후에:"아시아",베트남:"아시아",서울:"아시아",부산:"아시아",제주:"아시아",한국:"아시아",
+  파리:"유럽",니스:"유럽",아를:"유럽",지베르니:"유럽",프랑스:"유럽",아테네:"유럽",산토리니:"유럽",미코노스:"유럽",그리스:"유럽",
+  바르셀로나:"유럽",마드리드:"유럽",스페인:"유럽",로마:"유럽",피렌체:"유럽",베네치아:"유럽",베니스:"유럽",이탈리아:"유럽",
+  토론토:"북미",나이아가라:"북미",몬트리올:"북미",퀘벡시티:"북미",퀘벡:"북미",캐나다:"북미",미국:"북미",뉴욕:"북미",하와이:"북미",
+};
+function continentOf(region){
+  const tokens = String(region||"").split(/[·,/\s]+/).map(t=>t.trim()).filter(Boolean);
+  for (const t of tokens){ if (TOKEN_CONTINENT[t]) return TOKEN_CONTINENT[t]; }
+  return null;
+}
+let worldMap = null, contMarkers = {};
 function renderRegions(){
-  const groups = {};
-  for (const c of courses){
-    const r = resolveCityImage(c.region);
-    const key = r?.token || (c.region||"").split(/[·,/\s]+/)[0] || "기타";
-    if (!groups[key]) groups[key] = { count:0, url:r?.url || null };
-    groups[key].count++;
+  const counts = {};
+  for (const c of courses){ const k = continentOf(c.region); if (k) counts[k] = (counts[k]||0)+1; }
+  if (!worldMap){
+    worldMap = L.map("worldMap", { zoomControl:false, scrollWheelZoom:false, attributionControl:true, zoomSnap:0.25,
+      dragging:true, doubleClickZoom:false, worldCopyJump:true, minZoom:1, maxZoom:5 }).setView([22, 25], 1.4);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution:'© OpenStreetMap contributors', noWrap:false }).addTo(worldMap);
   }
-  const list = Object.entries(groups).sort((a,b)=>b[1].count-a[1].count).slice(0, 10);
-  $("regions").innerHTML = list.map(([name, g]) => `
-    <div class="region" data-q="${esc(name)}">
-      ${g.url?`<img src="${g.url}" alt="" loading="lazy">`:""}
-      <div class="shade"></div>
-      <div class="rt">${esc(name)}</div>
-      <div class="rc">코스 ${g.count}</div>
-    </div>`).join("");
-  document.querySelectorAll(".region").forEach(r => r.addEventListener("click", () => {
-    $("q").value = r.dataset.q; renderCards();
-    $("cards").scrollIntoView({ behavior:"smooth", block:"start" });
-  }));
+  CONTINENTS.forEach(ct => {
+    const n = counts[ct.key] || 0;
+    const active = continentKey === ct.key;
+    const html = `<div class="cpill ${n?'':'off'} ${active?'on':''}" data-k="${esc(ct.key)}">${esc(ct.key)}${n?`<b>${n}</b>`:''}</div>`;
+    if (contMarkers[ct.key]){
+      contMarkers[ct.key].setIcon(L.divIcon({ className:"", html, iconSize:null }));
+    } else {
+      const m = L.marker(ct.center, { icon:L.divIcon({ className:"", html, iconSize:null }), keyboard:false }).addTo(worldMap);
+      m.on("click", () => {
+        if (!(counts[ct.key]||0)) return;
+        continentKey = (continentKey === ct.key) ? null : ct.key;
+        const h = $("contHint"); if (h) h.textContent = continentKey ? `${continentKey} · 코스 ${counts[continentKey]}개` : "대륙을 눌러보세요";
+        renderRegions(); renderCards();
+        openCards();
+        $("allPanel").scrollIntoView({ behavior:"smooth", block:"start" });
+      });
+      contMarkers[ct.key] = m;
+    }
+  });
+  setTimeout(() => worldMap && worldMap.invalidateSize(), 60);
 }
 
 function renderCards(){
   const q = ($("q").value || "").trim().toLowerCase();
   let list = courses.slice();
+  if (continentKey) list = list.filter(c => continentOf(c.region) === continentKey);
   if (q) list = list.filter(c =>
     (c.market_title||"").toLowerCase().includes(q) ||
     (c.summary||"").toLowerCase().includes(q) ||
@@ -775,7 +1424,7 @@ function renderCards(){
     <div class="mcard" data-id="${c.id}">
       ${thumbHtml(c.region, c.market_title)}
       <div class="m-body">
-        <div class="m-t">${esc(stripPrefix(c.market_title))}${c.is_sample?'<span class="m-badge">모드니 ✨</span>':''}</div>
+        <div class="m-t">${esc(stripPrefix(c.market_title))}${c.is_sample?'<span class="m-badge">모드니</span>':''}</div>
         <div class="m-meta">${esc(c.region||"")}${c.nights?` · ${c.nights}박`:""}${c.download_count?` · 담기 ${c.download_count}`:""}</div>
       </div>
       <span class="m-hearts">♡ ${c.hearts||0}</span>
@@ -787,6 +1436,25 @@ function renderCards(){
 }
 
 $("q").addEventListener("input", renderCards);
+function setAllToggle(open){
+  const t = $("allToggle");
+  t.setAttribute("aria-expanded", open ? "true" : "false");
+  t.querySelector(".at-t").textContent = open ? "전체 코스 접기" : "전체 코스 둘러보기";
+}
+function openCards(){
+  const p = $("allPanel");
+  if (p && p.classList.contains("hidden")){
+    p.classList.remove("hidden");
+    setAllToggle(true);
+    renderCards();
+  }
+}
+$("allToggle").addEventListener("click", () => {
+  const p = $("allPanel");
+  const open = p.classList.toggle("hidden") === false;
+  setAllToggle(open);
+  if (open){ renderCards(); p.scrollIntoView({ behavior:"smooth", block:"start" }); }
+});
 document.querySelectorAll(".sorts button").forEach(b => {
   b.addEventListener("click", () => {
     document.querySelectorAll(".sorts button").forEach(x=>x.classList.remove("on"));
@@ -888,17 +1556,28 @@ function renderDetail(c, seeds){
       return `${head}<div class="day-wrap"><div class="day-slots">${slots}</div><div class="day-map" id="dmap-${i}"></div></div>`;
     }
     return head + slots;
-  }).join("");
+  });
+  const firstHtml = daysHtml.slice(0,1).join("");
+  const restHtml = daysHtml.slice(1).join("");
 
   $("detailBody").innerHTML = `
     <div class="dt-title">${esc(stripPrefix(c.market_title))}</div>
     <div class="dt-meta">${esc(c.region||"")}${c.nights?` · ${c.nights}박`:""}${c.is_sample?" · 모드니 무료 코스":""}</div>
     ${ (snap.summary || c.summary) ? `<div class="dt-summary">${esc(snap.summary || c.summary)}</div>` : "" }
-    <div class="dt-days">${daysHtml || '<div class="empty">일정 준비 중이에요.</div>'}</div>
+    <div class="dt-days">${firstHtml || '<div class="empty">일정 준비 중이에요.</div>'}
+      ${restHtml ? `<div class="rest-days hidden" id="restDays">${restHtml}</div>
+      <button class="see-all" id="btnSeeAll">전체보기 <span class="c">· 총 ${days.length}일</span></button>` : ""}
+    </div>
     <button class="take" id="btnTake">이 여행 담아가기</button>
     <div class="take-note" id="takeNote">담은 일정은 <b>앱에서 이어갈 수 있어요</b> — Google Play 출시와 함께 만나요! ✦
       <button class="applink" onclick="closeOverlay();goSect('cta')">앱 다운로드 안내 →</button></div>
   `;
+  const seeAll = $("btnSeeAll");
+  if (seeAll) seeAll.addEventListener("click", () => {
+    $("restDays").classList.remove("hidden");
+    seeAll.remove();
+    dayMaps.forEach(m => { try { m.invalidateSize(); } catch(e){} });
+  });
   $("btnTake").addEventListener("click", () => { $("takeNote").style.display = "block"; });
   document.querySelectorAll(".guide-btn").forEach(b => b.addEventListener("click", () => toggleBucket(b)));
   initDayMaps(mapData);
@@ -1144,18 +1823,22 @@ boot();
 /* ── KOR/ENG 토글 (UI·마케팅 카피만 — 마켓 코스 데이터는 원문 유지) ── */
 const EN_TEXTS = [
   ["#heroEyebrow", "Your AI travel mate — from planning to memories"],
-  ["#heroTitle", "Everything about travel,<br>in one place"],
-  ["#heroModni", "Everyone's dream · <b>Modni</b> draws your trip with you"],
-  ["#heroHotel", "🏨 <span>Hotel Booking<small>sign in for member rates · Powered by Nuitée</small></span>"],
+  ["#heroTitle", "Everything about travel,<br>in one place with <span class=\"hl\">Modni</span>"],
+  ["#heroModni", "Before you go — plans and bookings. On the road — a guide. And afterwards — the memories. Modni draws it all with you, start to finish."],
+  ["#tbHotel", "Member Hotel Booking"],
   ["#sect-plan .eyebrow", "Before the trip · Plan — Book — Pack"],
   ["#sect-plan h2", "Your itinerary,<br>drawn by Modni in 3 minutes"],
   ["#sect-plan .lead", "Tell Modni your taste, companions and budget — it sketches several courses. Say “more hot springs” or “less walking” and it redraws. A home-to-home itinerary, from your doorstep and back."],
   ["#sect-market .eyebrow", "Travel Market · Trips already completed"],
-  ["#sect-market h2", "Take a whole itinerary —<br>it's even easier"],
+  ["#sect-market h2", "Post your itinerary,<br>take someone else's"],
   ["#sect-market .lead", "Browse real itineraries completed by fellow travelers. Take one and it redraws itself to your dates — bookings included. (Course content is in Korean.)"],
   ["#sect-hotel .eyebrow", "Before the trip · Hotels — Booking"],
   ["#sect-hotel h2", "Hotels that fit your budget,<br>linked with dates pre-filled"],
   ["#sect-hotel .lead", "Modni picks the right area and hotels within budget, then links to booking pages with dates and guests already filled in. Flights, rental cars and activities too — all in one place."],
+  ["#hotelCta", "Member-only hotel booking →"],
+  ["#sect-prep .eyebrow", "Before the trip · Prep"],
+  ["#sect-prep h2", "Modni packs you<br>for the road ahead"],
+  ["#sect-prep .lead", "From booking confirmations to packing lists and just-in-time reminders — Modni has you covered from packing day to the ride to the airport."],
   ["#sect-during .eyebrow", "During the trip · Modni travels with you"],
   ["#sect-during h2", "Even on the road,<br>Modni never rests"],
   ["#sect-during .lead", "Restaurant picks by category, an audio guide that follows you around (no docent needed), and receipt-photo expense splitting — every moment covered."],
@@ -1182,11 +1865,11 @@ $("langBtn").addEventListener("click", () => {
   const dwKo = ["내 여행 <span class=\"chev\">›</span>",
     "여행 마켓 <span class=\"tag\">코스 담아가기</span><span class=\"chev\">›</span>",
     "호텔 예약 <span class=\"tag\">회원 특가</span>",
-    "AI 맞춤 일정","기능 소개 <span class=\"chev\">›</span>","앱 다운로드","회사 · 파트너 <span class=\"chev\">›</span>"];
+    "기능 소개 <span class=\"chev\">›</span>","앱 다운로드","회사 · 파트너 <span class=\"chev\">›</span>"];
   const dwEn = ["My Trips <span class=\"chev\">›</span>",
     "Travel Market <span class=\"tag\">take a course</span><span class=\"chev\">›</span>",
     "Hotel Booking <span class=\"tag\">member rates</span>",
-    "AI Itinerary","Features <span class=\"chev\">›</span>","Get the App","Company · Partners <span class=\"chev\">›</span>"];
+    "Features <span class=\"chev\">›</span>","Get the App","Company · Partners <span class=\"chev\">›</span>"];
   document.querySelectorAll(".dw-nav .dw-item").forEach((b, i) => {
     b.innerHTML = (lang === "en" ? dwEn[i] : dwKo[i]) ?? b.innerHTML;
   });
@@ -1236,6 +1919,55 @@ document.getElementById("hnOk").addEventListener("click", () => {
 });
 document.getElementById("hnCancel").addEventListener("click", () => {
   document.getElementById("hotelNotice").style.display = "none";
+});
+</script>
+<script src="assets/image-slot.js"></script>
+<script>
+(function(){
+  const track=document.getElementById('scTrack');
+  if(!track) return;
+  const slides=[...track.children];
+  const dotsWrap=document.getElementById('scDots');
+  let i=0, timer;
+  slides.forEach((_,n)=>{const b=document.createElement('button');b.addEventListener('click',()=>{go(n);reset();});dotsWrap.appendChild(b);});
+  const dots=[...dotsWrap.children];
+  const wide=()=>matchMedia('(min-width:760px)').matches;
+  function go(n){
+    i=(n+slides.length)%slides.length;
+    const step=wide()?42:100;
+    const off= wide()? (i*step) - (50-42/2) : i*step;
+    track.style.transform=`translateX(-${off}%)`;
+    slides.forEach((s,k)=>s.classList.toggle('on',k===i));
+    dots.forEach((d,k)=>d.classList.toggle('on',k===i));
+  }
+  function reset(){clearInterval(timer);timer=setInterval(()=>go(i+1),3000);}
+  go(0);reset();
+  track.closest('.screens-carousel').addEventListener('mouseenter',()=>clearInterval(timer));
+  track.closest('.screens-carousel').addEventListener('mouseleave',reset);
+  addEventListener('resize',()=>go(i));
+})();
+</script>
+<script>
+document.querySelectorAll('.app-rot').forEach(rot => {
+  const frames=[...rot.querySelectorAll('.rot-frame')];
+  if(!frames.length) return;
+  function fit(){const s=rot.clientWidth/390;frames.forEach(f=>f.style.transform='scale('+s+')');}
+  fit(); addEventListener('resize',fit);
+  if(frames.length<2){ frames[0].classList.add('on'); return; }
+  let i=0,timer;
+  function go(n){i=(n+frames.length)%frames.length;frames.forEach((f,k)=>f.classList.toggle('on',k===i));}
+  function reset(){clearInterval(timer);timer=setInterval(()=>go(i+1),3200);}
+  go(0);reset();
+  rot.addEventListener('mouseenter',()=>clearInterval(timer));
+  rot.addEventListener('mouseleave',reset);
+});
+</script>
+<script>
+document.querySelectorAll('.memvid').forEach(v => {
+  const s=[...v.querySelectorAll('.mv-slide')];
+  if(s.length<2) return;
+  let i=0;
+  setInterval(()=>{i=(i+1)%s.length;s.forEach((el,k)=>el.classList.toggle('on',k===i));},3600);
 });
 </script>
 </body>
