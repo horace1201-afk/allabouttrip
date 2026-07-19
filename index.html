@@ -7,6 +7,23 @@
 <meta name="description" content="AI 여행 플래닝 앱 여행의 모든것. 모드니가 그려주는 나만의 여행 — 마켓에서 완성된 일정을 구경하고 그대로 담아가세요.">
 <meta property="og:title" content="여행의 모든것 · 모드니">
 <meta property="og:description" content="계획부터 추억까지 — 여행의 모든 것을 한 곳에서.">
+<script>
+/* 카톡·라인 인앱 브라우저 자동 탈출 (2026-07-19)
+   배경: 구글이 인앱 브라우저(WebView) OAuth를 차단 → 카톡 링크로 들어온 유저의
+   구글 로그인·호텔 예약 진입이 실패. 페이지 로드 즉시 시스템 브라우저로 이동시킨다.
+   탈출 후 외부 브라우저에서 다시 열리면 UA가 달라져 재실행되지 않음(루프 없음). */
+(function(){
+  var ua = navigator.userAgent.toLowerCase();
+  if (ua.indexOf('kakaotalk') > -1) {
+    // 카카오 공식 스킴 — 시스템 기본 브라우저로 현재 페이지 열기
+    location.href = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(location.href);
+  } else if (ua.indexOf('line/') > -1 && location.search.indexOf('openExternalBrowser=1') === -1) {
+    // LINE 공식 파라미터 — 외부 브라우저로 열기 (파라미터 체크로 루프 방지)
+    location.replace(location.href + (location.search ? '&' : '?') + 'openExternalBrowser=1');
+  }
+  /* 인스타·페북 iOS 인앱은 강제 탈출 불가 → 그대로 둠 (구경은 정상, 로그인 시도 시에만 제약) */
+})();
+</script>
 <link rel="icon" href="assets/favicon.png">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
