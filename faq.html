@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>고객센터 · All About Trip</title>
+  <meta name="description" content="여행의 모든것(All About Trip) 고객센터 — 자주 묻는 질문(FAQ)과 문의 안내." />
+  <meta name="robots" content="index,follow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --orange:#F4581C; --orange-deep:#D84A12; --orange-soft:#FFF2EA; --orange-tint:#FFF6F0;
+      --ink:#1D1B19; --sub:#6B6570; --faint:#B2ABA4; --line:#EEECE9; --hair:#F2F0ED;
+      --bg:#FAF8F5; --card:#FFFFFF;
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Malgun Gothic',sans-serif;background:var(--bg);color:var(--ink);line-height:1.65;font-size:15px;-webkit-font-smoothing:antialiased}
+    a{color:var(--orange);text-decoration:none}
+    a:hover{color:var(--orange-deep)}
+
+    .topbar{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid var(--hair);background:rgba(255,255,255,.9);backdrop-filter:blur(12px);position:sticky;top:0;z-index:50}
+    .topbar .logo{font-weight:900;color:var(--orange);font-size:1.15rem;letter-spacing:.02em}
+    .topbar .home{color:var(--sub);font-size:.875rem;font-weight:600}
+    .topbar .home:hover{color:var(--orange)}
+
+    .wrap{max-width:760px;margin:0 auto;padding:36px 20px 72px}
+    h1{font-size:1.7rem;font-weight:800;letter-spacing:-.02em;margin-bottom:6px}
+    .lead{color:var(--sub);font-size:.92rem;margin-bottom:24px}
+
+    .callout{background:var(--orange-tint);border:1px solid var(--orange-soft);border-radius:14px;padding:16px 18px;margin-bottom:30px}
+    .callout b{color:var(--orange-deep)}
+    .callout p{font-size:.9rem;color:var(--sub);margin-top:4px}
+    .callout .mail{font-weight:700}
+
+    .cat{font-size:.8rem;font-weight:800;color:var(--faint);letter-spacing:.02em;margin:26px 0 10px 2px;text-transform:none}
+    details.faq{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:8px;overflow:hidden}
+    details.faq+details.faq{margin-top:0}
+    details.faq summary{list-style:none;cursor:pointer;padding:15px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:.95rem;font-weight:600;color:var(--ink)}
+    details.faq summary::-webkit-details-marker{display:none}
+    details.faq summary .q{flex:1}
+    details.faq summary .chev{color:var(--faint);font-size:1.1rem;transition:transform .2s;flex-shrink:0}
+    details.faq[open] summary .chev{transform:rotate(180deg)}
+    details.faq .ans{padding:0 16px 16px;font-size:.9rem;color:var(--sub);line-height:1.7;white-space:pre-line}
+
+    .state{text-align:center;color:var(--faint);font-size:.9rem;padding:40px 0}
+
+    footer{border-top:1px solid var(--line);background:#fff;margin-top:48px}
+    .foot-in{max-width:760px;margin:0 auto;padding:28px 20px 44px}
+    .foot-co{font-size:.82rem;color:var(--sub);line-height:1.9}
+    .foot-co b{color:var(--ink)}
+    .foot-notice{margin-top:12px;font-size:11px;color:var(--faint);line-height:1.6}
+    .foot-links{display:flex;gap:18px;margin-top:18px;flex-wrap:wrap}
+    .foot-links a{font-size:.85rem;color:var(--sub);font-weight:600}
+    .foot-links a:hover{color:var(--orange)}
+    @media(max-width:520px){.wrap{padding:28px 16px 56px}h1{font-size:1.45rem}}
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="logo" href="https://allabouttrip.app/">All About Trip</a>
+  <a class="home" href="https://allabouttrip.app/">← 홈으로</a>
+</div>
+
+<div class="wrap">
+  <h1>고객센터</h1>
+  <p class="lead">자주 묻는 질문을 먼저 확인해 보세요. 원하는 답이 없으면 아래 방법으로 문의해 주세요.</p>
+
+  <div class="callout">
+    <b>1:1 문의는 앱에서</b>
+    <p>1:1 문의는 로그인이 필요해 <b>앱(여행의 모든것)</b>의 [설정 &gt; 문의하기]에서 이용하실 수 있어요.
+       급하신 경우 이메일로 보내주세요: <a class="mail" href="mailto:allabouttrip.cs@gmail.com">allabouttrip.cs@gmail.com</a><br>
+       답변은 평일 기준 1~2영업일 내에 드립니다.</p>
+  </div>
+
+  <div id="faqRoot">
+    <div class="state" id="faqState">FAQ를 불러오는 중…</div>
+  </div>
+</div>
+
+<!-- ═══ 푸터 (index.html #company와 동일 정보) ═══ -->
+<footer>
+  <div class="foot-in">
+    <div class="foot-co">
+      <b>(주)하우스두둥 사업자정보</b><br>
+      대표자: 김영아<br>
+      사업자등록번호: 667-88-01630<br>
+      통신판매업 신고번호: 발급 예정 (2026-07-21 신고 접수)<br>
+      주소: 경기도 화성시 동탄구 동탄지성로 18, 901호(금정프라자)<br>
+      전화: 010-5648-6052<br>
+      개인정보 보호책임자: 김영아<br>
+      문의 <a href="mailto:allabouttrip.cs@gmail.com" style="color:var(--orange)">allabouttrip.cs@gmail.com</a>
+    </div>
+    <div class="foot-notice">※ ㈜하우스두둥은 통신판매중개자이며, 호텔 예약의 판매자·계약 당사자는 Nuitée Travel Limited(아일랜드)입니다. 당사는 통신판매의 당사자가 아닙니다.</div>
+    <div class="foot-links">
+      <a href="terms.html">서비스 이용약관</a>
+      <a href="privacy.html">개인정보 처리방침</a>
+      <a href="https://allabouttrip.app/">홈</a>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // Supabase — support_faqs는 anon 읽기 허용(is_published=true, RLS). 공개키라 노출 안전.
+  var SB_URL = 'https://gecmrywieyntzzwthvlg.supabase.co';
+  var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdlY21yeXdpZXludHp6d3RodmxnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0NzU0ODIsImV4cCI6MjA5NDA1MTQ4Mn0.Cakqtz_AOHgNIVWHXyl_v-Dj7bSIJKoPSNbkbAqRemg';
+
+  // 카테고리 한글 라벨 · 노출 순서 (앱 lib/support.ts와 동일)
+  var CAT_LABEL = {
+    booking_payment: '예약·결제',
+    refund_cancel:   '환불·취소',
+    bug:             '앱 오류',
+    memory_video:    '추억영상',
+    account:         '계정·로그인',
+    partnership:     '제휴',
+    etc:             '기타',
+  };
+  var CAT_ORDER = ['booking_payment','refund_cancel','bug','memory_video','account','partnership','etc'];
+
+  function setState(msg){
+    var el = document.getElementById('faqState');
+    if (el) el.textContent = msg;
+  }
+
+  function render(rows){
+    var root = document.getElementById('faqRoot');
+    root.innerHTML = '';
+    if (!rows || rows.length === 0){
+      root.innerHTML = '<div class="state">등록된 FAQ가 없어요.</div>';
+      return;
+    }
+    // 카테고리별 그룹핑
+    var byCat = {};
+    rows.forEach(function(r){
+      (byCat[r.category] = byCat[r.category] || []).push(r);
+    });
+    CAT_ORDER.forEach(function(cat){
+      var items = byCat[cat];
+      if (!items || items.length === 0) return;
+      var h = document.createElement('div');
+      h.className = 'cat';
+      h.textContent = CAT_LABEL[cat] || cat;
+      root.appendChild(h);
+      items.forEach(function(item){
+        var d = document.createElement('details');
+        d.className = 'faq';
+        var s = document.createElement('summary');
+        var q = document.createElement('span');
+        q.className = 'q';
+        q.textContent = item.question;          // textContent = XSS 안전
+        var c = document.createElement('span');
+        c.className = 'chev';
+        c.textContent = '⌄';
+        s.appendChild(q); s.appendChild(c);
+        var a = document.createElement('div');
+        a.className = 'ans';
+        a.textContent = item.answer;            // textContent = XSS 안전
+        d.appendChild(s); d.appendChild(a);
+        root.appendChild(d);
+      });
+    });
+  }
+
+  (function init(){
+    try {
+      var client = supabase.createClient(SB_URL, SB_ANON);
+      client
+        .from('support_faqs')
+        .select('category,question,answer,sort_order')
+        .eq('is_published', true)
+        .order('sort_order', { ascending: true })
+        .then(function(res){
+          if (res.error){
+            setState('FAQ를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
+            return;
+          }
+          render(res.data);
+        });
+    } catch (e){
+      setState('FAQ를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
+    }
+  })();
+</script>
+
+</body>
+</html>
