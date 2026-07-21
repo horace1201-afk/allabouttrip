@@ -1,0 +1,19 @@
+# 줄바꿈 정규화 — 저장소는 LF로 통일.
+# OS/에디터(Windows CRLF) 차이로 전 파일이 변경된 것처럼 보이는 "유령 변경" 방지.
+# ⚠️ 이 파일만 추가하면 "앞으로 수정/추가되는 파일"부터 정규화됨.
+#    기존 파일 전체를 한 번에 정리하려면: git add --renormalize . (대량 커밋 → 팀 조율 후)
+* text=auto eol=lf
+
+# 바이너리 — 줄바꿈 변환 금지 (손상 방지)
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.webp binary
+*.ico  binary
+*.otf  binary
+*.ttf  binary
+*.woff  binary
+*.woff2 binary
+*.pdf binary
+*.zip binary
