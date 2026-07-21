@@ -1114,10 +1114,17 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
     <div class="foot-top">
       <div class="foot-co">
         <b>(주)하우스두둥 사업자정보</b><br>
+        대표자: 김영아<br>
+        사업자등록번호: 667-88-01630<br>
+        통신판매업 신고번호: 발급 예정 (2026-07-21 신고 접수)<br>
+        주소: 경기도 화성시 동탄구 동탄지성로 18, 901호(금정프라자)<br>
+        전화: 010-5648-6052<br>
+        개인정보 보호책임자: 김영아<br>
         AI 여행 플래닝 「여행의 모든것」 · 핵심 기술 특허 출원 중<br>
-        문의 <a href="/cdn-cgi/l/email-protection#127a7d607371772320222352757f737b7e3c717d7f" style="color:var(--orange)"><span class="__cf_email__" data-cfemail="d8b0b7aab9bbbde9eae8e998bfb5b9b1b4f6bbb7b5">[email&#160;protected]</span></a>
+        문의 <a href="mailto:allabouttrip.cs@gmail.com" style="color:var(--orange)">allabouttrip.cs@gmail.com</a>
       </div>
     </div>
+    <div style="margin-top:12px;font-size:11px;color:var(--faint);line-height:1.6">※ ㈜하우스두둥은 통신판매중개자이며, 호텔 예약의 판매자·계약 당사자는 Nuitée Travel Limited(아일랜드)입니다. 당사는 통신판매의 당사자가 아닙니다.</div>
     <div class="foot-links">
       <a href="terms.html">서비스 이용약관</a>
       <a href="privacy.html"><b>개인정보 처리방침</b></a>
@@ -1126,7 +1133,7 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
     <div class="en-box">
       <h3>About All About Trip <span style="font-size:11px;color:var(--faint);font-weight:400">(for our global partners)</span></h3>
       <p><b>All About Trip</b> is an AI travel-planning app for the Korean market by House Dudung Inc. Our AI companion "Modni" builds each user's complete trip — optimal itinerary, optimal zones, and optimal hotels matched to budget and preferences — designed to maximize booking completion.</p>
-      <p>We connect users directly to partner booking pages with dates and guests pre-filled. Partnership inquiries: <b><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2d45425f4c4e481c1f1d1c6d4a404c4441034e4240">[email&#160;protected]</a></b></p>
+      <p>We connect users directly to partner booking pages with dates and guests pre-filled. Partnership inquiries: <b><a href="mailto:allabouttrip.cs@gmail.com">allabouttrip.cs@gmail.com</a></b></p>
     </div>
   </div>
 </footer>
@@ -1907,7 +1914,7 @@ $("langBtn").addEventListener("click", () => {
 <div id="hotelNotice" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:center;justify-content:center;padding:20px">
   <div style="background:#fff;border-radius:16px;max-width:420px;width:100%;padding:24px 20px;box-shadow:0 12px 40px rgba(0,0,0,.2)">
     <h3 id="hnTitle" style="margin:0 0 10px;font-size:17px">호텔 예약 안내</h3>
-    <p id="hnBody" style="margin:0 0 16px;font-size:13.5px;line-height:1.6;color:#444"></p>
+    <p id="hnBody" style="margin:0 0 16px;font-size:13.5px;line-height:1.6;color:#444;white-space:pre-line"></p>
     <div style="display:flex;gap:8px;justify-content:flex-end">
       <button id="hnCancel" style="padding:10px 14px;border:1px solid #ddd;background:#fff;border-radius:10px;cursor:pointer">취소</button>
       <button id="hnOk" style="padding:10px 16px;border:0;background:var(--orange);color:#fff;border-radius:10px;font-weight:700;cursor:pointer">동의하고 계속</button>
@@ -1919,18 +1926,18 @@ const HN_URL = "https://hotels.allabouttrip.app";
 const HN_TXT = {
   ko: {
     title: "호텔 예약 안내",
-    body: "본 호텔 예약 서비스는 글로벌 호텔 파트너 Nuitée Travel Limited(아일랜드)가 제공·운영하며, 예약·결제·환불의 계약당사자는 Nuitée입니다. 예약 진행 시 이름·이메일 등 개인정보가 해외 사업자(Nuitée)에 제공·처리됩니다.",
-    ok: "동의하고 계속", cancel: "취소"
+    body: "'여행의 모든것'(운영사: ㈜하우스두둥)은 통신판매중개자로서 통신판매의 당사자가 아닙니다. 본 호텔 예약 서비스는 Nuitée Travel Limited(아일랜드)가 제공·운영하며, 예약·결제·환불의 판매자 및 계약 당사자는 Nuitée Travel Limited입니다.\n\n전 세계 호텔을 연결하는 글로벌 예약 파트너를 통해 안전하게 처리되며, 예약은 실제 호텔로 확정됩니다. 예약 시 입력한 정보는 예약 처리·확인을 위해 해외 사업자(Nuitée Travel Limited, 아일랜드)에 제공됩니다.",
+    ok: "동의하고 이동", cancel: "취소"
   },
   en: {
     title: "Hotel Booking Notice",
-    body: "Hotel bookings are provided and operated by our global partner Nuitée Travel Limited (Ireland), which is the contracting party for bookings, payments and refunds. When you proceed, your personal data (name, email, etc.) will be transferred to and processed overseas by Nuitée.",
+    body: "\"AllAboutTrip\" (operated by House DuDung Inc.) acts as a telecommunication sales intermediary and is not a party to the transaction. This hotel booking service is provided and operated by Nuitée Travel Limited (Ireland), which is the seller and contracting party for the booking, payment, and refund.\n\nBookings are confirmed with actual hotels through a global booking partner. Information you enter during booking is provided to the overseas operator (Nuitée Travel Limited, Ireland) to process and confirm your reservation.",
     ok: "Agree & Continue", cancel: "Cancel"
   }
 };
 function openHotelSite(e){
   if (e) e.preventDefault();
-  if (localStorage.getItem("aat_hotel_notice_ok") === "1"){ window.open(HN_URL, "_blank", "noopener"); return false; }
+  if (localStorage.getItem("aat_hotel_notice_ok_v2") === "1"){ window.open(HN_URL, "_blank", "noopener"); return false; }
   const t = HN_TXT[(typeof lang !== "undefined" && lang === "en") ? "en" : "ko"];
   document.getElementById("hnTitle").textContent = t.title;
   document.getElementById("hnBody").textContent = t.body;
@@ -1940,7 +1947,7 @@ function openHotelSite(e){
   return false;
 }
 document.getElementById("hnOk").addEventListener("click", () => {
-  localStorage.setItem("aat_hotel_notice_ok", "1");
+  localStorage.setItem("aat_hotel_notice_ok_v2", "1");
   document.getElementById("hotelNotice").style.display = "none";
   window.open(HN_URL, "_blank", "noopener");
 });
