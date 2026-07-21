@@ -227,7 +227,10 @@
   // ── 인증 ──
   var currentUser = null;
   async function login(){
-    await sb.auth.signInWithOAuth({ provider:'google', options:{ redirectTo: location.origin + location.pathname + '#inquiry' } });
+    // 로그인 후 1:1 탭으로 복귀하기 위한 플래그 (redirectTo에 #hash를 붙이면
+    // OAuth 콜백 토큰 파싱이 깨져 세션 저장이 실패하므로 hash 대신 sessionStorage 사용)
+    try { sessionStorage.setItem('csReturnInquiry', '1'); } catch(e){}
+    await sb.auth.signInWithOAuth({ provider:'google', options:{ redirectTo: location.origin + location.pathname } });
   }
   async function refreshAuthView(){
     var res = await sb.auth.getSession();
@@ -320,7 +323,11 @@
 
   // ── 초기화 ──
   loadFaq();
-  if (location.hash === '#inquiry') switchTab('inquiry');
+  var _returnInquiry = false;
+  try {
+    if (sessionStorage.getItem('csReturnInquiry') === '1'){ _returnInquiry = true; sessionStorage.removeItem('csReturnInquiry'); }
+  } catch(e){}
+  if (location.hash === '#inquiry' || _returnInquiry) switchTab('inquiry');
 </script>
 
 </body>
