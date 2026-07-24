@@ -1,10 +1,17 @@
 # MODNI 홈피(allabouttrip) 프로젝트 규칙
 
-## ⚠️ 배포·브랜치
+## ⚠️ 배포·브랜치 (2026-07-23 확정 — 작업별 feat 브랜치)
 
-- **master 푸시 = 즉시 실배포** (GitHub Pages, CNAME 연결). master로 직접 커밋·푸시 **절대 금지**
-- 모든 작업은 `minji-web` 브랜치에서만
-- master 반영은 사용자 확인 후 별도 병합 절차로만
+- **master 직접 커밋·푸시 = 즉시 실배포 → 절대 금지** (GitHub Pages, CNAME 연결)
+- **작업마다 master 기반 새 `feat/<작업명>` 브랜치**를 파서 거기서만 작업:
+  ```
+  git switch master && git pull --ff-only
+  git switch -c feat/<작업명>
+  # 수정 → git add → git commit
+  git diff master feat/<작업명> --name-only   # 변경파일 확인
+  ```
+- ⚠️ **`minji-web`은 민지 디자인 개편 전용 → 다른 작업(핫픽스·신고번호 등) 절대 얹지 말 것** (구조가 master와 크게 달라 충돌·데이터 유실 — 2026-07-23 실제 발생)
+- master 반영은 **영아 확인 후** feat→master 병합으로만
 
 ## ⚠️ 수정 금지 대상
 
