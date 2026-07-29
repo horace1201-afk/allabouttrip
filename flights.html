@@ -345,7 +345,10 @@ async function selectOffer(o){
     if (v.offerId) sel.offerId = v.offerId;
     const newTotal = offerPrice(v) || sel.price;
     let html = "";
-    const ch = pick(v, ["changes.pricing"]);
+    /* 실측 (2026-07-29): changes 객체는 변동이 없어도 항상 내려온다.
+       존재 여부가 아니라 priceChanged 플래그로 분기해야 오표시가 없다. */
+    const chRoot = v.changes;
+    const ch = (chRoot && chRoot.priceChanged === true) ? chRoot.pricing : null;
     if (ch){
       const oldT = pick(ch,["old.display.total"]), newT = pick(ch,["new.display.total"]) || newTotal;
       html += '<div class="warn">가격 변동: <s>' + money(oldT, sel.currency) + "</s> → <b>" +
