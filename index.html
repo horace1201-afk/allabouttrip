@@ -485,6 +485,8 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
       <button class="dw-item" onclick="location.href='faq.html'">고객센터 <span class="chev">›</span></button>
       <!-- 관리자 전용 — 기본 숨김. 아래 스크립트가 admin_emails 화이트리스트 확인 후에만 노출 -->
       <button class="dw-item" id="menuAdmin" style="display:none" onclick="location.href='/admin.html'">관리자</button>
+      <!-- 관리자 전용 — 항공 파일럿 (2026-07-29). menuAdmin과 동일 게이트로 노출 -->
+      <button class="dw-item" id="menuFlights" style="display:none" onclick="location.href='/flights.html'">항공 조회 <span class="tag">파일럿</span></button>
     </div>
     <div class="dw-foot">© (주)하우스두둥 · 핵심 기술 특허 출원 중<br><a href="mailto:allabouttrip.cs@gmail.com">문의</a></div>
   </div>
@@ -1876,12 +1878,14 @@ $("langBtn").addEventListener("click", () => {
     "여행 마켓 <span class=\"tag\">코스 담아가기</span><span class=\"chev\">›</span>",
     "호텔 예약 <span class=\"tag\">회원 특가</span>",
     "기능 소개 <span class=\"chev\">›</span>","앱 다운로드","회사 · 파트너 <span class=\"chev\">›</span>",
-    "고객센터 <span class=\"chev\">›</span>","관리자"];
+    "고객센터 <span class=\"chev\">›</span>","관리자",
+    "항공 조회 <span class=\"tag\">파일럿</span>"];
   const dwEn = ["My Trips <span class=\"chev\">›</span>",
     "Travel Market <span class=\"tag\">take a course</span><span class=\"chev\">›</span>",
     "Hotel Booking <span class=\"tag\">member rates</span>",
     "Features <span class=\"chev\">›</span>","Get the App","Company · Partners <span class=\"chev\">›</span>",
-    "Customer Support <span class=\"chev\">›</span>","Admin"];
+    "Customer Support <span class=\"chev\">›</span>","Admin",
+    "Flights <span class=\"tag\">pilot</span>"];
   document.querySelectorAll(".dw-nav .dw-item").forEach((b, i) => {
     b.innerHTML = (lang === "en" ? dwEn[i] : dwKo[i]) ?? b.innerHTML;
   });
@@ -1895,16 +1899,18 @@ $("langBtn").addEventListener("click", () => {
    ※ 실제 접근 통제는 admin.html이 호출하는 RPC가 서버측에서 수행한다(이 노출은 편의 기능). */
 (async function revealAdminMenu(){
   const el = document.getElementById("menuAdmin");
+  const elF = document.getElementById("menuFlights");   /* 항공 파일럿 — 동일 게이트 (2026-07-29) */
   if (!el) return;
+  const setBoth = (v) => { el.style.display = v; if (elF) elF.style.display = v; };
   const check = async () => {
     try {
       const { data: { session } } = await sb.auth.getSession();
       const email = session?.user?.email?.toLowerCase();
-      if (!email) { el.style.display = "none"; return; }
+      if (!email) { setBoth("none"); return; }
       const { data, error } = await sb.from("app_config").select("value").eq("key", "admin_emails").maybeSingle();
       if (error || !data) return;
       const list = Array.isArray(data.value) ? data.value.map(String).map(s => s.toLowerCase()) : [];
-      if (list.includes(email)) el.style.display = "flex";
+      if (list.includes(email)) setBoth("flex");
     } catch { /* 조용히 무시 */ }
   };
   check();
