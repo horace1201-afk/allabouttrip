@@ -268,11 +268,20 @@ $("btnSearch").onclick = async () => {
   $("btnSearch").disabled = true; $("btnSearch").textContent = "검색 중…";
   try {
     const r = await callProxy({ action:"rates", payload });
-    const root = r.data ?? r;
-    let arr = pick(root, ["journeys"]) ?? pick(root, ["offers"]) ?? (Array.isArray(root) ? root : []);
-    if (!Array.isArray(arr)) arr = [];
+    /* 실측 (2026-07-29): 응답이 data:[{journeys:[…]}] 또는 data:{itineraries:[…]} 두 형태로 관측됨
+       (공급자 조합에 따라 상이 추정). 컨테이너 후보를 순회하며 저니 배열을 찾는다. */
+    const arr = (function extractJourneys(resp){
+      const d = resp.data ?? resp;
+      const containers = [resp, d, ...(Array.isArray(d) ? d : [])];
+      for (const c of containers){
+        if (!c || typeof c !== "object" || Array.isArray(c)) continue;
+        for (const k of ["journeys", "itineraries", "offers"])
+          if (Array.isArray(c[k])) return c[k];
+      }
+      return [];
+    })(r);
     offers = arr.map(j => {
-      const o = (Array.isArray(j.offers) && j.offers[0]) || j;
+      const o = (Array.isArray(j.offers) && j.offers[0]) || j.cheapestOffer || j;
       return {
         offerId: o.offerId || j.offerId,
         price: offerPrice(o) || offerPrice(j),
