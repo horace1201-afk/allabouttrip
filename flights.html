@@ -55,6 +55,12 @@ details pre{font-size:11px; background:#111; color:#8f8; padding:10px; border-ra
 .steps{display:flex; gap:4px; margin:14px 0;}
 .steps span{flex:1; height:4px; border-radius:2px; background:var(--line);}
 .steps span.on{background:var(--orange);}
+.acWrap{position:relative;}
+.drop{position:absolute; top:calc(100% + 4px); left:0; right:0; background:#fff; border:1px solid var(--line); border-radius:10px; z-index:30; max-height:240px; overflow:auto;}
+.drop div{padding:9px 12px; font-size:13px; cursor:pointer; border-bottom:1px solid var(--line);}
+.drop div:last-child{border-bottom:0;}
+.drop div:hover{background:var(--soft);}
+.drop b{color:var(--deep);}
 </style>
 </head>
 <body>
@@ -82,8 +88,8 @@ details pre{font-size:11px; background:#111; color:#8f8; padding:10px; border-ra
     <div id="step1" class="card">
       <h2>1. 항공편 검색</h2>
       <div class="row">
-        <div><label>출발 (IATA)</label><input id="fFrom" placeholder="ICN" maxlength="3" style="text-transform:uppercase"></div>
-        <div><label>도착 (IATA)</label><input id="fTo" placeholder="NRT" maxlength="3" style="text-transform:uppercase"></div>
+        <div class="acWrap"><label>출발 공항</label><input id="fFrom" placeholder="도시·공항명 검색 (예: 인천, ICN)" autocomplete="off"><div id="fFromDrop" class="drop hidden"></div></div>
+        <div class="acWrap"><label>도착 공항</label><input id="fTo" placeholder="예: 도쿄, NRT" autocomplete="off"><div id="fToDrop" class="drop hidden"></div></div>
       </div>
       <div class="row" style="margin-top:8px">
         <div><label>가는 날</label><input id="fDate" type="date"></div>
@@ -253,11 +259,64 @@ async function init(){
    리로드 없이 gateStarted 가드가 붙은 init() 재실행으로 교체 — 이벤트가 몇 번 오든 게이트 검증은 1회. */
 sb.auth.onAuthStateChange((_e, s) => { if (s){ session = s; init(); } });
 
+/* ── 공항 자동완성 (LiteAPI /data/flights/airports 검색) ── */
+const airSel = { from: null, to: null };
+function wireAirportInput(inputId, dropId, key){
+  const inp = $(inputId), drop = $(dropId);
+  let timer = null;
+  inp.addEventListener("input", () => {
+    airSel[key] = null;
+    const q = inp.value.trim();
+    if (/^[A-Za-z]{3}$/.test(q)) airSel[key] = q.toUpperCase();
+    clearTimeout(timer);
+    if (q.length < 2){ drop.classList.add("hidden"); return; }
+    timer = setTimeout(async () => {
+      try {
+        const r = await callProxy({ action:"airports", params:{ q } });
+        /* 실측 (2026-07-29): 응답이 data:[{airports:[…], count}] 중첩 — rates와 동일 패턴.
+           컨테이너 후보를 순회하며 공항 배열을 찾는다. */
+        const d = r.data ?? r;
+        let arr = [];
+        for (const c of [r, d, ...(Array.isArray(d) ? d : [])]){
+          if (!c || typeof c !== "object" || Array.isArray(c)) continue;
+          if (Array.isArray(c.airports)){ arr = c.airports; break; }
+          if (Array.isArray(c.items)){ arr = c.items; break; }
+        }
+        if (!arr.length && Array.isArray(d) && d[0] && (d[0].iata || d[0].iataCode)) arr = d;
+        drop.innerHTML = "";
+        arr.slice(0, 8).forEach(a => {
+          const iata = a.iata || a.iataCode || a.code;
+          if (!iata) return;
+          const name = a.name || "", city = a.city || a.cityName || "", cc = a.countryCode || a.country || "";
+          const d = document.createElement("div");
+          d.innerHTML = "<b>" + iata + "</b> " + name + (city ? " · " + city : "") + (cc ? " (" + cc + ")" : "");
+          d.onmousedown = (ev) => {
+            ev.preventDefault();
+            airSel[key] = String(iata).toUpperCase();
+            inp.value = iata + " — " + (name || city || iata);
+            drop.classList.add("hidden");
+          };
+          drop.appendChild(d);
+        });
+        drop.classList.toggle("hidden", drop.children.length === 0);
+      } catch { drop.classList.add("hidden"); }
+    }, 350);
+  });
+  inp.addEventListener("blur", () => setTimeout(() => drop.classList.add("hidden"), 150));
+}
+wireAirportInput("fFrom", "fFromDrop", "from");
+wireAirportInput("fTo", "fToDrop", "to");
+function resolveAirport(inputId, key){
+  if (airSel[key]) return airSel[key];
+  const v = $(inputId).value.trim().toUpperCase();
+  return /^[A-Z]{3}$/.test(v) ? v : null;
+}
+
 /* ── STEP 1 → 2: 검색 ── */
 $("btnSearch").onclick = async () => {
-  const from = $("fFrom").value.trim().toUpperCase(), to = $("fTo").value.trim().toUpperCase();
+  const from = resolveAirport("fFrom", "from"), to = resolveAirport("fTo", "to");
   const date = $("fDate").value, ret = $("fRet").value;
-  if (!/^[A-Z]{3}$/.test(from) || !/^[A-Z]{3}$/.test(to) || !date) return msg("출발·도착 IATA 3글자와 날짜를 입력하세요.");
+  if (!from || !to || !date) return msg("출발·도착 공항을 목록에서 선택하거나 IATA 3글자를 입력하고, 날짜를 확인하세요.");
   const legs = [{ origin:from, destination:to, date }];
   if (ret) legs.push({ origin:to, destination:from, date:ret, direction:"INBOUND" });
   const payload = {
