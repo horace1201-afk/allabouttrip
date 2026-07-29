@@ -259,8 +259,42 @@ async function init(){
    리로드 없이 gateStarted 가드가 붙은 init() 재실행으로 교체 — 이벤트가 몇 번 오든 게이트 검증은 1회. */
 sb.auth.onAuthStateChange((_e, s) => { if (s){ session = s; init(); } });
 
-/* ── 공항 자동완성 (LiteAPI /data/flights/airports 검색) ── */
+/* ── 공항 자동완성 (우리 매핑 + LiteAPI /data/flights/airports 검색 병합) ── */
+/* KO_AIRPORTS: 앱 lib/data/airportCodes.ts(한글 도시명→IATA, 334곳)에서 생성한 사본.
+   ★원본 변경 시 재생성 필요 — 수기 수정 금지 (생성: 클로디 2026-07-29) */
+const KO_AIRPORTS = {"서울":"ICN","인천":"ICN","김포":"GMP","부산":"PUS","김해":"PUS","제주":"CJU","대구":"TAE","청주":"CJJ","광주":"KWJ","무안":"MWX","양양":"YNY","도쿄":"NRT","나리타":"NRT","하네다":"HND","오사카":"KIX","간사이":"KIX","교토":"KIX","나라":"KIX","고베":"KIX","삿포로":"CTS","홋카이도":"CTS","후쿠오카":"FUK","나고야":"NGO","오키나와":"OKA","나하":"OKA","히로시마":"HIJ","가고시마":"KOJ","나가사키":"NGS","센다이":"SDJ","니가타":"KIJ","마쓰야마":"MYJ","다카마쓰":"TAK","고치":"KCZ","시즈오카":"FSZ","하코다테":"HKD","아사히카와":"AKJ","구마모토":"KMJ","오이타":"OIT","미야자키":"KMI","도쿠시마":"TKS","이시가키":"ISG","미야코":"MMY","아마미":"ASJ","요나구니":"OGN","베이징":"PEK","북경":"PEK","상하이":"PVG","광저우":"CAN","선전":"SZX","청두":"CTU","충칭":"CKG","시안":"XIY","항저우":"HGH","난징":"NKG","우한":"WUH","쿤밍":"KMG","하이커우":"HAK","싼야":"SYX","다롄":"DLC","칭다오":"TAO","하얼빈":"HRB","창사":"CSX","옌지":"YNJ","구이린":"KWL","장자제":"DYG","리장":"LJG","샤먼":"XMN","닝보":"NGB","타이베이":"TPE","타이중":"RMQ","가오슝":"KHH","화롄":"HUN","홍콩":"HKG","마카오":"MFM","싱가포르":"SIN","방콕":"BKK","수완나품":"BKK","돈므앙":"DMK","치앙마이":"CNX","푸켓":"HKT","끄라비":"KBV","코사무이":"USM","치앙라이":"CEI","하노이":"HAN","호치민":"SGN","다낭":"DAD","나트랑":"CXR","달랏":"DLI","푸꾸옥":"PQC","호이안":"DAD","하이퐁":"HPH","후에":"HUI","발리":"DPS","덴파사르":"DPS","자카르타":"CGK","롬복":"LOP","수라바야":"SUB","족자카르타":"JOG","마나도":"MDC","라부안바조":"LBJ","메단":"KNO","마닐라":"MNL","세부":"CEB","보라카이":"MPH","팔라완":"PPS","다바오":"DVO","클라크":"CRK","일로일로":"ILO","코타바토":"CBO","쿠알라룸푸르":"KUL","KL":"KUL","코타키나발루":"BKI","랑카위":"LGK","페낭":"PEN","조호르바루":"JHB","쿠칭":"KCH","시드니":"SYD","멜버른":"MEL","브리즈번":"BNE","퍼스":"PER","골드코스트":"OOL","애들레이드":"ADL","케언즈":"CNS","다윈":"DRW","호바트":"HBA","캔버라":"CBR","오클랜드":"AKL","크라이스트처치":"CHC","퀸스타운":"ZQN","웰링턴":"WLG","뭄바이":"BOM","델리":"DEL","뉴델리":"DEL","벵갈루루":"BLR","콜카타":"CCU","첸나이":"MAA","고아":"GOI","아그라":"AGR","카트만두":"KTM","다카":"DAC","콜롬보":"CMB","말레":"MLE","몰디브":"MLE","이슬라마바드":"ISB","카라치":"KHI","라호르":"LHE","알마티":"ALA","아스타나":"NQZ","누르술탄":"NQZ","타슈켄트":"TAS","사마르칸트":"SKD","울란바토르":"ULN","모스크바":"SVO","상트페테르부르크":"LED","블라디보스토크":"VVO","이스탄불":"IST","앙카라":"ESB","카파도키아":"ASR","안탈리아":"AYT","이즈미르":"ADB","보드룸":"BJV","두바이":"DXB","아부다비":"AUH","샤르자":"SHJ","도하":"DOH","리야드":"RUH","제다":"JED","텔아비브":"TLV","예루살렘":"TLV","암만":"AMM","카이로":"CAI","룩소르":"LXR","아스완":"ASW","후르가다":"HRG","샤름엘셰이크":"SSH","마라케시":"RAK","카사블랑카":"CMN","페스":"FEZ","케이프타운":"CPT","요하네스버그":"JNB","더반":"DUR","나이로비":"NBO","킬리만자로":"JRO","잔지바르":"ZNZ","다르에스살람":"DAR","런던":"LHR","히드로":"LHR","개트윅":"LGW","스탠스테드":"STN","에딘버러":"EDI","맨체스터":"MAN","버밍엄":"BHX","글래스고":"GLA","더블린":"DUB","파리":"CDG","샤를드골":"CDG","오를리":"ORY","니스":"NCE","리옹":"LYS","마르세유":"MRS","보르도":"BOD","툴루즈":"TLS","스트라스부르":"SXB","낭트":"NTE","몽펠리에":"MPL","프랑크푸르트":"FRA","뮌헨":"MUC","베를린":"BER","함부르크":"HAM","쾰른":"CGN","뒤셀도르프":"DUS","슈투트가르트":"STR","로마":"FCO","피우미치노":"FCO","밀라노":"MXP","말펜사":"MXP","베네치아":"VCE","피렌체":"FLR","나폴리":"NAP","팔레르모":"PMO","카타니아":"CTA","볼로냐":"BLQ","토리노":"TRN","바리":"BRI","마드리드":"MAD","바르셀로나":"BCN","세비야":"SVQ","말라가":"AGP","발렌시아":"VLC","빌바오":"BIO","그라나다":"GRX","팔마":"PMI","이비사":"IBZ","테네리페":"TFN","리스본":"LIS","포르투":"OPO","파루":"FAO","암스테르담":"AMS","로테르담":"RTM","브뤼셀":"BRU","취리히":"ZRH","제네바":"GVA","바젤":"BSL","빈":"VIE","잘츠부르크":"SZG","인스브루크":"INN","아테네":"ATH","산토리니":"JTR","미코노스":"JMK","크레타":"HER","헤라클리온":"HER","코르푸":"CFU","로도스":"RHO","프라하":"PRG","부다페스트":"BUD","바르샤바":"WAW","크라쿠프":"KRK","부쿠레슈티":"OTP","두브로브니크":"DBV","스플리트":"SPU","자그레브":"ZAG","류블랴나":"LJU","브라티슬라바":"BTS","예레반":"EVN","트빌리시":"TBS","쿠타이시":"KUT","레이캬비크":"KEF","코펜하겐":"CPH","스톡홀름":"ARN","예테보리":"GOT","오슬로":"OSL","베르겐":"BGO","헬싱키":"HEL","뉴욕":"JFK","JFK":"JFK","뉴어크":"EWR","로스앤젤레스":"LAX","LA":"LAX","샌프란시스코":"SFO","SF":"SFO","시카고":"ORD","마이애미":"MIA","라스베이거스":"LAS","시애틀":"SEA","보스턴":"BOS","워싱턴":"IAD","DC":"IAD","달라스":"DFW","휴스턴":"IAH","애틀랜타":"ATL","덴버":"DEN","피닉스":"PHX","샌디에이고":"SAN","포틀랜드":"PDX","호놀룰루":"HNL","하와이":"HNL","마우이":"OGG","빅아일랜드":"KOA","앵커리지":"ANC","올랜도":"MCO","탬파":"TPA","내슈빌":"BNA","뉴올리언스":"MSY","미니애폴리스":"MSP","샬럿":"CLT","필라델피아":"PHL","디트로이트":"DTW","솔트레이크시티":"SLC","밴쿠버":"YVR","토론토":"YYZ","몬트리올":"YUL","캘거리":"YYC","오타와":"YOW","에드먼턴":"YEG","퀘벡":"YQB","핼리팩스":"YHZ","멕시코시티":"MEX","칸쿤":"CUN","과달라하라":"GDL","상파울루":"GRU","리우데자네이루":"GIG","브라질리아":"BSB","부에노스아이레스":"EZE","리마":"LIM","쿠스코":"CUZ","산티아고":"SCL","보고타":"BOG","메데진":"MDE","카르타헤나":"CTG","아바나":"HAV"};
 const airSel = { from: null, to: null };
+function koMatches(q){
+  const out = [];
+  for (const city in KO_AIRPORTS){
+    if (city.includes(q)){ out.push({ iata: KO_AIRPORTS[city], name: city, src: "ko" }); if (out.length >= 6) break; }
+  }
+  return out;
+}
+function renderDrop(drop, inp, key, local, remote){
+  const seen = new Set(), items = [];
+  for (const a of local){ if (!seen.has(a.iata)){ seen.add(a.iata); items.push(a); } }
+  if (Array.isArray(remote)) for (const a of remote){
+    const iata = a.iata || a.iataCode || a.code;
+    if (!iata || seen.has(iata)) continue;
+    seen.add(iata);
+    items.push({ iata, name: a.name || a.city || "", cc: a.countryCode || a.country || "" });
+    if (items.length >= 10) break;
+  }
+  drop.innerHTML = "";
+  items.forEach(it => {
+    const d = document.createElement("div");
+    d.innerHTML = "<b>" + it.iata + "</b> " + it.name + (it.cc ? " (" + it.cc + ")" : "");
+    d.onmousedown = (ev) => {
+      ev.preventDefault();
+      airSel[key] = String(it.iata).toUpperCase();
+      inp.value = it.iata + " — " + it.name;
+      drop.classList.add("hidden");
+    };
+    drop.appendChild(d);
+  });
+  drop.classList.toggle("hidden", items.length === 0);
+}
 function wireAirportInput(inputId, dropId, key){
   const inp = $(inputId), drop = $(dropId);
   let timer = null;
@@ -270,11 +304,12 @@ function wireAirportInput(inputId, dropId, key){
     if (/^[A-Za-z]{3}$/.test(q)) airSel[key] = q.toUpperCase();
     clearTimeout(timer);
     if (q.length < 2){ drop.classList.add("hidden"); return; }
+    const local = koMatches(q);
+    renderDrop(drop, inp, key, local, null);   /* 우리 매핑은 즉시 표시 */
     timer = setTimeout(async () => {
       try {
         const r = await callProxy({ action:"airports", params:{ q } });
-        /* 실측 (2026-07-29): 응답이 data:[{airports:[…], count}] 중첩 — rates와 동일 패턴.
-           컨테이너 후보를 순회하며 공항 배열을 찾는다. */
+        /* 실측 (2026-07-29): 응답이 data:[{airports:[…], count}] 중첩 — rates와 동일 패턴 */
         const d = r.data ?? r;
         let arr = [];
         for (const c of [r, d, ...(Array.isArray(d) ? d : [])]){
@@ -283,23 +318,8 @@ function wireAirportInput(inputId, dropId, key){
           if (Array.isArray(c.items)){ arr = c.items; break; }
         }
         if (!arr.length && Array.isArray(d) && d[0] && (d[0].iata || d[0].iataCode)) arr = d;
-        drop.innerHTML = "";
-        arr.slice(0, 8).forEach(a => {
-          const iata = a.iata || a.iataCode || a.code;
-          if (!iata) return;
-          const name = a.name || "", city = a.city || a.cityName || "", cc = a.countryCode || a.country || "";
-          const d = document.createElement("div");
-          d.innerHTML = "<b>" + iata + "</b> " + name + (city ? " · " + city : "") + (cc ? " (" + cc + ")" : "");
-          d.onmousedown = (ev) => {
-            ev.preventDefault();
-            airSel[key] = String(iata).toUpperCase();
-            inp.value = iata + " — " + (name || city || iata);
-            drop.classList.add("hidden");
-          };
-          drop.appendChild(d);
-        });
-        drop.classList.toggle("hidden", drop.children.length === 0);
-      } catch { drop.classList.add("hidden"); }
+        renderDrop(drop, inp, key, local, arr);  /* LiteAPI 결과를 뒤에 병합 (IATA 중복 제거) */
+      } catch { /* 원격 실패 시 우리 매핑 결과만 유지 */ }
     }, 350);
   });
   inp.addEventListener("blur", () => setTimeout(() => drop.classList.add("hidden"), 150));
