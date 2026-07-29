@@ -224,10 +224,13 @@ function hhmm(t){ return (t||"").slice(11,16) || t || "?"; }
 $("btnLogin").onclick = () =>
   sb.auth.signInWithOAuth({ provider:"google", options:{ redirectTo: location.origin + location.pathname } });
 
+let gateStarted = false;
 async function init(){
   const { data:{ session:s } } = await sb.auth.getSession();
-  session = s;
+  if (s) session = s;
   if (!session){ $("authView").classList.remove("hidden"); return; }
+  if (gateStarted) return;
+  gateStarted = true;
   $("authView").classList.add("hidden");
   $("gateView").classList.remove("hidden");
   try {
@@ -246,7 +249,9 @@ async function init(){
     $("btnOut").onclick = async ()=>{ await sb.auth.signOut(); location.reload(); };
   }
 }
-sb.auth.onAuthStateChange((_e, s) => { if (s && !session){ session = s; location.reload(); } });
+/* v1의 location.reload()는 INITIAL_SESSION 이벤트와 경합해 무한 새로고침 루프 발생 (2026-07-29 실기 확인).
+   리로드 없이 gateStarted 가드가 붙은 init() 재실행으로 교체 — 이벤트가 몇 번 오든 게이트 검증은 1회. */
+sb.auth.onAuthStateChange((_e, s) => { if (s){ session = s; init(); } });
 
 /* ── STEP 1 → 2: 검색 ── */
 $("btnSearch").onclick = async () => {
