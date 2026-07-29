@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>MODNI 항공 — 관리자 파일럿</title>
+<link rel="icon" href="assets/favicon.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://js.stripe.com/v3/"></script>
+<style>
+/* 팔레트: index.html :root와 동일 계열 */
+:root{
+  --orange:#F4581C; --deep:#D84A12; --soft:#FFF2EA; --ink:#1D1B19;
+  --sub:#6B6570; --faint:#B2ABA4; --line:#EEECE9; --bg:#FAF9F7;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif; background:var(--bg); color:var(--ink); line-height:1.5;}
+.wrap{max-width:760px; margin:0 auto; padding:20px 16px 80px;}
+h1{font-size:20px; font-weight:800;}
+h2{font-size:16px; font-weight:700; margin:20px 0 10px;}
+.pill{display:inline-block; background:var(--soft); color:var(--deep); font-size:12px; font-weight:700; border-radius:99px; padding:2px 10px; margin-left:8px; vertical-align:middle;}
+.card{background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px; margin-bottom:12px;}
+.row{display:flex; gap:8px; flex-wrap:wrap;}
+.row>*{flex:1; min-width:120px;}
+label{font-size:12px; color:var(--sub); font-weight:600; display:block; margin-bottom:4px;}
+input,select{width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:10px; font:inherit; background:#fff;}
+input:focus,select:focus{outline:2px solid var(--orange); border-color:transparent;}
+.btn{display:inline-block; width:100%; padding:12px 16px; border:0; border-radius:12px; background:var(--orange); color:#fff; font-size:15px; font-weight:700; cursor:pointer; text-align:center;}
+.btn:disabled{background:var(--faint); cursor:not-allowed;}
+.btn.ghost{background:#fff; color:var(--ink); border:1px solid var(--line);}
+.btn.sm{width:auto; padding:8px 14px; font-size:13px;}
+.hidden{display:none!important;}
+.muted{color:var(--sub); font-size:13px;}
+.err{background:#FDECEC; color:#B3261E; border-radius:10px; padding:10px 12px; font-size:13px; margin:10px 0; word-break:break-all;}
+.ok{background:#EAF7EE; color:#1E7B3C; border-radius:10px; padding:10px 12px; font-size:13px; margin:10px 0;}
+.warn{background:#FFF6E5; color:#8A5B00; border-radius:10px; padding:10px 12px; font-size:13px; margin:10px 0;}
+.offer{display:flex; justify-content:space-between; align-items:center; gap:10px; padding:12px; border:1px solid var(--line); border-radius:12px; margin-bottom:8px; background:#fff; cursor:pointer;}
+.offer:hover{border-color:var(--orange);}
+.offer .price{font-weight:800; font-size:16px; white-space:nowrap;}
+.seg{font-size:13px; color:var(--ink);}
+.seg .sub{color:var(--sub); font-size:12px;}
+.badge{font-size:11px; font-weight:700; color:#fff; background:var(--orange); border-radius:6px; padding:1px 6px; margin-left:6px;}
+.badge.gray{background:var(--faint);}
+.logo{width:22px; height:22px; border-radius:4px; vertical-align:middle; margin-right:6px;}
+.total{font-size:22px; font-weight:800; color:var(--deep);}
+fieldset{border:1px solid var(--line); border-radius:12px; padding:12px; margin-bottom:10px;}
+legend{font-size:13px; font-weight:700; color:var(--sub); padding:0 6px;}
+#cardBox{padding:12px; border:1px solid var(--line); border-radius:10px; background:#fff; margin:10px 0;}
+.chk{display:flex; align-items:flex-start; gap:8px; font-size:13px; margin:10px 0;}
+.chk input{width:auto; margin-top:3px;}
+details{margin-top:14px;}
+details pre{font-size:11px; background:#111; color:#8f8; padding:10px; border-radius:8px; overflow:auto; max-height:280px; white-space:pre-wrap; word-break:break-all;}
+.steps{display:flex; gap:4px; margin:14px 0;}
+.steps span{flex:1; height:4px; border-radius:2px; background:var(--line);}
+.steps span.on{background:var(--orange);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>MODNI 항공<span class="pill">관리자 파일럿</span></h1>
+  <p class="muted">내부 실증용 — 실제 발권·실제 결제가 이루어집니다. 관리자 계정만 사용 가능.</p>
+
+  <!-- ① 로그인 -->
+  <div id="authView" class="card hidden">
+    <h2>관리자 로그인</h2>
+    <p class="muted" style="margin-bottom:10px">앱과 동일한 구글 계정으로 로그인하세요.</p>
+    <button class="btn" id="btnLogin">Google로 로그인</button>
+  </div>
+
+  <!-- ② 게이트 -->
+  <div id="gateView" class="card hidden"><p class="muted">권한 확인 중…</p></div>
+
+  <!-- ③ 본체 -->
+  <div id="appView" class="hidden">
+    <div class="steps" id="stepsBar">
+      <span data-s="1" class="on"></span><span data-s="2"></span><span data-s="3"></span><span data-s="4"></span><span data-s="5"></span>
+    </div>
+
+    <!-- STEP 1: 검색 -->
+    <div id="step1" class="card">
+      <h2>1. 항공편 검색</h2>
+      <div class="row">
+        <div><label>출발 (IATA)</label><input id="fFrom" placeholder="ICN" maxlength="3" style="text-transform:uppercase"></div>
+        <div><label>도착 (IATA)</label><input id="fTo" placeholder="NRT" maxlength="3" style="text-transform:uppercase"></div>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <div><label>가는 날</label><input id="fDate" type="date"></div>
+        <div><label>오는 날 (편도면 비움)</label><input id="fRet" type="date"></div>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <div><label>성인</label><select id="fAdults"><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
+        <div><label>좌석 등급</label>
+          <select id="fCabin">
+            <option value="ECONOMY">이코노미</option>
+            <option value="PREMIUM_ECONOMY">프리미엄 이코노미</option>
+            <option value="BUSINESS">비즈니스 (특가 탐색)</option>
+            <option value="FIRST">퍼스트</option>
+          </select>
+        </div>
+        <div><label>직항만</label><select id="fDirect"><option value="">전체</option><option value="0">직항만</option></select></div>
+      </div>
+      <div style="margin-top:12px"><button class="btn" id="btnSearch">검색</button></div>
+      <p class="muted" style="margin-top:8px">가격은 검색 시점 참고가 — 약 10분 유효, 결제 직전 재확인(verify)됩니다.</p>
+    </div>
+
+    <!-- STEP 2: 결과 -->
+    <div id="step2" class="card hidden">
+      <h2>2. 결과 <span class="muted" id="resMeta"></span></h2>
+      <div class="chk"><input type="checkbox" id="dedup" checked><label for="dedup" style="margin:0">코드셰어 중복 제거 (실제 운항편 기준)</label></div>
+      <div id="offerList"></div>
+      <button class="btn ghost sm" onclick="goStep(1)">← 다시 검색</button>
+    </div>
+
+    <!-- STEP 3: 확인 + 탑승자 -->
+    <div id="step3" class="card hidden">
+      <h2>3. 가격 확인 & 탑승자 정보</h2>
+      <div id="verifyBox"></div>
+      <div id="paxForms"></div>
+      <fieldset><legend>예약 연락처</legend>
+        <div class="row">
+          <div><label>이메일</label><input id="cEmail" type="email" placeholder="admin@allabouttrip.app"></div>
+          <div><label>전화 (+82…)</label><input id="cPhone" placeholder="+821012345678"></div>
+        </div>
+      </fieldset>
+      <button class="btn" id="btnPrebook">좌석 확보 (prebook)</button>
+      <button class="btn ghost sm" style="margin-top:8px" onclick="goStep(2)">← 결과로</button>
+    </div>
+
+    <!-- STEP 4: 결제 -->
+    <div id="step4" class="card hidden">
+      <h2>4. 결제</h2>
+      <p>결제 금액: <span class="total" id="payTotal">—</span></p>
+      <div id="svcNote" class="muted"></div>
+      <div id="cardBox"><div id="cardElement"></div></div>
+      <div class="chk">
+        <input type="checkbox" id="confirmReal">
+        <label for="confirmReal" style="margin:0; font-weight:700; color:#B3261E">
+          실제 항공권이 발권되고 위 금액이 실제로 결제됨을 확인했습니다. (취소 시 변경수수료 25EUR + 항공사 위약금)
+        </label>
+      </div>
+      <button class="btn" id="btnPay" disabled>결제하고 발권하기</button>
+    </div>
+
+    <!-- STEP 5: 완료 -->
+    <div id="step5" class="card hidden">
+      <h2>5. 발권 완료</h2>
+      <div id="doneBox"></div>
+      <button class="btn ghost sm" onclick="location.reload()">새 예약</button>
+    </div>
+
+    <div id="msg"></div>
+    <details><summary class="muted">디버그 로그 (관리자용)</summary><pre id="debug"></pre></details>
+  </div>
+</div>
+
+<script>
+/* ─────────────────────────────────────────
+   MODNI 항공 관리자 파일럿 v1 (2026-07-29)
+   플로우: rates → verify → prebook → Stripe → book  (LiteAPI Flights)
+   서버: Supabase EF flight-proxy (키 은닉 + admin_emails 게이트 + 실발권 가드)
+   ⚠️ 응답 스키마는 실측 전 — 파서는 관용적으로 작성, 어긋나면 디버그 로그로 확인
+───────────────────────────────────────── */
+const SUPABASE_URL = "https://gecmrywieyntzzwthvlg.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdlY21yeXdpZXludHp6d3RodmxnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0NzU0ODIsImV4cCI6MjA5NDA1MTQ4Mn0.Cakqtz_AOHgNIVWHXyl_v-Dj7bSIJKoPSNbkbAqRemg";
+const PROXY = SUPABASE_URL + "/functions/v1/flight-proxy";
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+const $ = (id) => document.getElementById(id);
+const nf = new Intl.NumberFormat("ko-KR");
+
+let session = null;
+let offers = [];            // 정규화된 검색 결과
+let sel = null;             // 선택 오퍼 {offerId, price, currency, segs}
+let verified = null;        // verify 결과
+let prebook = null;         // {prebookId, transactionId, secretKey, publishableKey, total, currency}
+let stripe = null, cardElement = null;
+
+/* ── 유틸 ── */
+function dbg(tag, obj){
+  const pre = $("debug");
+  pre.textContent += "\n── " + tag + " " + new Date().toISOString() + "\n" +
+    (typeof obj === "string" ? obj : JSON.stringify(obj, null, 1)).slice(0, 4000) + "\n";
+}
+function msg(html, cls){ $("msg").innerHTML = html ? '<div class="'+(cls||"err")+'">'+html+"</div>" : ""; }
+function money(v, cur){ return (cur||"KRW") + " " + nf.format(Math.round(Number(v)||0)); }
+function goStep(n){
+  for (let i=1;i<=5;i++) $("step"+i).classList.toggle("hidden", i!==n);
+  document.querySelectorAll("#stepsBar span").forEach(s => s.classList.toggle("on", Number(s.dataset.s)<=n));
+  msg("");
+}
+async function callProxy(body){
+  const r = await fetch(PROXY, {
+    method:"POST",
+    headers:{ "content-type":"application/json", apikey: SUPABASE_ANON,
+              authorization: "Bearer " + session.access_token },
+    body: JSON.stringify(body),
+  });
+  const text = await r.text();
+  let j; try { j = JSON.parse(text); } catch { j = { raw:text }; }
+  dbg(body.action + " → " + r.status, j);
+  if (!r.ok) throw Object.assign(new Error(j.message || j.error || ("HTTP "+r.status)), { status:r.status, body:j });
+  return j;
+}
+/* 관용 파서: 다양한 응답 경로에서 값 찾기 */
+function pick(o, paths){
+  for (const p of paths){
+    const v = p.split(".").reduce((a,k)=> (a==null?undefined:a[k]), o);
+    if (v !== undefined && v !== null) return v;
+  }
+  return undefined;
+}
+function offerPrice(o){ return Number(pick(o, ["pricing.display.total","pricing.total.amount","pricing.total","price.total","totalPrice","price"])) || 0; }
+function offerCurrency(o){ return pick(o, ["pricing.display.currency","pricing.currency","price.currency","currency"]) || "KRW"; }
+function offerSegs(j){
+  let segs = pick(j, ["segments"]);
+  if (!segs && Array.isArray(j.legs)) segs = j.legs.flatMap(l => l.segments || []);
+  if (!segs && Array.isArray(j.slices)) segs = j.slices.flatMap(s => s.segments || []);
+  return Array.isArray(segs) ? segs : [];
+}
+function hhmm(t){ return (t||"").slice(11,16) || t || "?"; }
+
+/* ── 인증 ── */
+$("btnLogin").onclick = () =>
+  sb.auth.signInWithOAuth({ provider:"google", options:{ redirectTo: location.origin + location.pathname } });
+
+async function init(){
+  const { data:{ session:s } } = await sb.auth.getSession();
+  session = s;
+  if (!session){ $("authView").classList.remove("hidden"); return; }
+  $("authView").classList.add("hidden");
+  $("gateView").classList.remove("hidden");
+  try {
+    const p = await callProxy({ action:"ping" });
+    $("gateView").classList.add("hidden");
+    $("appView").classList.remove("hidden");
+    dbg("gate ok", p);
+    if (p.keyMode === "prod") {
+      msg("⚠️ <b>prod 키 모드</b> — 결제 시 실제 발권됩니다.", "warn");
+    } else {
+      msg("샌드박스 키 모드 — 실제 발권되지 않는 테스트입니다.", "ok");
+    }
+  } catch (e) {
+    $("gateView").innerHTML = '<div class="err">접근 권한이 없습니다. 관리자 계정(app_config.admin_emails)만 이용 가능합니다.<br>'+
+      (e.body?.reason||"") + '</div><button class="btn ghost sm" id="btnOut">로그아웃</button>';
+    $("btnOut").onclick = async ()=>{ await sb.auth.signOut(); location.reload(); };
+  }
+}
+sb.auth.onAuthStateChange((_e, s) => { if (s && !session){ session = s; location.reload(); } });
+
+/* ── STEP 1 → 2: 검색 ── */
+$("btnSearch").onclick = async () => {
+  const from = $("fFrom").value.trim().toUpperCase(), to = $("fTo").value.trim().toUpperCase();
+  const date = $("fDate").value, ret = $("fRet").value;
+  if (!/^[A-Z]{3}$/.test(from) || !/^[A-Z]{3}$/.test(to) || !date) return msg("출발·도착 IATA 3글자와 날짜를 입력하세요.");
+  const legs = [{ origin:from, destination:to, date }];
+  if (ret) legs.push({ origin:to, destination:from, date:ret, direction:"INBOUND" });
+  const payload = {
+    legs, adults:Number($("fAdults").value), currency:"KRW", country:"KR",
+    cabinClass: $("fCabin").value,
+  };
+  if ($("fDirect").value === "0") payload.filters = { maxStops: 0 };
+  $("btnSearch").disabled = true; $("btnSearch").textContent = "검색 중…";
+  try {
+    const r = await callProxy({ action:"rates", payload });
+    const root = r.data ?? r;
+    let arr = pick(root, ["journeys"]) ?? pick(root, ["offers"]) ?? (Array.isArray(root) ? root : []);
+    if (!Array.isArray(arr)) arr = [];
+    offers = arr.map(j => {
+      const o = (Array.isArray(j.offers) && j.offers[0]) || j;
+      return {
+        offerId: o.offerId || j.offerId,
+        price: offerPrice(o) || offerPrice(j),
+        currency: offerCurrency(o),
+        segs: offerSegs(j),
+        isCheapest: !!(o.isCheapest || j.isCheapest),
+        raw: j,
+      };
+    }).filter(o => o.offerId);
+    offers.sort((a,b) => a.price - b.price);
+    renderOffers();
+    goStep(2);
+  } catch (e) { msg("검색 실패: " + e.message); }
+  $("btnSearch").disabled = false; $("btnSearch").textContent = "검색";
+};
+
+function renderOffers(){
+  let list = offers;
+  if ($("dedup").checked){
+    const seen = new Map();
+    for (const o of list){
+      const key = o.segs.map(s =>
+        (pick(s,["carrier.operatingCode"])||"") + (pick(s,["flight.operatingNumber"])||"") + (s.departureTime||"")
+      ).join("|") || o.offerId;
+      if (!seen.has(key) || o.price < seen.get(key).price) seen.set(key, o);
+    }
+    list = [...seen.values()].sort((a,b)=>a.price-b.price);
+  }
+  $("resMeta").textContent = "— " + list.length + "건 (가격 오름차순)";
+  $("offerList").innerHTML = list.length ? "" : '<p class="muted">결과가 없습니다.</p>';
+  list.forEach((o, i) => {
+    const div = document.createElement("div");
+    div.className = "offer";
+    const segHtml = o.segs.map(s => {
+      const mc = pick(s,["carrier.marketingCode"])||"", mn = pick(s,["flight.marketingNumber"])||"";
+      const logo = pick(s,["carrier.marketingLogo"]);
+      return '<div class="seg">' + (logo?'<img class="logo" src="'+logo+'" alt="">':"") +
+        "<b>" + mc + mn + "</b> " + (s.originCode||"") + " " + hhmm(s.departureTime) +
+        " → " + (s.destinationCode||"") + " " + hhmm(s.arrivalTime) +
+        ' <span class="sub">' + (pick(s,["duration.minutes"]) ? Math.floor(s.duration.minutes/60)+"h"+(s.duration.minutes%60)+"m" : "") + "</span></div>";
+    }).join("") || '<div class="seg muted">세그먼트 정보 없음 (디버그 확인)</div>';
+    div.innerHTML = "<div>" + segHtml +
+      (o.segs.length>2 ? '<span class="badge gray">경유 포함</span>' : "") +
+      (o.isCheapest ? '<span class="badge">최저가</span>' : (i===0?'<span class="badge">최저가</span>':"")) +
+      '</div><div class="price">' + money(o.price, o.currency) + "</div>";
+    div.onclick = () => selectOffer(o);
+    $("offerList").appendChild(div);
+  });
+}
+$("dedup").onchange = renderOffers;
+
+/* ── STEP 2 → 3: verify + 탑승자 폼 ── */
+async function selectOffer(o){
+  sel = o;
+  goStep(3);
+  $("verifyBox").innerHTML = '<p class="muted">가격 재확인 중…</p>';
+  try {
+    const r = await callProxy({ action:"verify", payload:{ offerId: o.offerId } });
+    const v = (Array.isArray(r.data) && r.data[0]) || r.data || r;
+    verified = v;
+    if (v.offerId) sel.offerId = v.offerId;
+    const newTotal = offerPrice(v) || sel.price;
+    let html = "";
+    const ch = pick(v, ["changes.pricing"]);
+    if (ch){
+      const oldT = pick(ch,["old.display.total"]), newT = pick(ch,["new.display.total"]) || newTotal;
+      html += '<div class="warn">가격 변동: <s>' + money(oldT, sel.currency) + "</s> → <b>" +
+        money(newT, sel.currency) + "</b> — 아래 진행 시 새 가격에 동의한 것으로 처리</div>";
+      sel.price = Number(newT) || sel.price;
+    } else {
+      sel.price = newTotal;
+      html += '<div class="ok">가격 확정: <b>' + money(sel.price, sel.currency) + "</b> (오퍼 유효시간 내 결제 필요)</div>";
+    }
+    $("verifyBox").innerHTML = html;
+    renderPaxForms();
+  } catch (e) {
+    if (e.status === 404){ msg("오퍼가 만료되었습니다. 다시 검색해주세요."); goStep(1); }
+    else msg("verify 실패: " + e.message);
+  }
+}
+
+function renderPaxForms(){
+  const n = Number($("fAdults").value);
+  let html = "";
+  for (let i=1;i<=n;i++){
+    html += '<fieldset><legend>탑승자 ' + i + ' (성인 · 여권과 동일 영문)</legend>' +
+      '<div class="row">' +
+      '<div><label>성 (SURNAME)</label><input id="p'+i+'last" placeholder="HONG" style="text-transform:uppercase"></div>' +
+      '<div><label>이름 (GIVEN NAME)</label><input id="p'+i+'first" placeholder="GILDONG" style="text-transform:uppercase"></div>' +
+      '</div><div class="row" style="margin-top:8px">' +
+      '<div><label>성별</label><select id="p'+i+'gender"><option value="M">남</option><option value="F">여</option></select></div>' +
+      '<div><label>생년월일</label><input id="p'+i+'birth" type="date"></div>' +
+      '<div><label>국적</label><input id="p'+i+'nat" value="KR" maxlength="2" style="text-transform:uppercase"></div>' +
+      '</div><div class="row" style="margin-top:8px">' +
+      '<div><label>여권번호</label><input id="p'+i+'doc" placeholder="M12345678"></div>' +
+      '<div><label>발급국</label><input id="p'+i+'iss" value="KR" maxlength="2" style="text-transform:uppercase"></div>' +
+      '<div><label>여권 만료일</label><input id="p'+i+'exp" type="date"></div>' +
+      "</div></fieldset>";
+  }
+  $("paxForms").innerHTML = html;
+}
+
+/* ── STEP 3 → 4: prebook ── */
+$("btnPrebook").onclick = async () => {
+  const n = Number($("fAdults").value);
+  const passengers = [];
+  for (let i=1;i<=n;i++){
+    const last = $("p"+i+"last").value.trim().toUpperCase(), first = $("p"+i+"first").value.trim().toUpperCase();
+    const birth = $("p"+i+"birth").value, docN = $("p"+i+"doc").value.trim();
+    if (!last || !first || !birth || !docN) return msg("탑승자 " + i + " 정보를 모두 입력하세요 (여권 필수).");
+    passengers.push({
+      type:"ADT", firstName:first, lastName:last, birthday:birth,
+      gender: $("p"+i+"gender").value,
+      document:{
+        type:"PASSPORT", number:docN,
+        issuingCountry: $("p"+i+"iss").value.trim().toUpperCase() || "KR",
+        nationality: $("p"+i+"nat").value.trim().toUpperCase() || "KR",
+        expiryDate: $("p"+i+"exp").value,
+      },
+    });
+  }
+  const email = $("cEmail").value.trim(), phone = $("cPhone").value.trim();
+  if (!email || !phone) return msg("예약 연락처(이메일·전화)를 입력하세요.");
+  const contact = { firstName: passengers[0].firstName, lastName: passengers[0].lastName, email, phone };
+
+  $("btnPrebook").disabled = true; $("btnPrebook").textContent = "좌석 확보 중…";
+  try {
+    const r = await callProxy({ action:"prebook",
+      payload:{ offerId: sel.offerId, usePaymentSdk:true, contact, passengers } });
+    const p = (Array.isArray(r.data) && r.data[0]) || r.data || r;
+    prebook = {
+      prebookId: p.prebookId, transactionId: p.transactionId,
+      secretKey: p.secretKey, publishableKey: p.publishableKey,
+      total: offerPrice(p) || sel.price, currency: offerCurrency(p) || sel.currency,
+    };
+    if (!prebook.prebookId || !prebook.secretKey || !prebook.publishableKey)
+      return msg("prebook 응답에 결제 정보가 없습니다. 디버그 로그를 확인하세요. (usePaymentSdk/계정 설정 문제 가능)");
+    $("payTotal").textContent = money(prebook.total, prebook.currency);
+    const svc = pick(p, ["servicesAttachable.groups"]);
+    $("svcNote").textContent = Array.isArray(svc) && svc.length
+      ? "좌석·수하물 추가옵션 " + svc.length + "그룹 존재 (파일럿에서는 스킵)" : "";
+    stripe = Stripe(prebook.publishableKey);
+    cardElement = stripe.elements().create("card");
+    cardElement.mount("#cardElement");
+    goStep(4);
+  } catch (e) { msg("prebook 실패: " + e.message); }
+  $("btnPrebook").disabled = false; $("btnPrebook").textContent = "좌석 확보 (prebook)";
+};
+
+/* ── STEP 4 → 5: Stripe 결제 → book ── */
+$("confirmReal").onchange = () => { $("btnPay").disabled = !$("confirmReal").checked; };
+$("btnPay").onclick = async () => {
+  $("btnPay").disabled = true; $("btnPay").textContent = "결제 중…";
+  try {
+    const { error, paymentIntent } = await stripe.confirmCardPayment(prebook.secretKey, {
+      payment_method:{ card: cardElement, billing_details:{ email: $("cEmail").value.trim() } },
+    });
+    if (error) throw new Error("Stripe: " + error.message);
+    dbg("stripe", { status: paymentIntent?.status });
+    if (paymentIntent?.status !== "succeeded") throw new Error("결제 미완료: " + paymentIntent?.status);
+
+    // book (idempotent — 5xx만 재시도, 409는 중단)
+    let booked = null;
+    for (let attempt=1; attempt<=3; attempt++){
+      try {
+        booked = await callProxy({ action:"book", confirmRealBooking:true,
+          payload:{ prebookId: prebook.prebookId,
+                    payment:{ method:"TRANSACTION_ID", transactionId: prebook.transactionId } } });
+        break;
+      } catch (e) {
+        if (e.status >= 500 && attempt < 3){ await new Promise(r=>setTimeout(r, attempt*1500)); continue; }
+        if (e.status === 409) throw new Error("409 — 이미 발권되었을 수 있습니다. '예약 목록'으로 확인 필요: " + e.message);
+        throw e;
+      }
+    }
+    const b = (Array.isArray(booked.data) && booked.data[0]) || booked.data || booked;
+    const bookingId = b.bookingId || b.id, ref = b.bookingRef || b.pnr || "(항공사 확인번호 미수신)";
+    $("doneBox").innerHTML =
+      '<div class="ok">발권 완료</div>' +
+      "<p>예약번호(PNR): <b style='font-size:20px'>" + ref + "</b></p>" +
+      "<p class='muted'>bookingId: " + (bookingId||"?") + " · 상태: " + (b.status||"?") + "</p>" +
+      "<p class='muted'>체크인 시 PNR을 사용하세요. 상세는 디버그 로그 참조.</p>";
+    goStep(5);
+  } catch (e) {
+    msg("결제/발권 실패: " + e.message + "<br>카드가 결제된 경우 반드시 예약 목록을 확인하세요.");
+    $("btnPay").disabled = false; $("btnPay").textContent = "결제하고 발권하기";
+  }
+};
+
+init();
+</script>
+</body>
+</html>
