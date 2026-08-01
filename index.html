@@ -1929,7 +1929,26 @@ $("langBtn").addEventListener("click", () => {
   </div>
 </div>
 <script>
+/* ──────────────────────────────────────────────────────────────
+   호텔 예약 진입 게이트 (2026-08-01)
+   관광진흥법 제4조에 따른 여행업(종합) 등록 완료 전까지 차단.
+   ★ 관광사업 등록증 발급 후 아래 값을 true 로만 변경하면 원복됨.
+   ────────────────────────────────────────────────────────────── */
+const HOTEL_BOOKING_ENABLED = false;
+
 const HN_URL = "https://hotels.allabouttrip.app";
+const HN_SOON = {
+  ko: {
+    title: "호텔 예약 오픈 준비 중",
+    body: "호텔 예약 서비스는 현재 오픈을 준비하고 있습니다.\n\n관계 법령에 따른 등록 절차를 진행 중이며, 절차가 마무리되는 대로 서비스를 시작할 예정입니다. 조금만 기다려 주세요.",
+    cancel: "확인"
+  },
+  en: {
+    title: "Hotel Booking Coming Soon",
+    body: "Our hotel booking service is preparing to launch.\n\nWe are currently completing the registration process required by applicable regulations, and the service will open as soon as it is finalized. Thank you for your patience.",
+    cancel: "OK"
+  }
+};
 const HN_TXT = {
   ko: {
     title: "호텔 예약 안내",
@@ -1944,8 +1963,22 @@ const HN_TXT = {
 };
 function openHotelSite(e){
   if (e) e.preventDefault();
+  const isEn = (typeof lang !== "undefined" && lang === "en");
+
+  // 여행업 등록 완료 전 — 외부 예약 사이트로 이동시키지 않고 안내만 표시
+  if (!HOTEL_BOOKING_ENABLED){
+    const s = HN_SOON[isEn ? "en" : "ko"];
+    document.getElementById("hnTitle").textContent = s.title;
+    document.getElementById("hnBody").textContent = s.body;
+    document.getElementById("hnOk").style.display = "none";
+    document.getElementById("hnCancel").textContent = s.cancel;
+    document.getElementById("hotelNotice").style.display = "flex";
+    return false;
+  }
+
+  document.getElementById("hnOk").style.display = "";
   if (localStorage.getItem("aat_hotel_notice_ok_v2") === "1"){ window.open(HN_URL, "_blank", "noopener"); return false; }
-  const t = HN_TXT[(typeof lang !== "undefined" && lang === "en") ? "en" : "ko"];
+  const t = HN_TXT[isEn ? "en" : "ko"];
   document.getElementById("hnTitle").textContent = t.title;
   document.getElementById("hnBody").textContent = t.body;
   document.getElementById("hnOk").textContent = t.ok;
@@ -1954,6 +1987,7 @@ function openHotelSite(e){
   return false;
 }
 document.getElementById("hnOk").addEventListener("click", () => {
+  if (!HOTEL_BOOKING_ENABLED){ document.getElementById("hotelNotice").style.display = "none"; return; }
   localStorage.setItem("aat_hotel_notice_ok_v2", "1");
   document.getElementById("hotelNotice").style.display = "none";
   window.open(HN_URL, "_blank", "noopener");
