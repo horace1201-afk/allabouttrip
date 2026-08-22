@@ -129,6 +129,7 @@ td.plus{color:var(--green)} td.minus{color:var(--red)}
     <div class="spacer"></div>
     <span id="whoami"></span>
     <button class="btn hidden" id="btnRefresh">새로고침</button>
+    <a class="btn hidden" id="btnSupport" href="support-admin.html">고객문의</a>
     <button class="btn hidden" id="btnLogout">로그아웃</button>
     <div class="head-sub">팀 공유용 운영 지표</div>
   </div>
@@ -325,6 +326,7 @@ $("btnRefresh").addEventListener("click", () => load());
 
 function toggleTopBtns(on){
   $("btnRefresh").classList.toggle("hidden", !on);
+  $("btnSupport").classList.toggle("hidden", !on);
   $("btnLogout").classList.toggle("hidden", !on);
 }
 function afterLogin(session){
