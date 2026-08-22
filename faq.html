@@ -118,7 +118,7 @@
   <div id="tabInq" class="hide">
     <!-- 미로그인 -->
     <div id="inqAuth" class="auth-box">
-      <p>1:1 문의는 <b>로그인 후</b> 이용할 수 있어요.<br>답변은 평일 기준 1~2영업일 내에 드려요.</p>
+      <p>1:1 문의는 <b>로그인 후</b> 이용할 수 있어요.<br>답변은 평일 기준 1~2영업일 내에 드려요.<br><span style="font-size:.85em;color:var(--sub)">불만·분쟁은 <a href="dispute.html" style="color:var(--orange)">분쟁처리 기준</a>에 따라 3영업일 내 경과, 10영업일 내 결과를 안내해요.</span></p>
       <button class="gbtn" onclick="login()"><span class="g">G</span> Google로 로그인</button>
     </div>
 
@@ -159,6 +159,7 @@
     <div class="foot-links">
       <a href="terms.html">서비스 이용약관</a>
       <a href="privacy.html">개인정보 처리방침</a>
+      <a href="dispute.html">분쟁처리 기준</a>
       <a href="https://allabouttrip.app/">홈</a>
     </div>
   </div>
@@ -283,7 +284,7 @@
   async function loadMyTickets(){
     var box = document.getElementById('myList');
     var res = await sb.from('support_tickets')
-      .select('id,category,title,body,status,answer,answered_at,created_at')
+      .select('id,category,title,body,status,answer,answered_at,created_at,progress_note,progress_noted_at,extended_until,extend_reason')
       .order('created_at', { ascending: false });
     if (res.error){ box.innerHTML = '<div class="state">문의 내역을 불러오지 못했어요.</div>'; return; }
     var rows = res.data || [];
@@ -293,10 +294,19 @@
       var col = STATUS_COLOR[t.status] || STATUS_COLOR.pending;
       var d = document.createElement('details'); d.className = 'tk';
       var canDelete = t.status !== 'answered';
+      var progHtml = t.progress_note
+        ? '<div class="tk-ans"><div class="tk-ans-label">처리 경과</div><div class="tk-ans-txt">' + esc(t.progress_note) + '</div>'
+            + (t.progress_noted_at ? '<div class="tk-date">' + esc(fmt(t.progress_noted_at)) + '</div>' : '') + '</div>'
+        : '';
+      var extHtml = t.extended_until
+        ? '<div class="tk-ans"><div class="tk-ans-label">처리 기한 연장</div><div class="tk-ans-txt">' + esc(t.extended_until) + '까지 연장됐어요.'
+            + (t.extend_reason ? '<br>사유: ' + esc(t.extend_reason) : '') + '</div></div>'
+        : '';
       var ansHtml = t.answer
         ? '<div class="tk-ans"><div class="tk-ans-label">답변</div><div class="tk-ans-txt">' + esc(t.answer) + '</div>'
             + (t.answered_at ? '<div class="tk-date">' + esc(fmt(t.answered_at)) + '</div>' : '') + '</div>'
-        : '<div class="tk-ans"><div class="tk-pending">답변을 준비하고 있어요. 조금만 기다려주세요 🙂</div></div>';
+        : (t.progress_note ? '' : '<div class="tk-ans"><div class="tk-pending">답변을 준비하고 있어요. 조금만 기다려주세요 🙂</div></div>');
+      ansHtml = progHtml + extHtml + ansHtml;
       d.innerHTML =
         '<summary>'
         + '<div class="tk-top"><span class="tk-cat">' + esc(CAT_MAP[t.category] || t.category) + '</span>'

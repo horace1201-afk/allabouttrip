@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>고객문의 관리 · 여행의 모든것</title>
+<link rel="icon" href="assets/favicon.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+/* ═══ 홈페이지(index.html) 디자인 시스템 통일 — 앱 lib/theme.ts hub 정본 ═══ */
+:root{
+  --orange:#F4581C; --orange-deep:#D84A12; --orange-soft:#FFF2EA; --orange-tint:#FFF6F0;
+  --ink:#1D1B19; --sub:#6B6570; --faint:#B2ABA4; --line:#EEECE9; --hair:#F2F0ED;
+  --bg:#FFFFFF; --warm:#FAF8F5; --green:#3DA364; --green-soft:#E8F4EC;
+  --shadow:0 10px 30px rgba(35,30,25,.07); --shadow-lg:0 24px 60px rgba(244,88,28,.12);
+  --red:#D84A12;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Pretendard Variable',Pretendard,-apple-system,'Malgun Gothic',sans-serif;
+  color:var(--ink);line-height:1.6;background:var(--warm);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px 80px}
+
+/* ── 헤더 ── */
+header{background:rgba(255,255,255,.92);backdrop-filter:blur(10px);box-shadow:0 1px 0 var(--hair);
+  position:sticky;top:0;z-index:50;padding:14px 20px;margin-bottom:26px}
+.head-in{max-width:1080px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:9px}
+.logo img{width:28px;height:28px}
+.logo h1{font-size:17px;font-weight:800;letter-spacing:-.02em}
+.head-sub{font-size:12px;color:var(--sub);width:100%;margin-top:2px}
+.spacer{flex:1}
+#whoami{font-size:12px;color:var(--sub)}
+.btn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:11px;
+  padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:.13s}
+.btn:hover{border-color:var(--orange);color:var(--orange)}
+.btn.primary{background:var(--orange);border-color:var(--orange);color:#fff;font-weight:800;
+  padding:13px 26px;border-radius:13px;font-size:14.5px}
+.btn.primary:hover{filter:brightness(1.07);color:#fff}
+.hidden{display:none !important}
+
+/* ── 상태 화면 ── */
+#loginView{min-height:64vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center}
+#loginView .mark{width:64px;height:64px;margin-bottom:4px}
+#loginView h2{font-size:22px;font-weight:800;letter-spacing:-.02em}
+#loginView p{font-size:13.5px;color:var(--sub)}
+.state{padding:80px 20px;text-align:center;color:var(--sub);font-size:14px}
+.err-box{background:#fff;border:1px solid var(--line);border-left:3px solid var(--orange);
+  border-radius:16px;padding:22px;font-size:14px;line-height:1.9;color:var(--ink);box-shadow:var(--shadow)}
+
+/* ── 컨트롤 ── */
+.controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:24px}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.seg button{border:0;background:none;padding:9px 15px;font-size:13px;font-weight:700;color:var(--sub);
+  cursor:pointer;font-family:inherit;transition:.13s}
+.seg button.on{background:var(--orange);color:#fff}
+.fxlab{font-size:12.5px;color:var(--sub);display:flex;align-items:center;gap:6px}
+.fxlab input{width:70px;border:1px solid var(--line);border-radius:9px;padding:6px 8px;
+  font-size:13px;font-family:inherit;color:var(--ink)}
+.stamp{font-size:11.5px;color:var(--faint);margin-left:auto}
+
+/* ── 섹션 ── */
+section{margin-bottom:40px}
+.sec-title{display:flex;align-items:baseline;gap:10px;margin-bottom:14px}
+.sec-title .no{font-size:12px;font-weight:800;color:var(--orange);letter-spacing:.04em}
+.sec-title h2{font-size:19px;font-weight:800;letter-spacing:-.02em}
+
+/* ── 카드 ── */
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;
+  box-shadow:var(--shadow)}
+.card h3{font-size:14px;font-weight:800;margin-bottom:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px 16px}
+.kpi.accent{background:var(--orange-tint);border-color:var(--orange-soft)}
+.kpi .lb{font-size:12px;color:var(--sub);font-weight:600}
+.kpi .v{font-size:22px;font-weight:800;letter-spacing:-.02em;margin-top:5px}
+.kpi .v small{font-size:12px;font-weight:600;color:var(--sub);margin-left:3px}
+.kpi .v2{font-size:11.5px;color:var(--faint);margin-top:2px}
+.totals{background:#fff;border:1px solid var(--line);border-radius:16px;padding:13px 16px;
+  margin-top:12px;font-size:13px;color:var(--sub)}
+.totals b{color:var(--ink);font-weight:800}
+.chart-box{position:relative;height:230px}
+.chart-box.tall{height:300px}
+
+/* ── 표 ── */
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:420px}
+th,td{padding:9px 10px;border-bottom:1px solid var(--hair);text-align:left;white-space:nowrap}
+th{font-size:11.5px;font-weight:700;color:var(--sub);background:var(--warm)}
+td.r,th.r{text-align:right}
+tr:last-child td{border-bottom:0}
+tr.total td{font-weight:800;background:var(--warm)}
+td.cum{color:var(--sub)}
+td.plus{color:var(--green)} td.minus{color:var(--red)}
+.empty{color:var(--faint);font-size:13px;padding:18px 4px;text-align:center}
+.pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;
+  background:var(--warm);color:var(--sub);border:1px solid var(--hair)}
+.pill.ok{background:var(--green-soft);color:var(--green);border-color:transparent}
+.pill.warn{background:var(--orange-soft);color:var(--orange-deep);border-color:transparent}
+
+/* ── 퍼널 ── */
+.funnel{display:flex;flex-direction:column;gap:11px}
+.frow{display:flex;align-items:center;gap:10px;font-size:13px}
+.frow .lb{width:72px;color:var(--sub);font-weight:600;flex:none}
+.fbar{height:20px;background:var(--orange);border-radius:6px;min-width:3px}
+.frow .num{font-weight:800;font-size:13px}
+.frow .rate{font-size:11px;color:var(--orange);font-weight:700;margin-left:5px}
+.note{font-size:11.5px;color:var(--sub);margin-top:12px;line-height:1.7}
+
+@media(max-width:760px){
+  .grid2{grid-template-columns:1fr}
+  .wrap{padding:0 14px 60px}
+  .stamp{margin-left:0;width:100%}
+}
+
+/* ── 고객문의 (SLA) ── */
+.tk-filter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.tk-filter .cnt{font-size:12px;color:var(--sub);margin-left:auto}
+.tk{border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px;background:#fff}
+.tk.sla-over{border-color:var(--red);background:#FFF6F3}
+.tk.sla-due{border-color:var(--orange);background:var(--orange-tint)}
+.tk-head{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px}
+.tk-head b{font-size:14px}
+.tk-meta{font-size:11.5px;color:var(--sub);margin-top:4px;line-height:1.7}
+.tk-body{font-size:13px;white-space:pre-wrap;margin:10px 0;padding:10px 12px;background:var(--warm);border-radius:10px;line-height:1.7}
+.tk-log{font-size:12px;color:var(--sub);border-left:3px solid var(--line);padding:4px 10px;margin:6px 0;white-space:pre-wrap;line-height:1.7}
+.tk-log b{color:var(--ink)}
+.tk-act{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:flex-start}
+.tk-act textarea{flex:1 1 320px;min-height:72px;border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-family:inherit;font-size:13px;resize:vertical}
+.tk-act input[type=date]{border:1px solid var(--line);border-radius:9px;padding:7px 9px;font-family:inherit;font-size:13px}
+.tk-act .col{display:flex;flex-direction:column;gap:6px}
+.pill.red{background:#FDE4DC;color:var(--red);border-color:transparent}
+.pill.blue{background:#E6F0FB;color:#2A63B3;border-color:transparent}
+.kpis{margin-bottom:18px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="head-in">
+    <div class="logo">
+      <img src="assets/modni_symbol.png" alt="">
+      <h1>여행의 모든것 · 고객문의 관리</h1>
+    </div>
+    <div class="spacer"></div>
+    <span id="whoami"></span>
+    <button class="btn hidden" id="btnRefresh">새로고침</button>
+    <a class="btn hidden" id="btnDash" href="admin.html">운영 지표</a>
+    <button class="btn hidden" id="btnLogout">로그아웃</button>
+    <div class="head-sub">1:1 문의 답변 · 분쟁처리 SLA (전자상거래법 §20③)</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div id="loginView" class="hidden">
+    <img class="mark" src="assets/modni_symbol.png" alt="">
+    <h2>관리자 로그인</h2>
+    <p>팀 계정(Google)으로 로그인해 주세요.</p>
+    <button class="btn primary" id="btnLogin">Google로 로그인</button>
+  </div>
+
+  <div id="loadingView" class="state hidden">불러오는 중…</div>
+  <div id="errorView" class="err-box hidden"></div>
+
+  <main id="dashView" class="hidden">
+    <div class="kpis">
+      <div class="kpi accent"><div class="lb">미답변</div><div class="v" id="kOpen">-</div></div>
+      <div class="kpi"><div class="lb">🔴 기한 초과</div><div class="v" id="kOver">-</div></div>
+      <div class="kpi"><div class="lb">🟠 오늘·내일 마감</div><div class="v" id="kDue">-</div></div>
+      <div class="kpi"><div class="lb">답변완료 (전체)</div><div class="v" id="kDone">-</div></div>
+    </div>
+    <section>
+      <div class="card">
+        <div class="tk-filter">
+          <div class="seg" id="tkSeg">
+            <button class="on" data-st="open">미답변</button>
+            <button data-st="pending">접수됨</button>
+            <button data-st="in_progress">처리중</button>
+            <button data-st="answered">답변완료</button>
+            <button data-st="all">전체</button>
+          </div>
+          <span class="cnt" id="tkCount"></span>
+        </div>
+        <div id="ticketList"><div class="empty">불러오는 중…</div></div>
+        <p class="note">접수일 기준 <b>3영업일 내 경과 통지</b>, <b>10영업일 내 결과 통지</b>(연장 시 사유·기한 통지) — 시행령 §25의2.
+        영업일 = 주말·공휴일(kr_holidays) 제외. 입력한 경과·답변·연장 내용은 이용자 앱·웹 "나의 문의"에 그대로 노출돼요 (푸시 알림 없음).
+        기준 문서: <a href="dispute.html" target="_blank" style="color:var(--orange)">dispute.html</a></p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+/* 고객문의 관리 — RPC admin_ticket_list / admin_ticket_update (app_config.admin_emails 서버측 검증) */
+const SUPABASE_URL = "https://gecmrywieyntzzwthvlg.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdlY21yeXdpZXludHp6d3RodmxnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0NzU0ODIsImV4cCI6MjA5NDA1MTQ4Mn0.Cakqtz_AOHgNIVWHXyl_v-Dj7bSIJKoPSNbkbAqRemg";
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+const $ = (id) => document.getElementById(id);
+const views = ["loginView","loadingView","errorView","dashView"];
+function show(id){ views.forEach(v => $(v).classList.toggle("hidden", v !== id)); }
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, m =>
+  ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+
+/* ── 인증 (admin.html과 동일) ── */
+async function boot(){
+  const { data:{ session } } = await sb.auth.getSession();
+  if (session) { afterLogin(session); } else { show("loginView"); }
+}
+sb.auth.onAuthStateChange((event, session) => {
+  if (event === "SIGNED_IN" && session) afterLogin(session);
+  if (event === "SIGNED_OUT") { $("whoami").textContent=""; toggleTopBtns(false); show("loginView"); }
+});
+$("btnLogin").addEventListener("click", async () => {
+  await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: location.origin + location.pathname } });
+});
+$("btnLogout").addEventListener("click", () => sb.auth.signOut());
+$("btnRefresh").addEventListener("click", () => loadTickets());
+function toggleTopBtns(on){ ["btnRefresh","btnDash","btnLogout"].forEach(i => $(i).classList.toggle("hidden", !on)); }
+function afterLogin(session){ $("whoami").textContent = session.user?.email || ""; toggleTopBtns(true); show("loadingView"); loadTickets(true); }
+
+/* ═══ 고객문의 · SLA (RPC admin_ticket_list / admin_ticket_update) ═══ */
+const TK_CAT = { booking_payment:"예약·결제", refund_cancel:"환불·취소", bug:"앱 오류", memory_video:"추억영상", account:"계정", partnership:"제휴", etc:"기타" };
+const TK_ST  = { pending:["접수됨",""], in_progress:["처리중","blue"], answered:["답변완료","ok"] };
+const TK_SLA = { ok:["정상",""], due_progress:["오늘 경과통지 마감","warn"], over_progress:["경과통지 기한 초과","red"],
+                 due_answer:["결과통지 임박","warn"], over_answer:["결과통지 기한 초과","red"], done:["완료","ok"] };
+let tkFilter = "open", tkRows = [];
+const fmtD = (v) => v ? String(v).slice(0,10) : "-";
+const fmtDT = (v) => v ? new Date(v).toLocaleString("ko-KR",{timeZone:"Asia/Seoul",month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"}) : "-";
+
+document.querySelectorAll("#tkSeg button").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll("#tkSeg button").forEach(x => x.classList.remove("on"));
+  b.classList.add("on"); tkFilter = b.dataset.st; renderTickets();
+}));
+$("tkRefresh").addEventListener("click", () => loadTickets());
+
+async function loadTickets(first){
+  const box = $("ticketList");
+  const { data, error } = await sb.rpc("admin_ticket_list");
+  if (error) {
+    if (String(error.message || "").includes("not authorized")) {
+      const { data:{ session } } = await sb.auth.getSession();
+      $("errorView").innerHTML = "이 계정(<b>" + esc(session?.user?.email || "") + "</b>)은 관리자 권한이 없어요. "
+        + "허용된 팀 계정으로 다시 로그인해 주세요.<br><br><button class='btn' id='btnRelogin'>다른 계정으로 로그인</button>";
+      show("errorView"); $("btnRelogin")?.addEventListener("click", () => sb.auth.signOut()); return;
+    }
+    if (first) { $("errorView").textContent = "문의를 불러오지 못했어요: " + error.message; show("errorView"); return; }
+    box.innerHTML = "<div class='empty'>문의를 불러오지 못했어요: " + esc(error.message) + "</div>"; return;
+  }
+  tkRows = Array.isArray(data) ? data : [];
+  $("kOpen").textContent = tkRows.filter(r => r.status !== "answered").length;
+  $("kOver").textContent = tkRows.filter(r => (r.sla||"").startsWith("over")).length;
+  $("kDue").textContent  = tkRows.filter(r => (r.sla||"").startsWith("due")).length;
+  $("kDone").textContent = tkRows.filter(r => r.status === "answered").length;
+  renderTickets();
+  show("dashView");
+}
+
+function renderTickets(){
+  const box = $("ticketList");
+  let rows = tkRows;
+  if (tkFilter === "open") rows = rows.filter(r => r.status !== "answered");
+  else if (tkFilter !== "all") rows = rows.filter(r => r.status === tkFilter);
+  const over = tkRows.filter(r => r.sla === "over_progress" || r.sla === "over_answer").length;
+  $("tkCount").textContent = rows.length + "건" + (over ? " · 🔴 기한 초과 " + over + "건" : "");
+  if (!rows.length) { box.innerHTML = "<div class='empty'>해당 문의가 없어요.</div>"; return; }
+  box.innerHTML = rows.map(r => {
+    const st = TK_ST[r.status] || [r.status,""], sla = TK_SLA[r.sla] || [r.sla,""];
+    const cls = (r.sla||"").startsWith("over") ? "sla-over" : (r.sla||"").startsWith("due") ? "sla-due" : "";
+    const done = r.status === "answered";
+    return `<div class="tk ${cls}" data-id="${esc(r.id)}">
+      <div class="tk-head">
+        <span class="pill ${st[1]}">${esc(st[0])}</span>
+        <span class="pill ${sla[1]}">${esc(sla[0])}</span>
+        <span class="pill">${esc(TK_CAT[r.category] || r.category)}</span>
+        <b>${esc(r.title)}</b>
+      </div>
+      <div class="tk-meta">${esc(r.user_email || "(이메일 없음)")} · 접수 ${esc(fmtD(r.created_kst))} (D+${esc(r.bd_elapsed)} 영업일)
+        · 경과통지 기한 ${esc(fmtD(r.due_progress))}${r.progress_noted_at ? " ✅ " + esc(fmtDT(r.progress_noted_at)) : ""}
+        · 결과통지 기한 ${esc(fmtD(r.due_answer))}${r.extended_until ? " (연장)" : ""}${done ? " ✅ " + esc(fmtDT(r.answered_at)) : ""}</div>
+      <div class="tk-body">${esc(r.body)}</div>
+      ${r.progress_note ? `<div class="tk-log"><b>경과통지</b> (${esc(fmtDT(r.progress_noted_at))})\n${esc(r.progress_note)}</div>` : ""}
+      ${r.extended_until ? `<div class="tk-log"><b>연장</b> → ${esc(fmtD(r.extended_until))}까지\n${esc(r.extend_reason || "")}</div>` : ""}
+      ${r.answer ? `<div class="tk-log"><b>답변</b> (${esc(fmtDT(r.answered_at))})\n${esc(r.answer)}</div>` : ""}
+      ${done ? "" : `<div class="tk-act">
+        <textarea placeholder="이용자에게 보낼 내용 — 경과통지(확인 중인 사항·예상 방향) 또는 최종 답변(원인·조치·보상 여부)"></textarea>
+        <div class="col">
+          <button class="btn" data-act="progress">경과 통지 (D+3)</button>
+          <button class="btn primary" style="padding:8px 14px;font-size:13px" data-act="answer">결과 통지 · 답변완료</button>
+          <input type="date" title="연장 기한">
+          <button class="btn" data-act="extend">기한 연장</button>
+        </div>
+      </div>`}
+    </div>`;
+  }).join("");
+  box.querySelectorAll(".tk-act button").forEach(b => b.addEventListener("click", onTicketAct));
+}
+
+async function onTicketAct(e){
+  const btn = e.currentTarget, card = btn.closest(".tk"), id = card.dataset.id, act = btn.dataset.act;
+  const text = card.querySelector("textarea").value.trim();
+  const until = card.querySelector("input[type=date]").value || null;
+  if (!text) { alert("내용을 입력해 주세요."); return; }
+  if (act === "extend" && !until) { alert("연장 기한(날짜)을 선택해 주세요."); return; }
+  const label = { progress:"경과 통지", answer:"결과 통지(답변완료)", extend:"기한 연장" }[act];
+  if (!confirm(label + "를 기록할까요? 이용자에게 바로 노출돼요.")) return;
+  btn.disabled = true;
+  const { error } = await sb.rpc("admin_ticket_update", { p_id:id, p_action:act, p_text:text, p_until:until });
+  btn.disabled = false;
+  if (error) { alert("처리 실패: " + error.message); return; }
+  loadTickets();
+}
+
+
+boot();
+</script>
+</body>
+</html>

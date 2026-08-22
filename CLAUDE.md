@@ -15,7 +15,8 @@
 
 ## ⚠️ 수정 금지 대상
 
-- `admin.html` (관리자 페이지)
+- `admin.html` (관리자 페이지) — **영아가 직접 지시한 경우에만 수정**
+- `support-admin.html` (고객문의 관리 · 분쟁처리 SLA, 2026-08-22 신설 — RPC admin_ticket_list/admin_ticket_update, admin.html과 동일 로그인) — 동일 규칙
 - **호텔 예약 진입 버튼** (현재: topbar `.tb-hotel` + 드로어 `.dw-item` "호텔 예약 회원 특가" + 호텔 섹션 `.btn-go`) — `onclick="openHotelSite(...)"` 연결과 고지 모달 경유 구조 **무접촉**. 위치·스타일 변경은 가능하되 **버튼 제거 금지**
 - **`#hotelNotice` 모달** (`index.html` 하단, 변호사 회신 전 임시 국외이전 고지) — 무접촉
 
