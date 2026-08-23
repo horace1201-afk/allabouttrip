@@ -280,11 +280,12 @@
   }
 
   // ── 내 문의 목록 ──
+  var ERR_KIND_MAP = { truncated: '코스 출력 잘림', limit: '생성 한도', other: '기타 오류' };   // 🆕 8/23 오류 보고
   var CAT_MAP = {}; TICKET_CATS.forEach(function(c){ CAT_MAP[c[0]] = c[1]; });
   async function loadMyTickets(){
     var box = document.getElementById('myList');
     var res = await sb.from('support_tickets')
-      .select('id,category,title,body,status,answer,answered_at,created_at,progress_note,progress_noted_at,extended_until,extend_reason')
+      .select('id,kind,error_kind,category,title,body,status,answer,answered_at,created_at,progress_note,progress_noted_at,extended_until,extend_reason')
       .order('created_at', { ascending: false });
     if (res.error){ box.innerHTML = '<div class="state">문의 내역을 불러오지 못했어요.</div>'; return; }
     var rows = res.data || [];
@@ -305,11 +306,11 @@
       var ansHtml = t.answer
         ? '<div class="tk-ans"><div class="tk-ans-label">답변</div><div class="tk-ans-txt">' + esc(t.answer) + '</div>'
             + (t.answered_at ? '<div class="tk-date">' + esc(fmt(t.answered_at)) + '</div>' : '') + '</div>'
-        : (t.progress_note ? '' : '<div class="tk-ans"><div class="tk-pending">답변을 준비하고 있어요. 조금만 기다려주세요 🙂</div></div>');
+        : (t.progress_note ? '' : '<div class="tk-ans"><div class="tk-pending">' + (t.kind === 'error_report' ? '관리자가 오류를 확인하고 있어요. 해결되면 여기에 알려드릴게요 🙂' : '답변을 준비하고 있어요. 조금만 기다려주세요 🙂') + '</div></div>');
       ansHtml = progHtml + extHtml + ansHtml;
       d.innerHTML =
         '<summary>'
-        + '<div class="tk-top"><span class="tk-cat">' + esc(CAT_MAP[t.category] || t.category) + '</span>'
+        + '<div class="tk-top"><span class="tk-cat">' + esc(t.kind === 'error_report' ? ('🐞 오류 보고 · ' + (ERR_KIND_MAP[t.error_kind] || '앱 오류')) : (CAT_MAP[t.category] || t.category)) + '</span>'
         + '<span class="badge" style="background:' + col[0] + ';color:' + col[1] + '">' + esc(STATUS_LABEL[t.status] || t.status) + '</span></div>'
         + '<div class="tk-title">' + esc(t.title) + '</div><div class="tk-date">' + esc(fmt(t.created_at)) + '</div>'
         + '</summary>'
