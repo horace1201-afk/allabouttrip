@@ -1918,11 +1918,31 @@ $("langBtn").addEventListener("click", () => {
   sb.auth.onAuthStateChange(() => { check(); });
 })();
 </script>
-<!-- 호텔 예약 국외이전 고지 모달 (2026-07-18, 변호사 회신 전 임시 고지) -->
+<!-- 호텔 예약 국외이전 고지 모달 (2026-07-18 신설 · 2026-08-23 스크롤 게이트 개정 — 대륙아주 최종의견서 Q10 권고) -->
+<style>
+#hnBody{margin:0 0 14px;font-size:13.5px;line-height:1.6;color:#444;white-space:pre-line;max-height:38vh;overflow-y:auto;padding:12px 14px;border:1px solid #eeece9;border-radius:10px;background:#fafaf8;-webkit-overflow-scrolling:touch}
+#hnLinks{display:flex;flex-wrap:wrap;gap:8px;margin:0}
+#hnLinks a{font-size:12.5px;font-weight:700;color:var(--orange);text-decoration:none;border:1px solid #f8c9b3;border-radius:999px;padding:6px 12px;background:#fff}
+#hnLinks a.seen{background:#fff2ea;border-color:var(--orange)}
+#hnLinks a.seen::after{content:" ✓"}
+#hnHint{margin:10px 0 0;font-size:12px;line-height:1.5;color:#9c9690}
+#hnAgreeRow{display:flex;align-items:flex-start;gap:8px;margin:10px 0 16px;font-size:13px;line-height:1.5;color:#1d1b19;cursor:pointer}
+#hnAgreeRow.off{color:#b2aba4;cursor:not-allowed}
+#hnAgree{width:18px;height:18px;margin:1px 0 0;accent-color:var(--orange);flex-shrink:0}
+#hnOk:disabled{background:#d9d5d0;cursor:not-allowed}
+</style>
 <div id="hotelNotice" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:center;justify-content:center;padding:20px">
   <div style="background:#fff;border-radius:16px;max-width:420px;width:100%;padding:24px 20px;box-shadow:0 12px 40px rgba(0,0,0,.2)">
     <h3 id="hnTitle" style="margin:0 0 10px;font-size:17px">호텔 예약 안내</h3>
-    <p id="hnBody" style="margin:0 0 16px;font-size:13.5px;line-height:1.6;color:#444;white-space:pre-line"></p>
+    <p id="hnBody"></p>
+    <div id="hnGate">
+      <div id="hnLinks">
+        <a id="hnLinkTerms" href="terms.html#a6-2" target="_blank" rel="noopener">이용약관 제6조의2</a>
+        <a id="hnLinkPrivacy" href="privacy.html#s5" target="_blank" rel="noopener">개인정보처리방침 제5조(국외이전)</a>
+      </div>
+      <p id="hnHint"></p>
+      <label id="hnAgreeRow" class="off"><input type="checkbox" id="hnAgree" disabled><span id="hnAgreeTxt"></span></label>
+    </div>
     <div style="display:flex;gap:8px;justify-content:flex-end">
       <button id="hnCancel" style="padding:10px 14px;border:1px solid #ddd;background:#fff;border-radius:10px;cursor:pointer">취소</button>
       <button id="hnOk" style="padding:10px 16px;border:0;background:var(--orange);color:#fff;border-radius:10px;font-weight:700;cursor:pointer">동의하고 계속</button>
@@ -1954,14 +1974,56 @@ const HN_TXT = {
   ko: {
     title: "호텔 예약 안내",
     body: "'여행의 모든것'(운영사: ㈜하우스두둥)은 통신판매중개자로서 통신판매의 당사자가 아닙니다. 본 호텔 예약 서비스는 Nuitée Travel Limited(아일랜드)가 제공·운영하며, 예약·결제·환불의 판매자 및 계약 당사자는 Nuitée Travel Limited입니다.\n\n전 세계 호텔을 연결하는 글로벌 예약 파트너를 통해 안전하게 처리되며, 예약은 실제 호텔로 확정됩니다. 예약 시 입력한 정보는 예약 처리·확인을 위해 해외 사업자(Nuitée Travel Limited, 아일랜드)에 제공됩니다.",
-    ok: "동의하고 이동", cancel: "취소"
+    ok: "동의하고 이동", cancel: "취소",
+    linkTerms: "이용약관 제6조의2", linkPrivacy: "개인정보처리방침 제5조(국외이전)",
+    hint: "위 링크 2개를 모두 확인하고 안내문을 끝까지 읽으면 동의할 수 있어요.",
+    hintReady: "확인 완료 — 아래에 체크하면 이동할 수 있어요.",
+    agree: "위 안내와 이용약관·개인정보처리방침을 확인했으며, 내 개인정보가 판매자 Nuitée Travel Limited(아일랜드)에 제공되는 것에 동의합니다."
   },
   en: {
     title: "Hotel Booking Notice",
     body: "\"AllAboutTrip\" (operated by House DuDung Inc.) acts as a telecommunication sales intermediary and is not a party to the transaction. This hotel booking service is provided and operated by Nuitée Travel Limited (Ireland), which is the seller and contracting party for the booking, payment, and refund.\n\nBookings are confirmed with actual hotels through a global booking partner. Information you enter during booking is provided to the overseas operator (Nuitée Travel Limited, Ireland) to process and confirm your reservation.",
-    ok: "Agree & Continue", cancel: "Cancel"
+    ok: "Agree & Continue", cancel: "Cancel",
+    linkTerms: "Terms Art. 6-2", linkPrivacy: "Privacy Policy §5 (Overseas Transfer)",
+    hint: "Open both links and read the notice to the end to enable consent.",
+    hintReady: "All set — tick the box below to continue.",
+    agree: "I have read the notice, Terms and Privacy Policy, and consent to my personal data being provided to the seller, Nuitée Travel Limited (Ireland)."
   }
 };
+/* 스크롤 게이트 상태 — 링크 2개 클릭 + 본문 최하단 도달 → 체크 가능 → 동의 버튼 활성 */
+const HN_KEY = "aat_hotel_notice_ok_v3";
+const hnGate = { terms:false, privacy:false, scrolled:false };
+function hnGateReset(){
+  hnGate.terms = hnGate.privacy = hnGate.scrolled = false;
+  const body = document.getElementById("hnBody");
+  body.scrollTop = 0;
+  ["hnLinkTerms","hnLinkPrivacy"].forEach(id => document.getElementById(id).classList.remove("seen"));
+  const cb = document.getElementById("hnAgree");
+  cb.checked = false; cb.disabled = true;
+  document.getElementById("hnAgreeRow").classList.add("off");
+  document.getElementById("hnOk").disabled = true;
+  hnGateRefresh();
+  // 본문이 짧아 스크롤이 없으면 즉시 '읽음' 처리
+  requestAnimationFrame(() => { if (body.scrollHeight - body.clientHeight <= 4) { hnGate.scrolled = true; hnGateRefresh(); } });
+}
+function hnGateRefresh(){
+  const isEn = (typeof lang !== "undefined" && lang === "en");
+  const t = HN_TXT[isEn ? "en" : "ko"];
+  const ready = hnGate.terms && hnGate.privacy && hnGate.scrolled;
+  const cb = document.getElementById("hnAgree");
+  cb.disabled = !ready;
+  if (!ready) cb.checked = false;
+  document.getElementById("hnAgreeRow").classList.toggle("off", !ready);
+  document.getElementById("hnHint").textContent = ready ? t.hintReady : t.hint;
+  document.getElementById("hnOk").disabled = !(ready && cb.checked);
+}
+document.getElementById("hnBody").addEventListener("scroll", (e) => {
+  const b = e.target;
+  if (!hnGate.scrolled && b.scrollTop + b.clientHeight >= b.scrollHeight - 4){ hnGate.scrolled = true; hnGateRefresh(); }
+});
+document.getElementById("hnLinkTerms").addEventListener("click", (e) => { hnGate.terms = true; e.currentTarget.classList.add("seen"); hnGateRefresh(); });
+document.getElementById("hnLinkPrivacy").addEventListener("click", (e) => { hnGate.privacy = true; e.currentTarget.classList.add("seen"); hnGateRefresh(); });
+document.getElementById("hnAgree").addEventListener("change", hnGateRefresh);
 function openHotelSite(e){
   if (e) e.preventDefault();
   const isEn = (typeof lang !== "undefined" && lang === "en");
@@ -1972,24 +2034,32 @@ function openHotelSite(e){
     document.getElementById("hnTitle").textContent = s.title;
     document.getElementById("hnBody").textContent = s.body;
     document.getElementById("hnOk").style.display = "none";
+    document.getElementById("hnGate").style.display = "none";
     document.getElementById("hnCancel").textContent = s.cancel;
     document.getElementById("hotelNotice").style.display = "flex";
     return false;
   }
 
   document.getElementById("hnOk").style.display = "";
-  if (localStorage.getItem("aat_hotel_notice_ok_v2") === "1"){ window.open(HN_URL, "_blank", "noopener"); return false; }
+  document.getElementById("hnGate").style.display = "";
+  if (localStorage.getItem(HN_KEY) === "1"){ window.open(HN_URL, "_blank", "noopener"); return false; }
   const t = HN_TXT[isEn ? "en" : "ko"];
   document.getElementById("hnTitle").textContent = t.title;
   document.getElementById("hnBody").textContent = t.body;
   document.getElementById("hnOk").textContent = t.ok;
   document.getElementById("hnCancel").textContent = t.cancel;
+  document.getElementById("hnLinkTerms").textContent = t.linkTerms;
+  document.getElementById("hnLinkPrivacy").textContent = t.linkPrivacy;
+  document.getElementById("hnAgreeTxt").textContent = t.agree;
   document.getElementById("hotelNotice").style.display = "flex";
+  hnGateReset();
   return false;
 }
 document.getElementById("hnOk").addEventListener("click", () => {
   if (!HOTEL_BOOKING_ENABLED){ document.getElementById("hotelNotice").style.display = "none"; return; }
-  localStorage.setItem("aat_hotel_notice_ok_v2", "1");
+  if (document.getElementById("hnOk").disabled || !document.getElementById("hnAgree").checked) return;
+  localStorage.setItem(HN_KEY, "1");
+  localStorage.setItem(HN_KEY + "_at", new Date().toISOString()); // 동의 시각 (분쟁 대비)
   document.getElementById("hotelNotice").style.display = "none";
   window.open(HN_URL, "_blank", "noopener");
 });

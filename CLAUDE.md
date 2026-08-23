@@ -18,7 +18,7 @@
 - `admin.html` (관리자 페이지) — **영아가 직접 지시한 경우에만 수정**
 - `support-admin.html` (고객문의 관리 · 분쟁처리 SLA, 2026-08-22 신설 — RPC admin_ticket_list/admin_ticket_update, admin.html과 동일 로그인) — 동일 규칙
 - **호텔 예약 진입 버튼** (현재: topbar `.tb-hotel` + 드로어 `.dw-item` "호텔 예약 회원 특가" + 호텔 섹션 `.btn-go`) — `onclick="openHotelSite(...)"` 연결과 고지 모달 경유 구조 **무접촉**. 위치·스타일 변경은 가능하되 **버튼 제거 금지**
-- **`#hotelNotice` 모달** (`index.html` 하단, 변호사 회신 전 임시 국외이전 고지) — 무접촉
+- **`#hotelNotice` 모달** (`index.html` 하단, 국외이전 고지 + 동의 스크롤 게이트 — 2026-08-23 대륙아주 권고 반영: 약관·방침 링크 2개 클릭 + 본문 최하단 스크롤 → 체크 → 동의. localStorage 키 `aat_hotel_notice_ok_v3`) — 법률 고지 문구라 **영아 지시 시에만 수정**, 변경 시 변호사 재검토
 
 ## flights.html 공항 매핑 동기화 원칙 (2026-07-29)
 

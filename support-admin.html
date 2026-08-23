@@ -132,6 +132,11 @@ td.plus{color:var(--green)} td.minus{color:var(--red)}
 .tk-act textarea{flex:1 1 320px;min-height:72px;border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-family:inherit;font-size:13px;resize:vertical}
 .tk-act input[type=date]{border:1px solid var(--line);border-radius:9px;padding:7px 9px;font-family:inherit;font-size:13px}
 .tk-act .col{display:flex;flex-direction:column;gap:6px}
+.tk.err{border-left:4px solid #7c5cff}
+.snap{font-size:11.5px;background:#1d1b19;color:#e8e4de;border-radius:10px;padding:10px 12px;margin:8px 0;white-space:pre-wrap;max-height:260px;overflow:auto;font-family:ui-monospace,Consolas,monospace;line-height:1.55}
+.tk-tools{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0;align-items:center}
+.tk-tools input[type=text]{flex:1 1 240px;border:1px solid var(--line);border-radius:9px;padding:7px 9px;font-family:inherit;font-size:13px}
+.tk-log.note{border-left-color:#7c5cff}
 .pill.red{background:#FDE4DC;color:var(--red);border-color:transparent}
 .pill.blue{background:#E6F0FB;color:#2A63B3;border-color:transparent}
 .kpis{margin-bottom:18px}
@@ -176,6 +181,18 @@ td.plus{color:var(--green)} td.minus{color:var(--red)}
     </div>
     <section>
       <div class="card">
+        <div class="tk-filter" style="margin-bottom:8px">
+          <div class="seg" id="kindSeg">
+            <button class="on" data-kind="inquiry">💬 1:1 문의</button>
+            <button data-kind="error_report">🐞 오류 보고</button>
+          </div>
+          <div class="seg hidden" id="errSeg">
+            <button class="on" data-ek="all">전체 종류</button>
+            <button data-ek="truncated">출력 잘림</button>
+            <button data-ek="limit">생성 한도</button>
+            <button data-ek="other">기타</button>
+          </div>
+        </div>
         <div class="tk-filter">
           <div class="seg" id="tkSeg">
             <button class="on" data-st="open">미답변</button>
@@ -187,7 +204,9 @@ td.plus{color:var(--green)} td.minus{color:var(--red)}
           <span class="cnt" id="tkCount"></span>
         </div>
         <div id="ticketList"><div class="empty">불러오는 중…</div></div>
-        <p class="note">접수일 기준 <b>3영업일 내 경과 통지</b>, <b>10영업일 내 결과 통지</b>(연장 시 사유·기한 통지) — 시행령 §25의2.
+        <p class="note" id="errNote" style="display:none">🐞 오류 보고 = 앱 오류 화면에서 이용자가 [오류 보고]를 눌러 자동 접수된 건. <b>스냅샷</b>(오류·모델·토큰·응답 끝부분·여행 설정·앱 버전)이 함께 저장돼요.
+        <b>클로드 코드용 복사</b>를 누르면 마크다운 보고서가 클립보드에 담겨요 — 그대로 클로드 코드에 붙여 원인 분석. 내부 메모는 이용자에게 안 보여요. 해결 후 <b>결과 통지</b>로 이용자에게 답변(앱·웹 나의 문의 노출).</p>
+        <p class="note" id="inqNote">접수일 기준 <b>3영업일 내 경과 통지</b>, <b>10영업일 내 결과 통지</b>(연장 시 사유·기한 통지) — 시행령 §25의2.
         영업일 = 주말·공휴일(kr_holidays) 제외. 입력한 경과·답변·연장 내용은 이용자 앱·웹 "나의 문의"에 그대로 노출돼요 (푸시 알림 없음).
         기준 문서: <a href="dispute.html" target="_blank" style="color:var(--orange)">dispute.html</a></p>
       </div>
@@ -229,6 +248,48 @@ const TK_ST  = { pending:["접수됨",""], in_progress:["처리중","blue"], ans
 const TK_SLA = { ok:["정상",""], due_progress:["오늘 경과통지 마감","warn"], over_progress:["경과통지 기한 초과","red"],
                  due_answer:["결과통지 임박","warn"], over_answer:["결과통지 기한 초과","red"], done:["완료","ok"] };
 let tkFilter = "open", tkRows = [];
+let kindFilter = "inquiry", errFilter = "all";   // 🆕 8/23 오류 보고 탭
+const ERR_KIND = { truncated:"출력 잘림", limit:"생성 한도", other:"기타" };
+document.querySelectorAll("#kindSeg button").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll("#kindSeg button").forEach(x => x.classList.remove("on"));
+  b.classList.add("on"); kindFilter = b.dataset.kind;
+  $("errSeg").classList.toggle("hidden", kindFilter !== "error_report");
+  $("errNote").style.display = kindFilter === "error_report" ? "" : "none";
+  $("inqNote").style.display = kindFilter === "error_report" ? "none" : "";
+  renderTickets();
+}));
+document.querySelectorAll("#errSeg button").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll("#errSeg button").forEach(x => x.classList.remove("on"));
+  b.classList.add("on"); errFilter = b.dataset.ek; renderTickets();
+}));
+/* 스냅샷 → 클로드 코드용 마크다운 보고서 */
+function snapshotReport(r){
+  const s = r.snapshot || {}, e = s.error || {}, p = s.pref || {}, a = s.app || {};
+  const lines = [
+    `# 오류 보고 — ${r.title}`,
+    `- 티켓: ${r.id} · 접수 ${fmtDT(r.created_at)} · 이용자 ${r.user_email || "-"} · 종류 ${ERR_KIND[r.error_kind] || r.error_kind || "-"} · 상태 ${r.status}`,
+    `- 앱 v${a.version ?? "?"} (runtime ${a.runtimeVersion ?? "?"}) · ${a.os ?? "?"} ${a.osVersion ?? ""} · ${a.device ?? ""}`,
+    ``, `## 오류`,
+    `- ${e.name ?? "-"}: ${e.message ?? "-"}`,
+    e.model != null ? `- model ${e.model} · in ${e.inTokens ?? "?"} · out ${e.outTokens ?? "?"} tokens` : null,
+    e.limitKind != null ? `- 한도 ${e.limitKind} (limit ${e.limit ?? "?"})` : null,
+    e.stack ? "```\n" + e.stack + "\n```" : null,
+    e.rawTail ? `\n### 응답 끝 400자\n\`\`\`\n${e.rawTail}\n\`\`\`` : null,
+    ``, `## 여행 설정 (pref)`,
+    "```json\n" + JSON.stringify(p, null, 2) + "\n```",
+    ``, `## 이용자 본문`, r.body || "-",
+    r.admin_note ? `\n## 내부 메모\n${r.admin_note}` : null,
+    ``, `## 대조 포인트`,
+    `- app_events: event_type='skeleton_truncated' · trip_id='${p.tripId ?? ""}' · ${s.at ?? ""} 전후`,
+    `- ai_usage_logs: caller='fetchTripSkeleton' · ${s.at ?? ""} 전후 · model/out_tokens/duration_ms`,
+  ].filter(x => x !== null);
+  return lines.join("\n");
+}
+async function copyReport(r){
+  const txt = snapshotReport(r);
+  try { await navigator.clipboard.writeText(txt); alert("클로드 코드용 보고서를 복사했어요 (" + txt.length + "자)."); }
+  catch { prompt("복사가 막혀서 직접 복사해 주세요:", txt); }
+}
 const fmtD = (v) => v ? String(v).slice(0,10) : "-";
 const fmtDT = (v) => v ? new Date(v).toLocaleString("ko-KR",{timeZone:"Asia/Seoul",month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"}) : "-";
 
@@ -236,7 +297,7 @@ document.querySelectorAll("#tkSeg button").forEach(b => b.addEventListener("clic
   document.querySelectorAll("#tkSeg button").forEach(x => x.classList.remove("on"));
   b.classList.add("on"); tkFilter = b.dataset.st; renderTickets();
 }));
-$("tkRefresh").addEventListener("click", () => loadTickets());
+/* 새로고침은 상단 btnRefresh (tkRefresh 요소 없음 — 8/23 죽은 참조 제거) */
 
 async function loadTickets(first){
   const box = $("ticketList");
@@ -251,34 +312,47 @@ async function loadTickets(first){
     if (first) { $("errorView").textContent = "문의를 불러오지 못했어요: " + error.message; show("errorView"); return; }
     box.innerHTML = "<div class='empty'>문의를 불러오지 못했어요: " + esc(error.message) + "</div>"; return;
   }
-  tkRows = Array.isArray(data) ? data : [];
-  $("kOpen").textContent = tkRows.filter(r => r.status !== "answered").length;
-  $("kOver").textContent = tkRows.filter(r => (r.sla||"").startsWith("over")).length;
-  $("kDue").textContent  = tkRows.filter(r => (r.sla||"").startsWith("due")).length;
-  $("kDone").textContent = tkRows.filter(r => r.status === "answered").length;
+  tkRows = (Array.isArray(data) ? data : []).map(r => ({ ...r, kind: r.kind || "inquiry" }));
   renderTickets();
   show("dashView");
 }
 
 function renderTickets(){
   const box = $("ticketList");
-  let rows = tkRows;
+  const kindRows = tkRows.filter(r => r.kind === kindFilter);
+  $("kOpen").textContent = kindRows.filter(r => r.status !== "answered").length;
+  $("kOver").textContent = kindRows.filter(r => (r.sla||"").startsWith("over")).length;
+  $("kDue").textContent  = kindRows.filter(r => (r.sla||"").startsWith("due")).length;
+  $("kDone").textContent = kindRows.filter(r => r.status === "answered").length;
+  const errOpen = tkRows.filter(r => r.kind === "error_report" && r.status !== "answered").length;
+  document.querySelector('#kindSeg [data-kind="error_report"]').textContent = "🐞 오류 보고" + (errOpen ? " (" + errOpen + ")" : "");
+  let rows = kindRows;
+  if (kindFilter === "error_report" && errFilter !== "all") rows = rows.filter(r => (r.error_kind || "other") === errFilter);
   if (tkFilter === "open") rows = rows.filter(r => r.status !== "answered");
   else if (tkFilter !== "all") rows = rows.filter(r => r.status === tkFilter);
-  const over = tkRows.filter(r => r.sla === "over_progress" || r.sla === "over_answer").length;
+  const over = kindRows.filter(r => r.sla === "over_progress" || r.sla === "over_answer").length;
   $("tkCount").textContent = rows.length + "건" + (over ? " · 🔴 기한 초과 " + over + "건" : "");
-  if (!rows.length) { box.innerHTML = "<div class='empty'>해당 문의가 없어요.</div>"; return; }
+  if (!rows.length) { box.innerHTML = "<div class='empty'>" + (kindFilter === "error_report" ? "해당 오류 보고가 없어요." : "해당 문의가 없어요.") + "</div>"; return; }
   box.innerHTML = rows.map(r => {
     const st = TK_ST[r.status] || [r.status,""], sla = TK_SLA[r.sla] || [r.sla,""];
     const cls = (r.sla||"").startsWith("over") ? "sla-over" : (r.sla||"").startsWith("due") ? "sla-due" : "";
     const done = r.status === "answered";
-    return `<div class="tk ${cls}" data-id="${esc(r.id)}">
+    const isErr = r.kind === "error_report";
+    const s = r.snapshot || {}, se = s.error || {};
+    const snapLine = isErr ? [
+      se.model ? `model ${se.model}` : null, se.outTokens != null ? `out ${se.outTokens}` : null,
+      se.limitKind ? `한도 ${se.limitKind}/${se.limit ?? "?"}` : null,
+      s.pref ? `${s.pref.region ?? "-"} ${s.pref.nights ?? "-"}박 ${s.pref.month ?? ""}` : null,
+      s.app ? `v${s.app.version ?? "?"} ${s.app.os ?? ""}` : null,
+    ].filter(Boolean).join(" · ") : "";
+    return `<div class="tk ${cls} ${isErr ? "err" : ""}" data-id="${esc(r.id)}">
       <div class="tk-head">
         <span class="pill ${st[1]}">${esc(st[0])}</span>
         <span class="pill ${sla[1]}">${esc(sla[0])}</span>
-        <span class="pill">${esc(TK_CAT[r.category] || r.category)}</span>
+        <span class="pill">${isErr ? "🐞 " + esc(ERR_KIND[r.error_kind] || r.error_kind || "기타") : esc(TK_CAT[r.category] || r.category)}</span>
         <b>${esc(r.title)}</b>
       </div>
+      ${isErr ? `<div class="tk-meta">${esc(snapLine)}</div>` : ""}
       <div class="tk-meta">${esc(r.user_email || "(이메일 없음)")} · 접수 ${esc(fmtD(r.created_kst))} (D+${esc(r.bd_elapsed)} 영업일)
         · 경과통지 기한 ${esc(fmtD(r.due_progress))}${r.progress_noted_at ? " ✅ " + esc(fmtDT(r.progress_noted_at)) : ""}
         · 결과통지 기한 ${esc(fmtD(r.due_answer))}${r.extended_until ? " (연장)" : ""}${done ? " ✅ " + esc(fmtDT(r.answered_at)) : ""}</div>
@@ -286,6 +360,17 @@ function renderTickets(){
       ${r.progress_note ? `<div class="tk-log"><b>경과통지</b> (${esc(fmtDT(r.progress_noted_at))})\n${esc(r.progress_note)}</div>` : ""}
       ${r.extended_until ? `<div class="tk-log"><b>연장</b> → ${esc(fmtD(r.extended_until))}까지\n${esc(r.extend_reason || "")}</div>` : ""}
       ${r.answer ? `<div class="tk-log"><b>답변</b> (${esc(fmtDT(r.answered_at))})\n${esc(r.answer)}</div>` : ""}
+      ${isErr ? `
+      ${r.admin_note ? `<div class="tk-log note"><b>내부 메모</b> (이용자 비노출)\n${esc(r.admin_note)}</div>` : ""}
+      <details><summary style="cursor:pointer;font-size:12px;color:var(--sub)">스냅샷 JSON 보기</summary><pre class="snap">${esc(JSON.stringify(r.snapshot ?? {}, null, 2))}</pre></details>
+      <div class="tk-tools">
+        <button class="btn" data-tool="copy">📋 클로드 코드용 복사</button>
+        <select data-tool="classify" title="오류 종류 재분류">
+          ${["truncated","limit","other"].map(k => `<option value="${k}" ${(r.error_kind||"other")===k?"selected":""}>${ERR_KIND[k]}</option>`).join("")}
+        </select>
+        <input type="text" data-tool="note-text" placeholder="내부 메모 (원인·조치·커밋 등 — 이용자 비노출)" value="">
+        <button class="btn" data-tool="note">메모 저장</button>
+      </div>` : ""}
       ${done ? "" : `<div class="tk-act">
         <textarea placeholder="이용자에게 보낼 내용 — 경과통지(확인 중인 사항·예상 방향) 또는 최종 답변(원인·조치·보상 여부)"></textarea>
         <div class="col">
@@ -298,6 +383,22 @@ function renderTickets(){
     </div>`;
   }).join("");
   box.querySelectorAll(".tk-act button").forEach(b => b.addEventListener("click", onTicketAct));
+  box.querySelectorAll("[data-tool]").forEach(el => {
+    const card = el.closest(".tk"), r = tkRows.find(x => x.id === card.dataset.id);
+    if (el.dataset.tool === "copy") el.addEventListener("click", () => copyReport(r));
+    if (el.dataset.tool === "classify") el.addEventListener("change", async () => {
+      const { error } = await sb.rpc("admin_ticket_update", { p_id:r.id, p_action:"classify", p_text:el.value, p_until:null });
+      if (error) { alert("재분류 실패: " + error.message); return; } loadTickets();
+    });
+    if (el.dataset.tool === "note") el.addEventListener("click", async () => {
+      const text = card.querySelector('[data-tool="note-text"]').value.trim();
+      if (!text) { alert("메모 내용을 입력해 주세요."); return; }
+      el.disabled = true;
+      const { error } = await sb.rpc("admin_ticket_update", { p_id:r.id, p_action:"note", p_text:text, p_until:null });
+      el.disabled = false;
+      if (error) { alert("메모 저장 실패: " + error.message); return; } loadTickets();
+    });
+  });
 }
 
 async function onTicketAct(e){
