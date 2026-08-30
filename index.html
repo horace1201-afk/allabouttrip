@@ -64,6 +64,13 @@ img{max-width:100%}
 .tb-hotel{font-size:13px;font-weight:800;color:#fff;background:var(--orange);padding:8px 16px;border-radius:999px;
   transition:.18s;box-shadow:0 6px 16px rgba(244,88,28,.24)}
 .tb-hotel:hover{background:var(--orange-deep)}
+/* 🆕 상단 가로 메뉴 — 헤더 개편 ④ (2026-08-30, 데스크톱 ≥1024px 전용) */
+.tb-nav{display:flex;align-items:center;gap:2px;margin-left:8px}
+.tb-nav button{font-size:14px;font-weight:700;color:var(--ink);padding:8px 13px;border-radius:10px;transition:background .2s}
+.tb-nav button:hover{background:var(--warm)}
+.tb-mytrips{font-size:13.5px;font-weight:800;color:var(--orange-deep);background:var(--warm);padding:8px 15px;border-radius:999px;transition:filter .18s}
+.tb-mytrips:hover{filter:brightness(.96)}
+@media(max-width:1023px){.tb-nav,.tb-mytrips{display:none}}
 .topbar.solid #langBtn{border-color:var(--line)}
 .tb-burger{width:38px;height:38px;display:flex;flex-direction:column;justify-content:center;gap:5px;padding:9px;border-radius:11px;transition:background .2s}
 .tb-burger:hover{background:var(--warm)}
@@ -461,8 +468,13 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
 <header class="topbar" id="topbar">
   <button class="tb-burger" onclick="toggleMenu()" aria-label="메뉴"><span></span><span></span><span></span></button>
   <a class="tb-logo" href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">MODNI</a>
+  <nav class="tb-nav" aria-label="주 메뉴">
+    <button id="navPlan" onclick="goPlanEntry()">여행 만들기</button>
+    <button id="navMarket" onclick="goSect('market')">여행 마켓</button>
+    <button id="navHotel" onclick="openHotelSite()">호텔 예약</button>
+  </nav>
   <div class="sp"></div>
-  <button class="tb-hotel" id="tbHotel" onclick="openHotelSite()">모드니 회원 전용 호텔 예약</button>
+  <button class="tb-mytrips" id="navTrips" onclick="openMyTrips()">내 여행</button>
   <button class="tb-login" id="langBtn" style="letter-spacing:.04em">ENG</button>
   <button class="tb-login" id="tbLogin">로그인</button>
 </header>
@@ -1295,6 +1307,19 @@ function goSect(key){
   if (el) el.scrollIntoView({ behavior:"smooth", block:"start" });
 }
 
+/* ── 🆕 헤더 개편 ④ (2026-08-30): 상단 가로 메뉴 동작 ──
+   WEB_APP_URL: P4(plan.allabouttrip.app 배포) 때 실제 URL로 교체하면 '여행 만들기'가 웹 서베이로 직행.
+   null인 동안은 플랜 소개 섹션으로 스크롤(앱 안내 유지). */
+const WEB_APP_URL = null;   // 예: "https://plan.allabouttrip.app"
+function goPlanEntry(){
+  if (WEB_APP_URL){ location.href = WEB_APP_URL + "/survey"; return; }
+  goSect("plan");
+}
+function openMyTrips(){
+  if (currentUser) openTrips();   // 로그인 상태 → 내 여행 오버레이 바로 (드로어 경유 제거)
+  else login();
+}
+
 /* ── 상단바: 스크롤 시 배경 ── */
 const topbar = $("topbar");
 window.addEventListener("scroll", () => {
@@ -1838,7 +1863,10 @@ const EN_TEXTS = [
   ["#heroEyebrow", "Your AI travel mate — from planning to memories"],
   ["#heroTitle", "Everything about travel,<br>in one place with <span class=\"hl\">Modni</span>"],
   ["#heroModni", "Before you go — plans and bookings. On the road — a guide. And afterwards — the memories. Modni draws it all with you, start to finish."],
-  ["#tbHotel", "Member Hotel Booking"],
+  ["#navPlan", "Create Trip"],
+  ["#navMarket", "Travel Market"],
+  ["#navHotel", "Hotel Booking"],
+  ["#navTrips", "My Trips"],
   ["#sect-plan .eyebrow", "Before the trip · Plan — Book — Pack"],
   ["#sect-plan h2", "Your itinerary,<br>drawn by Modni in 3 minutes"],
   ["#sect-plan .lead", "Tell Modni your taste, companions and budget — it sketches several courses. Say “more hot springs” or “less walking” and it redraws. A home-to-home itinerary, from your doorstep and back."],
