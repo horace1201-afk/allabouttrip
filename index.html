@@ -545,7 +545,7 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
     <p class="eyebrow">여행 전 · 계획 — 예약 — 준비</p>
     <h2>나만의 여행 일정,<br>모드니가 3분 만에 그려요</h2>
     <p class="lead">취향·동행·예산을 말하면 코스를 여러 개 그려 드려요. "온천 위주로", "걷기는 줄여줘" — 말만 하면 다시 그립니다. 집을 나서는 순간부터 돌아오는 순간까지, 홈 투 홈 일정표.</p>
-    <button class="btn-go" id="planCta" onclick="goSect('cta')">나만의 일정 만들기 — 앱에서 →</button>
+    <button class="btn-go" id="planCta" onclick="goPlanCta()">나만의 여행 만들기 시작 →</button>
   </div>
   <div class="duo">
     <div class="mock-shot reveal">
@@ -1315,6 +1315,10 @@ function goPlanEntry(){
   if (WEB_APP_URL){ location.href = WEB_APP_URL + "/survey"; return; }
   goSect("plan");
 }
+function goPlanCta(){   /* 🆕 8/30 영아: 플랜 섹션 CTA — 스위치 온이면 웹 서베이 직행, null이면 앱 안내 섹션 */
+  if (WEB_APP_URL){ location.href = WEB_APP_URL + "/survey"; return; }
+  goSect("cta");
+}
 function openMyTrips(){
   if (currentUser) openTrips();   // 로그인 상태 → 내 여행 오버레이 바로 (드로어 경유 제거)
   else login();
@@ -1886,7 +1890,7 @@ const EN_TEXTS = [
   ["#sect-memory .eyebrow", "After the trip · The end of the trip isn't the end of the app"],
   ["#sect-memory h2", "Turn your trip into a memory film"],
   ["#sect-memory .lead", "Pick your photos and get a personal travel film with location captions and music. Proud of your itinerary? Publish it to the Market — other travelers will heart it and take it."],
-  ["#planCta", "Create my itinerary — in the app →"],
+  ["#planCta", "Start creating my trip →"],
   ["#ctaTitle", "Ready to draw your first trip with Modni?"],
   ["#ctaP", "Launching soon on Google Play — App Store coming next."],
 ];
