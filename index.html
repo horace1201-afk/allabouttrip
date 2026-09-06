@@ -470,7 +470,7 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
   <a class="tb-logo" href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">MODNI</a>
   <nav class="tb-nav" aria-label="주 메뉴">
     <button id="navPlan" onclick="goPlanEntry()">여행 만들기</button>
-    <button id="navMarket" onclick="goSect('market')">여행 마켓</button>
+    <button id="navMarket" onclick="goMarketEntry()">여행 마켓</button>
     <button id="navHotel" onclick="openHotelSite()">호텔 예약</button>
   </nav>
   <div class="sp"></div>
@@ -1310,14 +1310,18 @@ function goSect(key){
 /* ── 🆕 헤더 개편 ④ (2026-08-30): 상단 가로 메뉴 동작 ──
    WEB_APP_URL: P4(plan.allabouttrip.app 배포) 때 실제 URL로 교체하면 '여행 만들기'가 웹 서베이로 직행.
    null인 동안은 플랜 소개 섹션으로 스크롤(앱 안내 유지). */
-const WEB_APP_URL = null;   // 예: "https://plan.allabouttrip.app"
+const WEB_APP_URL = "https://plan.allabouttrip.app";   // 🆕 9/6 P4: 웹앱 라이브 — 루트(/)는 진입 게이트(미저장 트립 보존) → 서베이
 function goPlanEntry(){
-  if (WEB_APP_URL){ location.href = WEB_APP_URL + "/survey"; return; }
+  if (WEB_APP_URL){ location.href = WEB_APP_URL + "/"; return; }   // /survey 직행 금지 — 게이트 경유
   goSect("plan");
 }
 function goPlanCta(){   /* 🆕 8/30 영아: 플랜 섹션 CTA — 스위치 온이면 웹 서베이 직행, null이면 앱 안내 섹션 */
-  if (WEB_APP_URL){ location.href = WEB_APP_URL + "/survey"; return; }
+  if (WEB_APP_URL){ location.href = WEB_APP_URL + "/"; return; }   // /survey 직행 금지 — 게이트 경유
   goSect("cta");
+}
+function goMarketEntry(){   /* 🆕 9/6 P4: 스위치 온이면 웹앱 마켓(코스 담기) 직행, null이면 대문 마켓 섹션 */
+  if (WEB_APP_URL){ location.href = WEB_APP_URL + "/market"; return; }
+  goSect("market");
 }
 function openMyTrips(){
   if (currentUser) openTrips();   // 로그인 상태 → 내 여행 오버레이 바로 (드로어 경유 제거)
