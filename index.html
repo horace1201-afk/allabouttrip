@@ -266,7 +266,7 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .region .shade{position:absolute;inset:0;background:linear-gradient(180deg,transparent 34%,rgba(29,20,14,.56))}
 .region .rt{position:absolute;left:12px;bottom:24px;color:#fff;font-size:14px;font-weight:800;text-shadow:0 1px 3px rgba(0,0,0,.4)}
 .region .rc{position:absolute;left:12px;bottom:8px;color:#fff;font-size:11px;opacity:.9}
-#worldMap{height:clamp(300px,40vw,430px);border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#eef4f8}
+#worldMap{height:clamp(300px,40vw,430px);border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#eef4f8;position:relative;z-index:0;isolation:isolate} /* 🆕 9/14: Leaflet 내부 z-index(400~1000)가 코스 상세 오버레이(z-index 100) 위로 새던 버그 — stacking context 격리 */
 #worldMap .leaflet-container{background:#eef4f8;font-family:inherit}
 .cpill{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;transform:translate(-50%,-50%);
   background:#fff;border:1.5px solid var(--orange);color:var(--orange-deep);border-radius:999px;
@@ -1528,7 +1528,9 @@ function closeOverlay(){
 }
 
 /* ── 코스 상세 ── */
+let curCourseId = null;   // 🆕 9/14: 상세 열린 코스 id — [이 여행 담아가기] 딥링크용
 async function selectCourse(id){
+  curCourseId = id;
   openOverlay("ovDetail");
   $("ovDetail").scrollTop = 0;
   $("detailBody").innerHTML = '<div class="empty">일정을 펼치는 중…</div>';
@@ -1615,7 +1617,7 @@ function renderDetail(c, seeds){
       <button class="see-all" id="btnSeeAll">전체보기 <span class="c">· 총 ${days.length}일</span></button>` : ""}
     </div>
     <button class="take" id="btnTake">이 여행 담아가기</button>
-    <div class="take-note" id="takeNote">담은 일정은 <b>앱에서 이어갈 수 있어요</b> — Google Play 출시와 함께 만나요! ✦
+    <div class="take-note" id="takeNote">웹에서 바로 담고, <b>앱에서도 이어갈 수 있어요</b> — 담을 때 출발일·인원만 고르면 돼요. 그대로 담거나, 박수·일정을 내 여행에 맞게 고쳐서 담을 수도 있어요 ✦
       <button class="applink" onclick="closeOverlay();goSect('cta')">앱 다운로드 안내 →</button></div>
   `;
   const seeAll = $("btnSeeAll");
@@ -1624,7 +1626,11 @@ function renderDetail(c, seeds){
     seeAll.remove();
     dayMaps.forEach(m => { try { m.invalidateSize(); } catch(e){} });
   });
-  $("btnTake").addEventListener("click", () => { $("takeNote").style.display = "block"; });
+  // 🆕 9/14 (영아): 자리표시(문구만) → 웹앱 코스 상세로 딥링크 — 거기서 담기 시트(이대로 / 박수·일정 고쳐서). 로그인은 웹앱이 안내
+  $("btnTake").addEventListener("click", () => {
+    if (WEB_APP_URL && curCourseId){ location.href = WEB_APP_URL + "/course-detail?marketId=" + encodeURIComponent(curCourseId); return; }
+    $("takeNote").style.display = "block";
+  });
   document.querySelectorAll(".guide-btn").forEach(b => b.addEventListener("click", () => toggleBucket(b)));
   initDayMaps(mapData);
 }
