@@ -1585,7 +1585,12 @@ function renderDetail(c, seeds){
       if (seed) seedById[seed.id] = seed;
       const gbtn = seed ? `<button class="guide-btn" data-seed="${seed.id}">✦ 가이드</button>` : "";
       let pin = "";
-      const lat = parseFloat(s.lat), lng = parseFloat(s.lng);
+      let lat = parseFloat(s.lat), lng = parseFloat(s.lng);
+      // 🆕 9/14 (영아): 모드니 샘플 코스는 슬롯에 lat/lng가 없어 지도가 통째로 빠졌다 → 가이드 매칭된
+      //   bucket_seeds.detail.placeFacts(Places 실측) 좌표로 폴백 (앱 lib/utils/slotCoords ② 규칙과 동일). 없으면 종전처럼 핀 생략.
+      if ((!Number.isFinite(lat) || !Number.isFinite(lng)) && seed && seed.detail && seed.detail.placeFacts){
+        lat = parseFloat(seed.detail.placeFacts.lat); lng = parseFloat(seed.detail.placeFacts.lng);
+      }
       if (Number.isFinite(lat) && Number.isFinite(lng) && s.type !== "flight"){
         pts.push({ lat, lng, no: pts.length + 1, title: s.title || "", travel: parseTravel(s) });
         pin = `<span class="pin-no">${pts.length}</span>`;
