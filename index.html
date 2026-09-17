@@ -306,7 +306,9 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
   .gside-list{flex-direction:row;overflow-x:auto;gap:10px;padding-bottom:8px;scroll-snap-type:x mandatory}
   .gci{flex:0 0 78%;scroll-snap-align:start}
 }
-.cpill{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;transform:translate(-50%,-50%);
+/* ⚠️ 9/17: globe.gl(CSS2DRenderer) 컨테이너는 pointer-events:none 이다 —
+   알약에 auto를 주지 않으면 실제 마우스 클릭이 닿지 않는다(JS .click()은 통과해서 안 잡힘). */
+.cpill{pointer-events:auto;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;transform:translate(-50%,-50%);
   background:#fff;border:1.5px solid var(--orange);color:var(--orange-deep);border-radius:999px;
   padding:6px 12px;font-size:13px;font-weight:800;box-shadow:0 6px 16px rgba(29,20,14,.18);cursor:pointer;transition:.18s}
 .cpill b{background:var(--orange);color:#fff;border-radius:999px;padding:1px 8px;font-size:12px;font-weight:800}
@@ -955,7 +957,7 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
       <span class="arw">›</span>
     </button>
     <div id="allPanel" class="all-panel hidden">
-      <div class="m-sub" style="margin-top:20px">전체 코스
+      <div class="m-sub" style="margin-top:20px"><span id="allScope">전체 코스</span>
         <div class="sorts">
           <button data-sort="latest" class="on">최신순</button>
           <button data-sort="downloads">담기순</button>
@@ -1443,8 +1445,8 @@ function renderContinentPanel(){
   bindGlobeCards();
 }
 function renderSidePanel(){ continentKey ? renderContinentPanel() : renderPicks(); }
-function clearContinent(){ continentKey = null; renderRegions(); renderSidePanel(); renderCards(); }
-function openCardsFromGlobe(){ openCards(); renderCards(); $("allPanel").scrollIntoView({ behavior:"smooth", block:"start" }); }
+function clearContinent(){ continentKey = null; renderRegions(); renderSidePanel(); renderCards(); syncAllLabels(); }
+function openCardsFromGlobe(){ openCards(); renderCards(); syncAllLabels(); $("allPanel").scrollIntoView({ behavior:"smooth", block:"start" }); }
 
 function renderTop5(){
   const top = courses.slice().sort((a,b) => (b.hearts||0) - (a.hearts||0)).slice(0, 5);
@@ -1508,8 +1510,7 @@ function pillFor(ct){
   el.dataset.k = ct.key;
   el.addEventListener("click", () => {
     continentKey = (continentKey === ct.key) ? null : ct.key;
-    renderRegions(); renderSidePanel(); renderCards();
-    if (continentKey) openCardsFromGlobe();
+    renderRegions(); renderSidePanel(); renderCards(); syncAllLabels();
   });
   return el;
 }
@@ -1592,10 +1593,21 @@ function renderCards(){
 }
 
 $("q").addEventListener("input", renderCards);
+/** 🆕 9/17: 대륙을 고른 상태면 "전체 코스" 문구를 그 지역 이름으로 바꾼다 */
+function allScopeLabel(){ return continentKey ? `${continentKey} 코스` : "전체 코스"; }
+function syncAllLabels(){
+  const open = !$("allPanel").classList.contains("hidden");
+  const t = $("allToggle");
+  t.querySelector(".at-t").textContent = open ? `${allScopeLabel()} 접기` : `${allScopeLabel()} 둘러보기`;
+  t.querySelector(".at-s").textContent = continentKey
+    ? `${continentKey} 지역의 완성 코스를 한눈에`
+    : "모든 여행자의 완성 코스를 한눈에";
+  const h = $("allScope"); if (h) h.textContent = allScopeLabel();
+}
 function setAllToggle(open){
   const t = $("allToggle");
   t.setAttribute("aria-expanded", open ? "true" : "false");
-  t.querySelector(".at-t").textContent = open ? "전체 코스 접기" : "전체 코스 둘러보기";
+  syncAllLabels();
 }
 function openCards(){
   const p = $("allPanel");
