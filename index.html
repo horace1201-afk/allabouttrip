@@ -257,6 +257,37 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
   border:1px solid var(--line);border-radius:999px;padding:8px 16px;transition:.15s}
 .chips button:hover,.sorts button:hover{border-color:var(--orange);color:var(--orange-deep)}
 .chips button.on,.sorts button.on{background:var(--orange);border-color:var(--orange);color:#fff}
+/* 🆕 9/17 히어로 '내 여행' 카드 — 로그인 + 여행이 있을 때만 hero-panel 대신 노출 */
+.upwrap{display:flex;flex-direction:column;gap:14px}
+.upcard{background:#fff;border:1px solid var(--line);border-radius:22px;padding:18px 20px 17px;box-shadow:0 18px 44px rgba(244,88,28,.13)}
+.upcard.plan{background:linear-gradient(180deg,#FFFDFB,#FFF6F0);border-color:#F7DECD}
+.upcard .uptop{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.upcard .chip{font-size:11px;font-weight:800;color:var(--orange-deep);background:var(--orange-soft);border-radius:999px;padding:4px 10px}
+.upcard .chip.g{color:var(--sub);background:#F3F1EE}
+.upcard .dday{font-size:11px;font-weight:800;color:#fff;background:var(--orange);border-radius:999px;padding:4px 10px}
+.upcard .ago{font-size:11.5px;font-weight:700;color:var(--faint);margin-left:auto}
+.upcard h3{font-size:19px;font-weight:800;letter-spacing:-.35px;line-height:1.3;color:var(--ink);margin:0}
+.upcard .meta{font-size:12.5px;color:var(--sub);margin-top:6px;font-weight:600}
+.upcard .prog{margin-top:13px;border-top:1px solid var(--hair);padding-top:11px;display:flex;gap:16px;flex-wrap:wrap}
+.upcard .prow{display:flex;align-items:center;gap:6px;font-size:12.5px}
+.upcard .prow b{font-weight:700;color:var(--ink)}
+.upcard .ok{color:#3DA364;font-weight:800;font-size:12px}
+.upcard .todo{color:var(--faint);font-weight:700;font-size:12px}
+.upcard .dot{width:6px;height:6px;border-radius:50%;background:#3DA364}
+.upcard .dot.g{background:var(--line)}
+.upcard .bar{height:6px;border-radius:999px;background:#F3EDE7;overflow:hidden;margin-top:12px}
+.upcard .bar i{display:block;height:100%;background:linear-gradient(90deg,#F4581C,#FF9166);border-radius:999px}
+.upcard .step{font-size:12px;color:var(--sub);font-weight:700;margin-top:8px}
+.upcard .step b{color:var(--orange-deep)}
+.upcard .upcta{display:flex;gap:8px;margin-top:14px}
+.upcard .upcta button{flex:1;border-radius:999px;padding:11px 0;font-size:13px;font-weight:800;transition:.15s}
+.upcard .upcta .p{background:var(--orange);color:#fff}
+.upcard .upcta .p:hover{background:var(--orange-deep)}
+.upcard .upcta .s{background:#fff;border:1px solid var(--line);color:var(--ink)}
+.upcard .upcta .s:hover{border-color:var(--orange)}
+.upmore{text-align:center;font-size:12.5px;font-weight:700;color:var(--sub);padding-top:2px;cursor:pointer}
+.upmore:hover{color:var(--orange-deep)}
+@media(max-width:900px){.upcard h3{font-size:17.5px}}
 @media(min-width:1040px){.lead.oneline{max-width:none;white-space:nowrap}}
 .m-sub{font-size:17px;font-weight:800;letter-spacing:-.3px;margin:34px 0 12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
 .regions{display:flex;gap:11px;overflow-x:auto;padding-bottom:8px}
@@ -564,6 +595,7 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
     </div>
    </div>
    <div class="hero-right">
+   <div class="upwrap" id="heroTrips" hidden></div>
    <div class="hero-panel" aria-hidden="true">
      <p class="eyebrow" id="heroEyebrow" style="align-self:flex-start;margin:2px 2px 12px">계획부터 추억까지, AI 여행 메이트</p>
      <div class="hp-head"><div><b>모드니와 함께라면</b><br><span>여행 한 번의 처음부터 끝까지</span></div></div>
@@ -1995,6 +2027,127 @@ async function applyAuth(session){
     $("tbLogin").textContent = "로그인";
     $("dwAuth").innerHTML = `<div class="big"><u onclick="login()">로그인/회원가입</u></div>`;
   }
+  renderHeroTrips();   // 🆕 9/17: 로그인 상태가 바뀔 때마다 히어로 카드 갱신
+}
+
+/* ═══ 🆕 9/17 히어로 '내 여행' 카드 ═══════════════════════════════
+   로그인 + 여행이 있을 때만 hero-panel(기능 소개 5줄)을 대신한다.
+     · 다가오는 여행 = depart_date가 오늘 이후인 것 중 가장 빠른 1개
+     · 계획 중인 여행 = 그 외(날짜 없음 + 나머지 예정) 중 최근 수정 1개
+     · 출발일이 지난 여행은 둘 다 아님
+   버튼은 plan 앱의 /mytrips?openTripId=<id> 로 — 앱이 여행을 복원해 연다
+   (일정표 열기는 pref·itinerary 로컬 복원이 필요해 URL만으로는 안 된다). */
+const SURVEY_STAGES = [
+  { name:'취향 알아보는 중',   next:'날짜·공항 정하기',
+    steps:['q0_freeform','q1','q2','q3','q4','q4_count','q5','q6','qWish','q_meal_budget','q_meal_special',
+           'q_wake','q_return','q_intensity','q_stay','q_hotel','q_transport_mode','q_dep_city'] },
+  { name:'날짜·공항 정하는 중', next:'코스 짜기',
+    steps:['q_date_priority','q_date_zone','q_airport','q_dep_airport','q_flight_info','q_summary_gate'] },
+  { name:'코스 짜는 중',       next:'호텔 고르기',
+    steps:['q_course','q_briefing','q_bucket'] },
+  { name:'호텔 고르는 중',     next:'일정표 마무리',
+    steps:['q_hotel_zone','q_hotel_pref','q_hotel_select','q_hotel_confirm','q_hotel_rooms','q_rental_car'] },
+  { name:'일정표 마무리 중',   next:'완성',
+    steps:['q_draft_itinerary','q_flight_confirm','budget_confirm'] },
+];
+function stageOf(draftStep){
+  const i = SURVEY_STAGES.findIndex(g => g.steps.includes(draftStep||''));
+  return i < 0 ? { idx:0, ...SURVEY_STAGES[0] } : { idx:i, ...SURVEY_STAGES[i] };
+}
+function todayStr(){
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+function ddayOf(dateStr){
+  const t = new Date(todayStr()+"T00:00:00"), d = new Date(dateStr+"T00:00:00");
+  const n = Math.round((d - t) / 86400000);
+  return n === 0 ? "오늘 출발" : `D-${n}`;
+}
+function agoOf(iso){
+  if (!iso) return "";
+  const n = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+  return n <= 0 ? "오늘 저장" : n === 1 ? "어제 저장" : `${n}일 전 저장`;
+}
+function depLabel(dateStr){
+  const d = new Date(dateStr+"T00:00:00");
+  const w = ["일","월","화","수","목","금","토"][d.getDay()];
+  return `${d.getMonth()+1}월 ${d.getDate()}일(${w}) 출발`;
+}
+/** 준비물 체크 개수 — checklist.categories[].items[].checked */
+function checklistCount(cl){
+  const cats = cl && Array.isArray(cl.categories) ? cl.categories : null;
+  if (!cats) return null;
+  let done = 0, total = 0;
+  for (const c of cats) for (const it of (Array.isArray(c?.items) ? c.items : [])) { total++; if (it?.checked) done++; }
+  return total ? { done, total } : null;
+}
+function openTrip(id){ location.href = WEB_APP_URL + "/mytrips?openTripId=" + encodeURIComponent(id); }
+function openMyTripsApp(){ location.href = WEB_APP_URL + "/mytrips"; }
+
+function upcomingCardHtml(t){
+  const cl = checklistCount(t.checklist);
+  const done = !!(t.itinerary && t.itinerary.title);
+  return `<div class="upcard">
+    <div class="uptop"><span class="chip">다가오는 여행</span><span class="dday">${esc(ddayOf(t.depart_date))}</span></div>
+    <h3>${esc(t.title || t.region || "여행")}</h3>
+    <div class="meta">${esc(depLabel(t.depart_date))}${t.region?` · ${esc(t.region)}`:""}${t.nights?` · ${t.nights}박`:""}</div>
+    <div class="prog">
+      <span class="prow"><span class="dot${done?"":" g"}"></span><b>일정표</b><span class="${done?"ok":"todo"}">${done?"완성":"미완성"}</span></span>
+      ${cl?`<span class="prow"><span class="dot${cl.done===cl.total?"":" g"}"></span><b>준비물</b><span class="${cl.done===cl.total?"ok":"todo"}">${cl.done}/${cl.total}</span></span>`:""}
+    </div>
+    <div class="upcta">
+      <button class="p" onclick="openTrip('${esc(t.id)}')">일정 보기</button>
+      <button class="s" onclick="openMyTripsApp()">내 여행 전체</button>
+    </div>
+  </div>`;
+}
+function planningCardHtml(t){
+  const st = stageOf(t.draft_step);
+  const pct = Math.round(((st.idx + 1) / SURVEY_STAGES.length) * 100);
+  const when = t.depart_date ? depLabel(t.depart_date) : "출발일 미정";
+  return `<div class="upcard plan">
+    <div class="uptop"><span class="chip g">계획 중인 여행</span><span class="ago">${esc(agoOf(t.updated_at))}</span></div>
+    <h3>${esc(t.title || t.region || "새 여행")}</h3>
+    <div class="meta">${esc(when)}${t.region?` · ${esc(t.region)}`:""}</div>
+    <div class="bar"><i style="width:${pct}%"></i></div>
+    <div class="step">${esc(st.name)} — 다음은 <b>${esc(st.next)}</b></div>
+    <div class="upcta">
+      <button class="p" onclick="openTrip('${esc(t.id)}')">이어서 계획하기</button>
+      <button class="s" onclick="openMyTripsApp()">내 여행 전체</button>
+    </div>
+  </div>`;
+}
+
+async function renderHeroTrips(){
+  const box = $("heroTrips"), panel = document.querySelector(".hero-panel");
+  if (!box) return;
+  const hide = () => { box.hidden = true; box.innerHTML = ""; if (panel) panel.hidden = false; };
+  if (!currentUser) return hide();
+  let rows = [];
+  try {
+    const { data, error } = await sb.from("trips")
+      .select("id, title, region, depart_date, nights, status, draft_step, updated_at, itinerary, checklist")
+      .order("updated_at", { ascending:false }).limit(40);
+    if (error) throw error;
+    rows = data || [];
+  } catch(e){ return hide(); }
+  if (!rows.length) return hide();
+
+  const today = todayStr();
+  const future = rows.filter(t => t.depart_date && t.depart_date >= today)
+                     .sort((a,b) => a.depart_date.localeCompare(b.depart_date));
+  const upcoming = future[0] || null;
+  const planning = rows.filter(t => t.id !== (upcoming && upcoming.id))
+                       .filter(t => !t.depart_date || t.depart_date >= today)[0] || null;
+  if (!upcoming && !planning) return hide();
+
+  const rest = rows.filter(t => !t.depart_date || t.depart_date >= today).length;
+  box.innerHTML =
+    (upcoming ? upcomingCardHtml(upcoming) : "") +
+    (planning ? planningCardHtml(planning) : "") +
+    (rest > 2 ? `<div class="upmore" onclick="openMyTripsApp()">저장한 여행 ${rest}개 모두 보기 ›</div>` : "");
+  box.hidden = false;
+  if (panel) panel.hidden = true;
 }
 
 boot();
