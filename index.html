@@ -272,10 +272,20 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
    기존 Leaflet #worldMap을 대체. Leaflet 라이브러리 자체는 코스 상세 일자 지도에서 계속 쓴다. */
 .explore{position:relative;border-radius:24px;overflow:hidden;border:1px solid #F7DECD;height:720px;z-index:0;isolation:isolate;
   background:radial-gradient(120% 130% at 38% 16%, #FFFBF8 0%, #FFF1E6 48%, #FBDFCF 100%)}
-#globeBox{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding-right:34%}
+/* 캔버스를 박스보다 34% 넓게 깔고 그만큼 왼쪽으로 민다 →
+   구 중심이 좌측 영역 한가운데(=박스 폭의 33%)에 오고, 확대해서 구가 커져도
+   잘리는 경계가 박스 모서리와 일치해 직사각형 캔버스가 드러나지 않는다. (9/17 실측) */
+#globeBox{position:absolute;top:0;bottom:0;left:-34%;width:134%;display:flex;align-items:center;justify-content:center}
 #globeBox canvas{display:block}
+/* 🆕 9/17: 확대하면 지구본이 커져 오른쪽 리스트 밑까지 들어온다 —
+   패널 뒤에 배경색 페이드를 깔아 카드가 항상 읽히게 한다. (지구본 위 z-1, 패널 아래 z-2) */
+.explore::after{content:"";position:absolute;top:0;bottom:0;right:0;width:46%;z-index:1;pointer-events:none;
+  background:linear-gradient(90deg,rgba(252,229,216,0) 0%,rgba(252,229,216,.72) 34%,rgba(251,223,207,.96) 68%)}
+@media(max-width:900px){.explore::after{display:none}}
 .ghint{position:absolute;top:80px;left:33.5%;transform:translateX(-50%);z-index:3;white-space:nowrap;
-  font-size:12.5px;font-weight:600;color:var(--sub);pointer-events:none}
+  font-size:12.5px;font-weight:600;color:var(--sub);pointer-events:none;
+  /* 확대하면 이 문구가 바다(짙은 파랑) 위로 올라온다 — 흰 헤일로로 양쪽 배경에서 읽히게 */
+  text-shadow:0 1px 3px rgba(255,255,255,.9),0 0 10px rgba(255,255,255,.75)}
 .gside{position:absolute;right:22px;top:50%;transform:translateY(-50%);width:33%;max-height:calc(100% - 44px);
   overflow:hidden;display:flex;flex-direction:column;min-width:0;z-index:2}
 .gside-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:2px}
@@ -300,7 +310,7 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 /* 대륙 알약(.cpill) 스타일은 아래 기존 블록을 그대로 쓴다 — 중복 정의 금지 */
 @media(max-width:900px){
   .explore{height:auto;padding:16px 14px 18px}
-  #globeBox{position:relative;inset:auto;height:330px;padding-right:0}
+  #globeBox{position:relative;inset:auto;left:auto;width:100%;height:330px}
   .ghint{position:static;transform:none;text-align:center;display:block;margin-bottom:6px}
   .gside{position:static;transform:none;width:100%;max-height:none;margin-top:12px}
   .gside-list{flex-direction:row;overflow-x:auto;gap:10px;padding-bottom:8px;scroll-snap-type:x mandatory}
@@ -318,6 +328,9 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .cpill.off{border-color:var(--line);color:var(--faint);background:rgba(255,255,255,.82);cursor:default;box-shadow:none}
 .cpill.off b{background:var(--line);color:#fff}
 .cpill.off:hover{transform:translate(-50%,-50%)}
+/* 🆕 9/17 확대 단계의 도시 핀 — 대륙 알약보다 한 단계 작게 */
+.cpill.city{padding:4px 10px;font-size:12px;border-width:1.2px}
+.cpill.city b{padding:0 6px;font-size:11px}
 .sorts{display:flex;gap:8px}
 .grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:13px;margin-top:4px}
 .m-desc{font-size:13.5px;color:var(--sub);margin:0 0 14px;font-weight:600}
@@ -1392,6 +1405,11 @@ let courses = [];
 let sortKey = "latest";
 let filterKey = "all";
 let continentKey = null;
+// 🆕 9/17 지구본 줌: 가까이 당기면 대륙 알약 대신 **도시 핀**을 띄운다(영아 확정 '가' 안).
+//   좌표는 Supabase city_coords(anon SELECT 허용)에서 코스에 등장하는 도시만 골라 1회 조회.
+let cityKey = null;          // 고른 도시 (null이면 도시 필터 없음)
+let cityPins = [];           // [{ city, lat, lng, n }]
+let globeDetail = false;     // true = 도시 핀 단계
 let currentUser = null;
 
 async function loadMarket(){
@@ -1402,6 +1420,8 @@ async function loadMarket(){
     if (error) throw error;
     courses = data || [];
     renderSidePanel(); renderTop5(); renderRegions(); renderCards();
+    // 도시 좌표는 확대했을 때만 쓰이므로 첫 렌더를 막지 않는다 (뒤따라 채운다)
+    loadCityPins().then(() => { if (globeDetail) paintGlobePills(); });
   } catch (e) {
     $("cards").innerHTML = '<div class="empty">코스를 불러오지 못했어요. 잠시 후 새로고침해 주세요.</div>';
     $("top5").innerHTML = '<div class="empty">코스를 불러오지 못했어요.</div>';
@@ -1422,6 +1442,27 @@ function globeCard(c, badge){
 function bindGlobeCards(){
   document.querySelectorAll("#picks .gci").forEach(p => p.addEventListener("click", () => selectCourse(p.dataset.id)));
 }
+/** 코스의 대표 도시 = region 첫 토큰 ("오사카 · 고베 · 5박" → "오사카") */
+function cityOfCourse(c){
+  const first = String(c.region||"").replace(/,/g,"·").split("·")[0].trim();
+  return first || null;
+}
+/** 코스에 등장하는 도시들의 좌표를 한 번에 가져온다. 좌표 없는 도시(나라명·지역명)는 핀이 안 생긴다. */
+async function loadCityPins(){
+  const counts = {};
+  for (const c of courses){ const k = cityOfCourse(c); if (k) counts[k] = (counts[k]||0)+1; }
+  const names = Object.keys(counts);
+  if (!names.length){ cityPins = []; return; }
+  try {
+    const { data, error } = await sb.from("city_coords").select("city, lat, lng").in("city", names);
+    if (error) throw error;
+    cityPins = (data||[])
+      .filter(r => Number.isFinite(r.lat) && Number.isFinite(r.lng))
+      .map(r => ({ city:r.city, lat:r.lat, lng:r.lng, n:counts[r.city]||0 }))
+      .filter(r => r.n > 0);
+  } catch(e){ cityPins = []; console.warn("[globe] 도시 좌표 로드 실패", e); }
+}
+
 function renderPicks(){
   const picks = courses.filter(c => c.is_sample).sort((a,b)=>(b.hearts||0)-(a.hearts||0)).slice(0, 5);
   if (!picks.length){ $("picks").innerHTML = ""; return; }
@@ -1444,8 +1485,19 @@ function renderContinentPanel(){
     || '<div class="empty">이 지역엔 아직 코스가 없어요.</div>';
   bindGlobeCards();
 }
-function renderSidePanel(){ continentKey ? renderContinentPanel() : renderPicks(); }
-function clearContinent(){ continentKey = null; renderRegions(); renderSidePanel(); renderCards(); syncAllLabels(); }
+/** 도시를 고른 상태 */
+function renderCityPanel(){
+  const list = courses.filter(c => cityOfCourse(c) === cityKey).sort((a,b)=>(b.hearts||0)-(a.hearts||0));
+  $("gsideT").textContent = cityKey;
+  $("gsideD").textContent = `이 도시 코스 ${list.length}개`;
+  $("gsideX").style.display = "";
+  $("gsideMore").textContent = `${cityKey} 코스 ${list.length}개 전체 보기 ›`;
+  $("picks").innerHTML = list.slice(0,5).map(c => globeCard(c, false)).join("")
+    || '<div class="empty">이 도시엔 아직 코스가 없어요.</div>';
+  bindGlobeCards();
+}
+function renderSidePanel(){ cityKey ? renderCityPanel() : continentKey ? renderContinentPanel() : renderPicks(); }
+function clearContinent(){ continentKey = null; cityKey = null; renderRegions(); renderSidePanel(); renderCards(); syncAllLabels(); }
 function openCardsFromGlobe(){ openCards(); renderCards(); syncAllLabels(); $("allPanel").scrollIntoView({ behavior:"smooth", block:"start" }); }
 
 function renderTop5(){
@@ -1492,13 +1544,19 @@ function continentOf(region){
 let globe = null, globeReady = false, contCounts = {};
 const GLOBE_TEXTURE = "assets/globe/earth-day.jpg";
 const GLOBE_GEOJSON = "assets/globe/countries-110m.geojson";
+/** 이 고도 아래로 들어오면 도시 핀 단계 — plan 지구본(WorldGlobe.web.tsx)과 같은 값 */
+const ZOOM_DETAIL_ALTITUDE = 0.85;
+/** 카메라가 멈춘 뒤 한 번만 계산하는 디바운스 — plan 지구본과 동일 */
+const CAMERA_SETTLE_MS = 180;
 
+/** 캔버스 크기 — 데스크톱은 박스를 가득 채운다(위 CSS의 134% 폭과 짝) */
 function globeSize(){
   const w = window.innerWidth;
-  if (w <= 900) return Math.min(w - 60, 330);
   const box = document.querySelector(".explore");
+  if (w <= 900) { const n = Math.min(w - 60, 330); return { w:n, h:n }; }
   const bw = box ? box.clientWidth : 1020;
-  return Math.min(Math.round(bw * 0.66), 715);
+  const bh = box ? box.clientHeight : 720;
+  return { w: Math.round(bw * 1.34), h: bh };
 }
 
 function pillFor(ct){
@@ -1515,11 +1573,37 @@ function pillFor(ct){
   return el;
 }
 
+/** 도시 핀 — 확대 단계에서 대륙 알약을 대신한다 */
+function cityPillFor(d){
+  const el = document.createElement("div");
+  el.className = "cpill city" + (cityKey === d.city ? " on" : "");
+  el.innerHTML = esc(d.city) + `<b>${d.n}</b>`;
+  el.dataset.city = d.city;
+  el.addEventListener("click", () => {
+    cityKey = (cityKey === d.city) ? null : d.city;
+    continentKey = null;
+    renderRegions(); renderSidePanel(); renderCards(); syncAllLabels();
+  });
+  return el;
+}
+
+/** 현재 단계(대륙/도시)에 맞는 데이터를 지구본에 얹는다 */
+function paintGlobePills(){
+  if (!globeReady) return;
+  if (globeDetail) {
+    globe.htmlLat(d => d.lat).htmlLng(d => d.lng).htmlElement(cityPillFor)
+         .htmlElementsData(cityPins.map(d => ({ ...d })));
+  } else {
+    globe.htmlLat(d => d.center[0]).htmlLng(d => d.center[1]).htmlElement(pillFor)
+         .htmlElementsData(CONTINENTS.map(c => ({ ...c })));
+  }
+}
+
 function renderRegions(){
   contCounts = {};
   for (const c of courses){ const k = continentOf(c.region); if (k) contCounts[k] = (contCounts[k]||0)+1; }
   if (!globeReady){ initGlobe(); return; }
-  globe.htmlElementsData(CONTINENTS.map(c => ({ ...c })));
+  paintGlobePills();
 }
 
 function initGlobe(){
@@ -1528,16 +1612,39 @@ function initGlobe(){
   if (typeof Globe !== "function"){ setTimeout(initGlobe, 120); return; }   // defer 로드 대기
   const size = globeSize();
   globe = Globe()(box)
-    .width(size).height(size)
+    .width(size.w).height(size.h)
     .backgroundColor("rgba(0,0,0,0)")
     .globeImageUrl(GLOBE_TEXTURE)
     .showAtmosphere(true).atmosphereColor("#FFD9C4").atmosphereAltitude(0.15)
-    .htmlElementsData(CONTINENTS.map(c => ({ ...c })))
     .htmlLat(d => d.center[0]).htmlLng(d => d.center[1])
     .htmlElement(pillFor);
-  globe.controls().enableZoom = false;
-  globe.controls().autoRotate = true;
-  globe.controls().autoRotateSpeed = 0.28;
+  // 🆕 9/17: 확대 허용 — plan 지구본과 같은 조작감. 임계 고도 아래로 들어오면 도시 핀으로 바꾼다.
+  const controls = globe.controls();
+  controls.enableZoom = true;
+  controls.enablePan = false;
+  controls.minDistance = 175;   // 너무 당기면 구가 패널을 덮는다
+  controls.maxDistance = 420;
+  controls.autoRotate = true;
+  controls.autoRotateSpeed = 0.28;
+  // 한 번이라도 손대면 자동 회전 정지 (돌아가는 중엔 핀을 못 누른다)
+  const stopSpin = () => { controls.autoRotate = false; };
+  box.addEventListener("pointerdown", stopSpin, { once:true });
+  box.addEventListener("wheel", stopSpin, { once:true, passive:true });
+  // 카메라가 멈춘 뒤 한 번만 단계 판정 (매 프레임 계산하면 끊긴다 — plan 지구본과 같은 180ms)
+  let settle = null;
+  controls.addEventListener("change", () => {
+    if (settle) clearTimeout(settle);
+    settle = setTimeout(() => {
+      const alt = globe.pointOfView().altitude;
+      const next = alt < ZOOM_DETAIL_ALTITUDE;
+      if (next === globeDetail) return;
+      globeDetail = next;
+      if (!globeDetail) cityKey = null;   // 줌아웃하면 도시 필터 해제
+      paintGlobePills(); renderSidePanel(); renderCards(); syncAllLabels();
+      const h = $("contHint");
+      if (h) h.textContent = globeDetail ? "도시를 눌러 그 도시 코스를 보세요" : "지구본을 돌려 대륙을 눌러보세요";
+    }, CAMERA_SETTLE_MS);
+  });
   globe.pointOfView({ lat: 20, lng: 60, altitude: 2.2 }, 0);
   try {
     const sc = globe.scene();
@@ -1555,14 +1662,15 @@ function initGlobe(){
   }).catch(e => console.warn("[globe] 국경 로드 실패", e));
   window.addEventListener("resize", () => {
     if (!globe) return;
-    const n = globeSize(); globe.width(n).height(n);
+    const n = globeSize(); globe.width(n.w).height(n.h);
   });
 }
 
 function renderCards(){
   const q = ($("q").value || "").trim().toLowerCase();
   let list = courses.slice();
-  if (continentKey) list = list.filter(c => continentOf(c.region) === continentKey);
+  if (cityKey) list = list.filter(c => cityOfCourse(c) === cityKey);
+  else if (continentKey) list = list.filter(c => continentOf(c.region) === continentKey);
   if (q) list = list.filter(c =>
     (c.market_title||"").toLowerCase().includes(q) ||
     (c.summary||"").toLowerCase().includes(q) ||
@@ -1594,12 +1702,14 @@ function renderCards(){
 
 $("q").addEventListener("input", renderCards);
 /** 🆕 9/17: 대륙을 고른 상태면 "전체 코스" 문구를 그 지역 이름으로 바꾼다 */
-function allScopeLabel(){ return continentKey ? `${continentKey} 코스` : "전체 코스"; }
+function allScopeLabel(){ return cityKey ? `${cityKey} 코스` : continentKey ? `${continentKey} 코스` : "전체 코스"; }
 function syncAllLabels(){
   const open = !$("allPanel").classList.contains("hidden");
   const t = $("allToggle");
   t.querySelector(".at-t").textContent = open ? `${allScopeLabel()} 접기` : `${allScopeLabel()} 둘러보기`;
-  t.querySelector(".at-s").textContent = continentKey
+  t.querySelector(".at-s").textContent = cityKey
+    ? `${cityKey}의 완성 코스를 한눈에`
+    : continentKey
     ? `${continentKey} 지역의 완성 코스를 한눈에`
     : "모든 여행자의 완성 코스를 한눈에";
   const h = $("allScope"); if (h) h.textContent = allScopeLabel();
