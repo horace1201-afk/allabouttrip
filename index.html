@@ -1652,6 +1652,7 @@ function initGlobe(){
     sc.children.filter(o => o.type === "DirectionalLight").forEach(o => o.intensity = 1.1);
   } catch(e){}
   globeReady = true;
+  paintGlobePills();   // ⚠️ 초기 알약은 여기서 얹는다 — 생성 체인에서 빼면 첫 화면에 아무것도 안 뜬다 (9/17 실측)
   // 흰 국경선은 폴리곤으로 — 텍스처엔 국경이 없다
   fetch(GLOBE_GEOJSON).then(r => r.json()).then(geo => {
     globe.polygonsData(geo.features)
