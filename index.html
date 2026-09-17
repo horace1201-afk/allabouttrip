@@ -29,6 +29,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/globe.gl@2.46.2/dist/globe.gl.min.js" defer></script>
 <style>
 :root{
   --orange:#F4581C; --orange-deep:#D84A12; --orange-soft:#FFF2EA; --orange-tint:#FFF6F0;
@@ -256,6 +257,7 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
   border:1px solid var(--line);border-radius:999px;padding:8px 16px;transition:.15s}
 .chips button:hover,.sorts button:hover{border-color:var(--orange);color:var(--orange-deep)}
 .chips button.on,.sorts button.on{background:var(--orange);border-color:var(--orange);color:#fff}
+@media(min-width:1040px){.lead.oneline{max-width:none;white-space:nowrap}}
 .m-sub{font-size:17px;font-weight:800;letter-spacing:-.3px;margin:34px 0 12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
 .regions{display:flex;gap:11px;overflow-x:auto;padding-bottom:8px}
 .regions::-webkit-scrollbar{height:6px}
@@ -266,8 +268,44 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .region .shade{position:absolute;inset:0;background:linear-gradient(180deg,transparent 34%,rgba(29,20,14,.56))}
 .region .rt{position:absolute;left:12px;bottom:24px;color:#fff;font-size:14px;font-weight:800;text-shadow:0 1px 3px rgba(0,0,0,.4)}
 .region .rc{position:absolute;left:12px;bottom:8px;color:#fff;font-size:11px;opacity:.9}
-#worldMap{height:clamp(300px,40vw,430px);border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#eef4f8;position:relative;z-index:0;isolation:isolate} /* 🆕 9/14: Leaflet 내부 z-index(400~1000)가 코스 상세 오버레이(z-index 100) 위로 새던 버그 — stacking context 격리 */
-#worldMap .leaflet-container{background:#eef4f8;font-family:inherit}
+/* 🆕 9/17 지구본 탐색(R-0 마켓) — 옅은 주황 박스 하나에 지구본(좌) + 코스 패널(우 33%)을 얹는다.
+   기존 Leaflet #worldMap을 대체. Leaflet 라이브러리 자체는 코스 상세 일자 지도에서 계속 쓴다. */
+.explore{position:relative;border-radius:24px;overflow:hidden;border:1px solid #F7DECD;height:720px;z-index:0;isolation:isolate;
+  background:radial-gradient(120% 130% at 38% 16%, #FFFBF8 0%, #FFF1E6 48%, #FBDFCF 100%)}
+#globeBox{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding-right:34%}
+#globeBox canvas{display:block}
+.ghint{position:absolute;top:80px;left:33.5%;transform:translateX(-50%);z-index:3;white-space:nowrap;
+  font-size:12.5px;font-weight:600;color:var(--sub);pointer-events:none}
+.gside{position:absolute;right:22px;top:50%;transform:translateY(-50%);width:33%;max-height:calc(100% - 44px);
+  overflow:hidden;display:flex;flex-direction:column;min-width:0;z-index:2}
+.gside-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:2px}
+.gside-t{font-size:17px;font-weight:800;letter-spacing:-.3px}
+.gside-x{font-size:11.5px;font-weight:700;color:var(--sub);border:1px solid var(--line);border-radius:999px;padding:3px 9px;background:#fff;cursor:pointer}
+.gside-d{font-size:12px;color:var(--faint);font-weight:600;margin-bottom:10px}
+.gside-list{display:flex;flex-direction:column;gap:8px}
+.gci{display:flex;gap:10px;align-items:center;flex-shrink:0;cursor:pointer;min-width:0;
+  border:1px solid rgba(255,255,255,.9);border-radius:13px;padding:9px 10px;
+  background:rgba(255,255,255,.92);box-shadow:0 6px 18px rgba(150,80,40,.10);transition:transform .15s,box-shadow .15s}
+.gci:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(150,80,40,.16)}
+.gci .gth{width:44px;height:44px;border-radius:10px;flex-shrink:0;overflow:hidden;position:relative;
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;
+  background:linear-gradient(140deg,#F4581C,#F7A07A)}
+.gci .gth img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.gci .gt{flex:1;min-width:0}
+.gci .gt b{display:block;font-size:12.8px;font-weight:700;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gci .gt span{display:block;font-size:11px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gci .gh{font-size:11.5px;color:#E0655C;font-weight:700;white-space:nowrap}
+.gbadge{display:inline-block;background:var(--orange-soft);color:var(--orange-deep);font-size:10px;font-weight:800;border-radius:999px;padding:0 6px;margin-bottom:2px}
+.gmore{text-align:center;font-size:12px;font-weight:700;color:var(--sub);padding:8px 0 4px;cursor:pointer}
+/* 대륙 알약(.cpill) 스타일은 아래 기존 블록을 그대로 쓴다 — 중복 정의 금지 */
+@media(max-width:900px){
+  .explore{height:auto;padding:16px 14px 18px}
+  #globeBox{position:relative;inset:auto;height:330px;padding-right:0}
+  .ghint{position:static;transform:none;text-align:center;display:block;margin-bottom:6px}
+  .gside{position:static;transform:none;width:100%;max-height:none;margin-top:12px}
+  .gside-list{flex-direction:row;overflow-x:auto;gap:10px;padding-bottom:8px;scroll-snap-type:x mandatory}
+  .gci{flex:0 0 78%;scroll-snap-align:start}
+}
 .cpill{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;transform:translate(-50%,-50%);
   background:#fff;border:1.5px solid var(--orange);color:var(--orange-deep);border-radius:999px;
   padding:6px 12px;font-size:13px;font-weight:800;box-shadow:0 6px 16px rgba(29,20,14,.18);cursor:pointer;transition:.18s}
@@ -876,23 +914,29 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
   <div class="reveal">
     <p class="eyebrow">여행 마켓 · 이미 완성된 여행</p>
     <h2>내 일정을 올리고,<br>남의 일정을 담아봐요</h2>
-    <p class="lead">직접 짜는 게 번거롭다면, 여행자들이 완성한 진짜 일정을 그대로 담아오세요 — 내 날짜에 맞게 전체 일정이 다시 그려지고, 예약까지 한 번에 이어집니다.</p>
+    <p class="lead oneline">직접 짜기 번거롭다면, 여행자들이 완성한 진짜 일정을 그대로 담아오세요 — 내 날짜에 맞게 다시 그려지고, 예약까지 이어집니다.</p>
   </div>
 
   <div class="reveal">
-    <div class="m-sub" style="margin-bottom:2px">에디터 픽</div>
-    <p class="m-desc">모드니 에디터가 직접 추천하는 코스!</p>
-    <div class="picks" id="picks"></div>
+    <div class="m-sub">지역별로 둘러보기</div>
+    <div class="explore">
+      <div class="ghint" id="contHint">지구본을 돌려 대륙을 눌러보세요</div>
+      <div id="globeBox"></div>
+      <div class="gside">
+        <div class="gside-h">
+          <span class="gside-t" id="gsideT">에디터 픽</span>
+          <span class="gside-x" id="gsideX" style="display:none" onclick="clearContinent()">✕ 전체 보기</span>
+        </div>
+        <div class="gside-d" id="gsideD">모드니 에디터가 직접 고른 코스</div>
+        <div class="gside-list" id="picks"></div>
+        <div class="gmore" id="gsideMore" onclick="openCardsFromGlobe()">전체 코스 둘러보기 ›</div>
+      </div>
+    </div>
   </div>
 
   <div class="reveal">
     <div class="m-sub">인기 코스 TOP 5</div>
     <div class="rank-grid" id="top5"><div class="empty">코스를 불러오는 중…</div></div>
-  </div>
-
-  <div class="reveal" style="margin-top:10px">
-    <div class="m-sub">지역별로 둘러보기 <span id="contHint" style="font-size:12.5px;font-weight:600;color:var(--sub)">대륙을 눌러보세요</span></div>
-    <div id="worldMap"></div>
   </div>
 
   <div class="mkt-tools reveal">
@@ -1355,7 +1399,7 @@ async function loadMarket(){
       .eq("status", "published");
     if (error) throw error;
     courses = data || [];
-    renderPicks(); renderTop5(); renderRegions(); renderCards();
+    renderSidePanel(); renderTop5(); renderRegions(); renderCards();
   } catch (e) {
     $("cards").innerHTML = '<div class="empty">코스를 불러오지 못했어요. 잠시 후 새로고침해 주세요.</div>';
     $("top5").innerHTML = '<div class="empty">코스를 불러오지 못했어요.</div>';
@@ -1363,21 +1407,44 @@ async function loadMarket(){
 }
 function esc(s){ const d = document.createElement("div"); d.textContent = s ?? ""; return d.innerHTML; }
 
+/** 🆕 9/17 지구본 옆 패널 — 코스 한 줄 카드 (에디터 픽 / 대륙 필터 공용) */
+function globeCard(c, badge){
+  const r = resolveCityImage(c.region);
+  const nights = c.nights ? `${c.nights}박 · ` : "";
+  return `<div class="gci" data-id="${c.id}">
+    <span class="gth">${r?`<img src="${r.url}" alt="" loading="lazy">`:esc(String(c.region||"").slice(0,2))}</span>
+    <span class="gt">${badge?`<span class="gbadge">에디터 픽</span>`:""}<b>${esc(stripPrefix(c.market_title))}</b><span>${esc(c.region||"")} · ${nights}담기 ${c.download_count||0}</span></span>
+    <span class="gh">♡ ${c.hearts||0}</span>
+  </div>`;
+}
+function bindGlobeCards(){
+  document.querySelectorAll("#picks .gci").forEach(p => p.addEventListener("click", () => selectCourse(p.dataset.id)));
+}
 function renderPicks(){
   const picks = courses.filter(c => c.is_sample).sort((a,b)=>(b.hearts||0)-(a.hearts||0)).slice(0, 5);
   if (!picks.length){ $("picks").innerHTML = ""; return; }
-  $("picks").innerHTML = picks.map(c => {
-    const r = resolveCityImage(c.region);
-    return `<div class="pick" data-id="${c.id}">
-      ${r?`<img src="${r.url}" alt="" loading="lazy">`:""}
-      <div class="shade"></div>
-      <span class="badge">에디터 픽</span>
-      <div class="pt">${esc(stripPrefix(c.market_title))}</div>
-      <div class="pm">모드니 · 담기 ${c.download_count||0} · ♡ ${c.hearts||0}</div>
-    </div>`;
-  }).join("");
-  document.querySelectorAll(".pick").forEach(p => p.addEventListener("click", () => selectCourse(p.dataset.id)));
+  $("gsideT").textContent = "에디터 픽";
+  $("gsideD").textContent = "모드니 에디터가 직접 고른 코스";
+  $("gsideX").style.display = "none";
+  $("gsideMore").textContent = "전체 코스 둘러보기 ›";
+  $("picks").innerHTML = picks.map(c => globeCard(c, true)).join("");
+  bindGlobeCards();
 }
+/** 대륙을 고른 상태 — 패널이 그 지역 코스 목록으로 바뀐다 */
+function renderContinentPanel(){
+  const list = courses.filter(c => continentOf(c.region) === continentKey)
+                      .sort((a,b)=>(b.hearts||0)-(a.hearts||0));
+  $("gsideT").textContent = continentKey;
+  $("gsideD").textContent = `이 지역 코스 ${list.length}개`;
+  $("gsideX").style.display = "";
+  $("gsideMore").textContent = `${continentKey} 코스 ${list.length}개 전체 보기 ›`;
+  $("picks").innerHTML = list.slice(0,5).map(c => globeCard(c, false)).join("")
+    || '<div class="empty">이 지역엔 아직 코스가 없어요.</div>';
+  bindGlobeCards();
+}
+function renderSidePanel(){ continentKey ? renderContinentPanel() : renderPicks(); }
+function clearContinent(){ continentKey = null; renderRegions(); renderSidePanel(); renderCards(); }
+function openCardsFromGlobe(){ openCards(); renderCards(); $("allPanel").scrollIntoView({ behavior:"smooth", block:"start" }); }
 
 function renderTop5(){
   const top = courses.slice().sort((a,b) => (b.hearts||0) - (a.hearts||0)).slice(0, 5);
@@ -1417,36 +1484,78 @@ function continentOf(region){
   for (const t of tokens){ if (TOKEN_CONTINENT[t]) return TOKEN_CONTINENT[t]; }
   return null;
 }
-let worldMap = null, contMarkers = {};
-function renderRegions(){
-  const counts = {};
-  for (const c of courses){ const k = continentOf(c.region); if (k) counts[k] = (counts[k]||0)+1; }
-  if (!worldMap){
-    worldMap = L.map("worldMap", { zoomControl:false, scrollWheelZoom:false, attributionControl:true, zoomSnap:0.25,
-      dragging:true, doubleClickZoom:false, worldCopyJump:true, minZoom:1, maxZoom:5 }).setView([22, 25], 1.4);
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution:'© OpenStreetMap contributors', noWrap:false }).addTo(worldMap);
-  }
-  CONTINENTS.forEach(ct => {
-    const n = counts[ct.key] || 0;
-    const active = continentKey === ct.key;
-    const html = `<div class="cpill ${n?'':'off'} ${active?'on':''}" data-k="${esc(ct.key)}">${esc(ct.key)}${n?`<b>${n}</b>`:''}</div>`;
-    if (contMarkers[ct.key]){
-      contMarkers[ct.key].setIcon(L.divIcon({ className:"", html, iconSize:null }));
-    } else {
-      const m = L.marker(ct.center, { icon:L.divIcon({ className:"", html, iconSize:null }), keyboard:false }).addTo(worldMap);
-      m.on("click", () => {
-        if (!(counts[ct.key]||0)) return;
-        continentKey = (continentKey === ct.key) ? null : ct.key;
-        const h = $("contHint"); if (h) h.textContent = continentKey ? `${continentKey} · 코스 ${counts[continentKey]}개` : "대륙을 눌러보세요";
-        renderRegions(); renderCards();
-        openCards();
-        $("allPanel").scrollIntoView({ behavior:"smooth", block:"start" });
-      });
-      contMarkers[ct.key] = m;
-    }
+/* 🆕 9/17 R-0 마켓 지구본 — 기존 Leaflet 대륙 마커를 globe.gl 위로 옮긴 것.
+   대륙 알약 클릭 → continentKey 토글 → 패널·카드 갱신 (기존 로직 그대로).
+   ⚠️ 지구본 뒤로 돌아간 알약은 숨긴다(안 그러면 앞면 글씨와 겹쳐 비친다). */
+let globe = null, globeReady = false, contCounts = {};
+const GLOBE_TEXTURE = "assets/globe/earth-day.jpg";
+const GLOBE_GEOJSON = "assets/globe/countries-110m.geojson";
+
+function globeSize(){
+  const w = window.innerWidth;
+  if (w <= 900) return Math.min(w - 60, 330);
+  const box = document.querySelector(".explore");
+  const bw = box ? box.clientWidth : 1020;
+  return Math.min(Math.round(bw * 0.66), 715);
+}
+
+function pillFor(ct){
+  const n = contCounts[ct.key] || 0;
+  const el = document.createElement("div");
+  if (!n){ el.style.display = "none"; return el; }   // 코스 없는 대륙은 표시하지 않는다
+  el.className = "cpill" + (continentKey === ct.key ? " on" : "");
+  el.innerHTML = esc(ct.key) + `<b>${n}</b>`;
+  el.dataset.k = ct.key;
+  el.addEventListener("click", () => {
+    continentKey = (continentKey === ct.key) ? null : ct.key;
+    renderRegions(); renderSidePanel(); renderCards();
+    if (continentKey) openCardsFromGlobe();
   });
-  setTimeout(() => worldMap && worldMap.invalidateSize(), 60);
+  return el;
+}
+
+function renderRegions(){
+  contCounts = {};
+  for (const c of courses){ const k = continentOf(c.region); if (k) contCounts[k] = (contCounts[k]||0)+1; }
+  if (!globeReady){ initGlobe(); return; }
+  globe.htmlElementsData(CONTINENTS.map(c => ({ ...c })));
+}
+
+function initGlobe(){
+  const box = document.getElementById("globeBox");
+  if (!box || globe) return;
+  if (typeof Globe !== "function"){ setTimeout(initGlobe, 120); return; }   // defer 로드 대기
+  const size = globeSize();
+  globe = Globe()(box)
+    .width(size).height(size)
+    .backgroundColor("rgba(0,0,0,0)")
+    .globeImageUrl(GLOBE_TEXTURE)
+    .showAtmosphere(true).atmosphereColor("#FFD9C4").atmosphereAltitude(0.15)
+    .htmlElementsData(CONTINENTS.map(c => ({ ...c })))
+    .htmlLat(d => d.center[0]).htmlLng(d => d.center[1])
+    .htmlElement(pillFor);
+  globe.controls().enableZoom = false;
+  globe.controls().autoRotate = true;
+  globe.controls().autoRotateSpeed = 0.28;
+  globe.pointOfView({ lat: 20, lng: 60, altitude: 2.2 }, 0);
+  try {
+    const sc = globe.scene();
+    sc.children.filter(o => o.type === "AmbientLight").forEach(o => o.intensity = 2.2);
+    sc.children.filter(o => o.type === "DirectionalLight").forEach(o => o.intensity = 1.1);
+  } catch(e){}
+  globeReady = true;
+  // 흰 국경선은 폴리곤으로 — 텍스처엔 국경이 없다
+  fetch(GLOBE_GEOJSON).then(r => r.json()).then(geo => {
+    globe.polygonsData(geo.features)
+      .polygonCapColor(() => "rgba(0,0,0,0)")
+      .polygonSideColor(() => "rgba(0,0,0,0)")
+      .polygonStrokeColor(() => "#FFFFFF")
+      .polygonAltitude(0.005);
+  }).catch(e => console.warn("[globe] 국경 로드 실패", e));
+  window.addEventListener("resize", () => {
+    if (!globe) return;
+    const n = globeSize(); globe.width(n).height(n);
+  });
 }
 
 function renderCards(){
