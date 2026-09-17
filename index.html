@@ -146,6 +146,17 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .hp-flow{position:relative;padding-left:6px}
 .cap{position:relative;display:flex;align-items:flex-start;gap:15px;padding:14px 0}
 .cap+.cap{border-top:none}
+/* 🆕 9/17 히어로 패널 — 기능을 '떠나기 전(큰 화면)' / '여행 중(앱)'으로 묶어
+   모드니의 차별점(PC에서도 처음부터 끝까지 짤 수 있다)을 별도 섹션 없이 녹인다. */
+.hp-grp{display:flex;align-items:center;gap:8px;margin:13px 0 2px;padding-top:11px;border-top:1px solid var(--hair)}
+.hp-grp:first-child{border-top:0;padding-top:0;margin-top:10px}
+.hp-grp .gi{width:26px;height:26px;border-radius:9px;background:var(--orange-soft);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.hp-grp .gt{font-size:13px;font-weight:800;color:var(--ink);letter-spacing:-.2px}
+.hp-grp .gs{font-size:11.5px;font-weight:600;color:var(--faint)}
+.hp-tail{margin-top:16px;padding-top:13px;border-top:1px solid var(--hair);display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  font-size:12.5px;font-weight:700;color:var(--orange-deep)}
+.hp-tail .ar{font-weight:800}
+.hp-tail .m{color:var(--faint);font-weight:600}
 .cap::before{content:"";position:absolute;left:19px;top:44px;bottom:-14px;width:2px;background:var(--line)}
 .cap:last-child::before{display:none}
 .cap .ci{position:relative;z-index:1;width:40px;height:40px;border-radius:50%;background:#fff;border:1.5px solid #f7ddc9;color:var(--orange);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.18s}
@@ -566,14 +577,17 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
    <div class="hero-right">
    <div class="hero-panel" aria-hidden="true">
      <p class="eyebrow" id="heroEyebrow" style="align-self:flex-start;margin:2px 2px 12px">계획부터 추억까지, AI 여행 메이트</p>
-     <div class="hp-head"><div><b>모드니와 함께라면</b><br><span>여행 한 번의 처음부터 끝까지</span></div></div>
+     <div class="hp-head"><div><b>모드니와 함께라면</b><br><span id="hpSub">계획은 큰 화면에서, 여행은 주머니 속에서</span></div></div>
      <div class="hp-flow">
+     <div class="hp-grp"><span class="gi">🖥️</span><span><span class="gt">떠나기 전</span> <span class="gs" id="hpG1">— 앱에서도, PC 큰 화면에선 더 넓게</span></span></div>
      <div class="cap"><span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14"/><path d="M15 6v14"/></svg></span><div><b>AI 맞춤 일정</b><p>취향·예산 말하면 코스를 그려요</p></div></div>
-     <div class="cap"><span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V5a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v16"/><path d="M9 8h1"/><path d="M14 8h1"/><path d="M9 12h1"/><path d="M14 12h1"/></svg></span><div><b>호텔·예약 연결</b><p>예산 맞춤 호텔을 날짜까지 채워서</p></div></div>
+     <div class="cap"><span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V5a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v16"/><path d="M9 8h1"/><path d="M14 8h1"/><path d="M9 12h1"/><path d="M14 12h1"/></svg></span><div><b>호텔·예약 연결</b><p>예산에 맞는 호텔을 날짜별로 채워요</p></div></div>
      <div class="cap"><span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h16l-1 3H5Z"/><path d="M5 12v8h14v-8"/><path d="M4 9l1.5-4h13L20 9"/></svg></span><div><b>여행 마켓</b><p>완성된 일정을 통째로 담아가요</p></div></div>
-     <div class="cap"><span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="2.5" y="14" width="4" height="6" rx="2"/><rect x="17.5" y="14" width="4" height="6" rx="2"/></svg></span><div><b>따라다니는 가이드</b><p>장소마다 음성으로 이야기를</p></div></div>
+     <div class="hp-grp"><span class="gi">📱</span><span><span class="gt">여행 중</span> <span class="gs" id="hpG2">— 앱이 주머니 속에서 함께</span></span></div>
+     <div class="cap"><span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="2.5" y="14" width="4" height="6" rx="2"/><rect x="17.5" y="14" width="4" height="6" rx="2"/></svg></span><div><b>따라다니는 가이드</b><p>장소마다 음성으로 들려줘요</p></div></div>
      <div class="cap"><span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M8 5 6 19"/><path d="M16 5l2 14"/><path d="M3 10h18"/></svg></span><div><b>추억 영상</b><p>다녀온 뒤엔 영상으로 남겨요</p></div></div>
      </div>
+     <div class="hp-tail" id="hpTail"><span>앱에서 짜다 PC로, PC에서 짜다 앱으로</span><span class="ar">↔</span><span class="m">같은 계정이면 그대로 이어져요</span></div>
    </div>
    </div>
   <div class="scroll-hint">아래로 스크롤<br>⌄</div>
@@ -2002,6 +2016,10 @@ boot();
 /* ── KOR/ENG 토글 (UI·마케팅 카피만 — 마켓 코스 데이터는 원문 유지) ── */
 const EN_TEXTS = [
   ["#heroEyebrow", "Your AI travel mate — from planning to memories"],
+  ["#hpSub", "Plan on the big screen, travel with it in your pocket"],
+  ["#hpG1", "— on the app too, roomier on a PC"],
+  ["#hpG2", "— the app rides along in your pocket"],
+  ["#hpTail", "<span>Start on the app, finish on your PC — or the other way round</span><span class=\"ar\">\u2194</span><span class=\"m\">same account, same trip</span>"],
   ["#heroTitle", "Everything about travel,<br>in one place with <span class=\"hl\">Modni</span>"],
   ["#heroModni", "Before you go — plans and bookings. On the road — a guide. And afterwards — the memories. Modni draws it all with you, start to finish."],
   ["#navPlan", "Create Trip"],
