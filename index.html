@@ -1866,7 +1866,24 @@ function renderCards(){
   });
 }
 
-$("q").addEventListener("input", renderCards);
+/* 🆕 9/17: 검색어를 넣으면 결과 목록을 자동으로 펼친다.
+   전엔 renderCards가 접혀 있는 #allPanel 안에만 그려서, 검색해도 화면이 그대로였다
+   → 유저에겐 "검색이 안 된다"로 보였다 (영아 9/17 제보 · 실측: 15개 → 2개로 걸러지고는 있었음). */
+$("q").addEventListener("input", () => {
+  const hasQuery = !!$("q").value.trim();
+  if (hasQuery) openCards();          // 접혀 있으면 펼치고 renderCards까지 수행
+  else renderCards();
+  syncAllLabels();
+});
+/* 엔터로도 검색 — input 이벤트로 이미 걸러지지만, 엔터는 "찾아줘"라는 명확한 의사표시라
+   결과 목록까지 데려다준다. type="search"가 폼 밖에 있어 기본 동작이 없다(영아 9/17). */
+$("q").addEventListener("keydown", (e) => {
+  if (e.key !== "Enter") return;
+  e.preventDefault();
+  openCards(); renderCards(); syncAllLabels();
+  $("q").blur();                      // 모바일 키보드 내리기
+  $("allPanel").scrollIntoView({ behavior: "smooth", block: "start" });
+});
 /** 🆕 9/17: 대륙을 고른 상태면 "전체 코스" 문구를 그 지역 이름으로 바꾼다 */
 function allScopeLabel(){ return countryKey ? `${countryKey} 코스` : continentKey ? `${continentKey} 코스` : "전체 코스"; }
 function syncAllLabels(){
