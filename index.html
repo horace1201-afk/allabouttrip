@@ -1297,7 +1297,56 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
 ───────────────────────────────────────── */
 const SUPABASE_URL = "https://gecmrywieyntzzwthvlg.supabase.co";
 const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdlY21yeXdpZXludHp6d3RodmxnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0NzU0ODIsImV4cCI6MjA5NDA1MTQ4Mn0.Cakqtz_AOHgNIVWHXyl_v-Dj7bSIJKoPSNbkbAqRemg";
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+/* ═══ 🆕 9/17 세션 쿠키 저장소 ═════════════════════════════════════
+   대문 웹(allabouttrip.app)과 플랜 웹(plan.allabouttrip.app)은 **다른 오리진**이라
+   localStorage가 공유되지 않는다 — 대문에서 로그인해도 plan에선 로그아웃이었다(영아 9/17 제보).
+   세션을 domain=.allabouttrip.app 쿠키에 담아 두 서브도메인이 같은 세션을 보게 한다.
+   쿠키 1개 상한(≈4KB) 때문에 base64로 만든 뒤 3,500자씩 조각내 key.0·key.1…로 나눠 담는다.
+   ⚠️ 앱 레포 `lib/authCookieStorage.ts`의 **사본**이다 — 한쪽을 고치면 반드시 같이 고칠 것. */
+const AUTH_CHUNK = 3500, AUTH_MAX_AGE = 60*60*24*365, AUTH_MAX_CHUNKS = 12;
+function authDomainAttr(){
+  const h = location.hostname;
+  return (h === "allabouttrip.app" || h.endsWith(".allabouttrip.app")) ? "; domain=.allabouttrip.app" : "";
+}
+function authSecureAttr(){ return location.protocol === "https:" ? "; Secure" : ""; }
+function authRead(name){
+  const pre = name + "=";
+  for (const part of document.cookie.split(";")){ const c = part.trim(); if (c.startsWith(pre)) return c.slice(pre.length); }
+  return null;
+}
+function authWrite(name, value){
+  document.cookie = `${name}=${value}; path=/${authDomainAttr()}${authSecureAttr()}; SameSite=Lax; max-age=${AUTH_MAX_AGE}`;
+}
+function authDrop(name){
+  document.cookie = `${name}=; path=/${authDomainAttr()}${authSecureAttr()}; SameSite=Lax; max-age=0`;
+}
+function authEnc(v){ return btoa(String.fromCharCode(...new TextEncoder().encode(v))); }
+function authDec(v){ return new TextDecoder().decode(Uint8Array.from(atob(v), c => c.charCodeAt(0))); }
+function authClear(key){ authDrop(key); for (let i=0;i<AUTH_MAX_CHUNKS;i++) authDrop(`${key}.${i}`); }
+const authCookieStorage = {
+  getItem(key){
+    let joined = "";
+    for (let i=0;i<AUTH_MAX_CHUNKS;i++){ const part = authRead(`${key}.${i}`); if (part == null) break; joined += part; }
+    const raw = joined || authRead(key);
+    if (raw){ try { return authDec(raw); } catch(e){ authClear(key); return null; } }
+    try { const legacy = localStorage.getItem(key); if (legacy){ authCookieStorage.setItem(key, legacy); return legacy; } } catch(e){}
+    return null;
+  },
+  setItem(key, value){
+    authClear(key);
+    let enc; try { enc = authEnc(value); } catch(e){ return; }
+    if (enc.length <= AUTH_CHUNK){ authWrite(key, enc); return; }
+    for (let i=0; i*AUTH_CHUNK < enc.length; i++){
+      if (i >= AUTH_MAX_CHUNKS) break;
+      authWrite(`${key}.${i}`, enc.slice(i*AUTH_CHUNK, (i+1)*AUTH_CHUNK));
+    }
+  },
+  removeItem(key){ authClear(key); try { localStorage.removeItem(key); } catch(e){} },
+};
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+  auth: { storage: authCookieStorage, persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+});
 const $ = (id) => document.getElementById(id);
 
 const TYPE_KO = { flight:"항공", checkin:"체크인", checkout:"체크아웃", visit:"관광", meal:"식사", move:"이동" };
