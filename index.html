@@ -1423,6 +1423,10 @@ let countryKey = null;       // 고른 나라 (ISO alpha-2, null이면 나라 �
 let countryPins = [];        // [{ a2, ko, lat, lng, n }]
 let cityCountry = {};        // 도시명 → ISO alpha-2
 let globeDetail = false;     // true = 나라 핀 단계
+/** 현재 목표 고도 — globe.pointOfView()는 이동 애니메이션 중 값이 늦게 갱신돼
+ *  연속 호출이 한 번 걸러 무시된다(9/17 실측). 우리가 직접 들고 간다. */
+let globeAlt = 2.2;
+let globeTweenUntil = 0;     // 이동 애니메이션이 끝나는 시각 — 그 전엔 live 값을 믿지 않는다
 /** ISO alpha-2 → 한글 나라명 (앱 lib/geo/countryNamesKo.ts에서 추출한 사본 · 정적 참조표) */
 const A2_KO = {"AF":"아프가니스탄","AL":"알바니아","AQ":"남극","DZ":"알제리","AO":"앙골라","AZ":"아제르바이잔","AR":"아르헨티나","AU":"호주","AT":"오스트리아","BS":"바하마","BD":"방글라데시","AM":"아르메니아","BE":"벨기에","BT":"부탄","BO":"볼리비아","BA":"보스니아","BW":"보츠와나","BR":"브라질","BZ":"벨리즈","SB":"솔로몬제도","BN":"브루나이","BG":"불가리아","MM":"미얀마","BI":"부룬디","BY":"벨라루스","KH":"캄보디아","CM":"카메룬","CA":"캐나다","CF":"중앙아프리카공화국","LK":"스리랑카","TD":"차드","CL":"칠레","CN":"중국","TW":"대만","CO":"콜롬비아","CG":"콩고","CD":"콩고민주공화국","CR":"코스타리카","HR":"크로아티아","CU":"쿠바","CY":"키프로스","CZ":"체코","BJ":"베냉","DK":"덴마크","DO":"도미니카공화국","EC":"에콰도르","SV":"엘살바도르","GQ":"적도기니","ET":"에티오피아","ER":"에리트레아","EE":"에스토니아","FK":"포클랜드제도","FJ":"피지","FI":"핀란드","FR":"프랑스","TF":"프랑스령 남방","DJ":"지부티","GA":"가봉","GE":"조지아","GM":"감비아","PS":"팔레스타인","DE":"독일","GH":"가나","GR":"그리스","GL":"그린란드","GT":"과테말라","GN":"기니","GY":"가이아나","HT":"아이티","HN":"온두라스","HU":"헝가리","IS":"아이슬란드","IN":"인도","ID":"인도네시아","IR":"이란","IQ":"이라크","IE":"아일랜드","IL":"이스라엘","IT":"이탈리아","CI":"코트디부아르","JM":"자메이카","JP":"일본","KZ":"카자흐스탄","JO":"요르단","KE":"케냐","KP":"북한","KR":"한국","KW":"쿠웨이트","KG":"키르기스스탄","LA":"라오스","LB":"레바논","LS":"레소토","LV":"라트비아","LR":"라이베리아","LY":"리비아","LT":"리투아니아","LU":"룩셈부르크","MG":"마다가스카르","MW":"말라위","MY":"말레이시아","ML":"말리","MR":"모리타니","MX":"멕시코","MN":"몽골","MD":"몰도바","ME":"몬테네그로","MA":"모로코","MZ":"모잠비크","OM":"오만","NA":"나미비아","NP":"네팔","NL":"네덜란드","NC":"뉴칼레도니아","VU":"바누아투","NZ":"뉴질랜드","NI":"니카라과","NE":"니제르","NG":"나이지리아","NO":"노르웨이","PK":"파키스탄","PA":"파나마","PG":"파푸아뉴기니","PY":"파라과이","PE":"페루","PH":"필리핀","PL":"폴란드","PT":"포르투갈","GW":"기니비사우","TL":"동티모르","PR":"푸에르토리코","QA":"카타르","RO":"루마니아","RU":"러시아","RW":"르완다","SA":"사우디아라비아","SN":"세네갈","RS":"세르비아","SL":"시에라리온","SK":"슬로바키아","SI":"슬로베니아","VN":"베트남","SO":"소말리아","ZA":"남아프리카공화국","ZW":"짐바브웨","ES":"스페인","SS":"남수단","SD":"수단","EH":"서사하라","SR":"수리남","SZ":"에스와티니","SE":"스웨덴","CH":"스위스","SY":"시리아","TJ":"타지키스탄","TH":"태국","TG":"토고","TT":"트리니다드토바고","AE":"아랍에미리트","TN":"튀니지","TR":"튀르키예","TM":"투르크메니스탄","UG":"우간다","UA":"우크라이나","MK":"북마케도니아","EG":"이집트","GB":"영국","TZ":"탄자니아","US":"미국","BF":"부르키나파소","UY":"우루과이","UZ":"우즈베키스탄","VE":"베네수엘라","YE":"예멘","ZM":"잠비아","SG":"싱가포르","HK":"홍콩","MO":"마카오","MV":"몰디브","GU":"괌","MP":"사이판","BH":"바레인","MT":"몰타","MC":"모나코","MU":"모리셔스","SC":"세이셸","PW":"팔라우","PF":"타히티","CK":"쿡제도"};
 let currentUser = null;
@@ -1639,8 +1643,10 @@ function renderRegions(){
 /** 현재 고도로 단계(대륙/도시)를 판정하고 화면을 맞춘다 */
 function syncGlobeDetail(){
   if (!globeReady) return;
-  const alt = globe.pointOfView().altitude;
-  const next = alt < ZOOM_DETAIL_ALTITUDE;
+  const live = globe.pointOfView().altitude;
+  // 애니메이션 중에는 live가 중간값이라, 그걸 목표로 되돌려 쓰면 다음 확대가 제자리걸음이 된다 (9/17 실측)
+  if (Number.isFinite(live) && Date.now() >= globeTweenUntil) globeAlt = live;
+  const next = globeAlt < ZOOM_DETAIL_ALTITUDE;
   if (next === globeDetail) return;
   globeDetail = next;
   if (!globeDetail) countryKey = null;   // 줌아웃하면 도시 필터 해제
@@ -1652,10 +1658,13 @@ function syncGlobeDetail(){
 function globeZoom(dir){
   if (!globeReady) return;
   const pov = globe.pointOfView();
-  const alt = Math.min(GLOBE_ALT_MAX, Math.max(GLOBE_ALT_MIN, pov.altitude * (dir > 0 ? 0.66 : 1.5)));
+  const alt = Math.min(GLOBE_ALT_MAX, Math.max(GLOBE_ALT_MIN, globeAlt * (dir > 0 ? 0.66 : 1.5)));
+  if (Math.abs(alt - globeAlt) < 1e-3) return;
+  globeAlt = alt;
+  globeTweenUntil = Date.now() + 520;
   globe.controls().autoRotate = false;
   globe.pointOfView({ lat: pov.lat, lng: pov.lng, altitude: alt }, 450);
-  setTimeout(syncGlobeDetail, 520);
+  setTimeout(syncGlobeDetail, 560);
 }
 
 function initGlobe(){
@@ -1688,11 +1697,12 @@ function initGlobe(){
   box.addEventListener("wheel", (e) => {
     const pov = globe.pointOfView();
     const inward = e.deltaY < 0;                       // 위로 굴리면 확대
-    if (inward && pov.altitude <= GLOBE_ALT_MIN + 1e-3) return;   // 더 못 당김 → 페이지로
-    if (!inward && pov.altitude >= GLOBE_ALT_MAX - 1e-3) return;  // 다 밀림 → 페이지로 (갇힘 방지)
+    if (inward && globeAlt <= GLOBE_ALT_MIN + 1e-3) return;   // 더 못 당김 → 페이지로
+    if (!inward && globeAlt >= GLOBE_ALT_MAX - 1e-3) return;  // 다 밀림 → 페이지로 (갇힘 방지)
     e.preventDefault();
     const step = Math.min(1.35, 1 + Math.abs(e.deltaY) / 400);
-    const alt = Math.min(GLOBE_ALT_MAX, Math.max(GLOBE_ALT_MIN, pov.altitude * (inward ? 1 / step : step)));
+    const alt = Math.min(GLOBE_ALT_MAX, Math.max(GLOBE_ALT_MIN, globeAlt * (inward ? 1 / step : step)));
+    globeAlt = alt;
     controls.autoRotate = false;
     globe.pointOfView({ lat: pov.lat, lng: pov.lng, altitude: alt }, 0);
     if (wheelSettle) clearTimeout(wheelSettle);
@@ -1704,7 +1714,8 @@ function initGlobe(){
     if (settle) clearTimeout(settle);
     settle = setTimeout(syncGlobeDetail, CAMERA_SETTLE_MS);
   });
-  globe.pointOfView({ lat: 20, lng: 60, altitude: 2.2 }, 0);
+  globeAlt = 2.2;
+  globe.pointOfView({ lat: 20, lng: 60, altitude: globeAlt }, 0);
   try {
     const sc = globe.scene();
     sc.children.filter(o => o.type === "AmbientLight").forEach(o => o.intensity = 2.2);
