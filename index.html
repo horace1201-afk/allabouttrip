@@ -2226,9 +2226,11 @@ async function openTrips(){
   }
   $("tripsBody").innerHTML = '<div class="empty">여행을 불러오는 중…</div>';
   try {
+    // 🐛 9/19: depart_date DESC 정렬은 Postgres가 NULL을 맨 앞에 두므로 날짜 없는 초안 12개가 목록을 다 차지해
+    //   날짜 있는 여행(스페인 5/11 등)이 잘려 나갔다 → 최근 수정순 + 상한 40 (앱 [내 여행]과 같은 기준)
     const { data, error } = await sb.from("trips")
       .select("id, title, region, depart_date, nights, itin_title:itinerary->>title")
-      .order("depart_date", { ascending:false }).limit(12);
+      .order("updated_at", { ascending:false }).limit(40);
     if (error) throw error;
     if (!data || !data.length){
       $("tripsBody").innerHTML = '<div class="empty">아직 만든 여행이 없어요 — 앱에서 첫 여행을 그려보세요.</div>';
