@@ -1283,15 +1283,7 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
   </div>
 </div>
 
-<!-- ═══ 오버레이: 내 여행 ═══ -->
-<div class="overlay" id="ovTrips">
-  <div class="ov-in">
-    <div class="ov-top"><button class="backlink" onclick="closeOverlay()">← 돌아가기</button></div>
-    <h2 style="font-size:22px;font-weight:800;margin-top:16px">내 여행</h2>
-    <p style="font-size:13px;color:var(--orange);margin-top:4px">모드니와 함께한 여행들이에요</p>
-    <div id="tripsBody"><div class="empty">로그인하면 내 여행을 볼 수 있어요.</div></div>
-  </div>
-</div>
+<!-- 9/19 (영아 "내 여행이 두 개일 필요는 없다"): 대문 내 여행 오버레이 제거 — 플랜 웹 /mytrips 하나로 합침 (openMyTripsApp) -->
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 /* ─────────────────────────────────────────
@@ -1421,7 +1413,7 @@ function subPane(key){
     return BACK_BTN + `<h3 class="ds-title">내 여행</h3>
       <p class="ds-p">모드니와 함께한 여행들 — 로그인하면 웹에서도 볼 수 있어요.</p>` +
       (currentUser
-        ? `<button class="ds-btn" onclick="openTrips()">내 여행 열기 →</button>`
+        ? `<button class="ds-btn" onclick="openMyTripsApp()">내 여행 열기 →</button>`
         : `<button class="ds-btn" onclick="login()">Google로 로그인</button>`);
   }
   if (key === "market"){
@@ -1494,7 +1486,7 @@ function goMarketEntry(){   /* 🆕 9/6 P4: 스위치 온이면 웹앱 마켓(�
   goSect("market");
 }
 function openMyTrips(){
-  if (currentUser) openTrips();   // 로그인 상태 → 내 여행 오버레이 바로 (드로어 경유 제거)
+  if (currentUser) openMyTripsApp();   // 9/19: 로그인 상태 → 플랜 웹 /mytrips (대문 오버레이 폐지)
   else login();
 }
 
@@ -2220,43 +2212,8 @@ function calcDday(dateStr){
   if (days === 0) return "D-day";
   return "";
 }
-async function openTrips(){
-  openOverlay("ovTrips");
-  if (!currentUser){
-    $("tripsBody").innerHTML = `<div class="empty">로그인하면 내 여행을 볼 수 있어요.<br><br>
-      <button class="take" style="max-width:280px;margin:0 auto" onclick="login()">Google로 로그인</button></div>`;
-    return;
-  }
-  $("tripsBody").innerHTML = '<div class="empty">여행을 불러오는 중…</div>';
-  try {
-    // 🐛 9/19: depart_date DESC 정렬은 Postgres가 NULL을 맨 앞에 두므로 날짜 없는 초안 12개가 목록을 다 차지해
-    //   날짜 있는 여행(스페인 5/11 등)이 잘려 나갔다 → 최근 수정순 + 상한 40 (앱 [내 여행]과 같은 기준)
-    const { data, error } = await sb.from("trips")
-      .select("id, title, region, depart_date, nights, itin_title:itinerary->>title")
-      .order("updated_at", { ascending:false }).limit(40);
-    if (error) throw error;
-    if (!data || !data.length){
-      $("tripsBody").innerHTML = '<div class="empty">아직 만든 여행이 없어요 — 앱에서 첫 여행을 그려보세요.</div>';
-      return;
-    }
-    $("tripsBody").innerHTML = data.map(t => {
-      const done = !!t.itin_title;
-      const dday = done ? "" : calcDday(t.depart_date);
-      const dep = t.depart_date ? t.depart_date.slice(5).replace("-", ".") + " 출발" : "";
-      return `<div class="trip-card">
-        <div class="trip-row1">
-          <span class="${done?"badge-done":"badge-plan"}">${done?"완료":"계획 중"}</span>
-          <span class="dep">${esc(dep)}</span>
-          ${dday?`<span class="dday">${dday}</span>`:""}
-        </div>
-        <h4>${esc(t.title || t.region || "여행")}</h4>
-        <div class="tm">${esc(t.region||"")}${t.nights?` · ${t.nights}박`:""}</div>
-      </div>`;
-    }).join("") + '<div class="empty" style="padding:20px 0">이어서 만들기·삭제는 앱에서 할 수 있어요 ✦</div>';
-  } catch(e){
-    $("tripsBody").innerHTML = '<div class="empty">여행을 불러오지 못했어요.</div>';
-  }
-}
+// 9/19: 대문 읽기 전용 목록(클릭 불가) 폐지 — 플랜 웹 /mytrips(불러오기·이어서·삭제·마켓 발행)로 일원화. 세션은 .allabouttrip.app 쿠키로 공유
+function openTrips(){ openMyTripsApp(); }
 
 /* ── 인증 ── */
 async function login(){
