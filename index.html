@@ -69,7 +69,9 @@ img{max-width:100%}
 .tb-nav{display:flex;align-items:center;gap:2px;margin-left:8px}
 .tb-nav button{font-size:14px;font-weight:700;color:var(--ink);padding:8px 13px;border-radius:10px;transition:background .2s}
 .tb-nav button:hover{background:var(--warm)}
-.tb-mytrips{font-size:13.5px;font-weight:800;color:var(--orange-deep);background:var(--warm);padding:8px 15px;border-radius:999px;transition:filter .18s}
+.tb-mytrips{font-size:13.5px;font-weight:800;color:var(--orange-deep);background:var(--warm);padding:8px 15px;border-radius:999px;transition:filter .18s;margin-left:6px}
+.tb-nav .tb-mytrips{font-size:13.5px;font-weight:800;color:var(--orange-deep);background:var(--warm);padding:8px 15px;border-radius:999px}
+.tb-nav .tb-mytrips:hover{background:var(--warm);filter:brightness(.97)}
 .tb-mytrips:hover{filter:brightness(.96)}
 @media(max-width:1023px){.tb-nav,.tb-mytrips{display:none}}
 .topbar.solid #langBtn{border-color:var(--line)}
@@ -575,9 +577,10 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
     <button id="navPlan" onclick="goPlanEntry()">여행 만들기</button>
     <button id="navMarket" onclick="goMarketEntry()">여행 마켓</button>
     <button id="navHotel" onclick="openHotelSite()">호텔 예약</button>
+    <!-- 9/19 영아: '내 여행'을 오른쪽 끝에서 주 메뉴 옆으로 -->
+    <button class="tb-mytrips" id="navTrips" onclick="openMyTrips()">내 여행</button>
   </nav>
   <div class="sp"></div>
-  <button class="tb-mytrips" id="navTrips" onclick="openMyTrips()">내 여행</button>
   <button class="tb-login" id="langBtn" style="letter-spacing:.04em">ENG</button>
   <button class="tb-login" id="tbLogin">로그인</button>
 </header>
