@@ -388,7 +388,8 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .sorts{display:flex;gap:8px}
 .grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:13px;margin-top:4px}
 .m-desc{font-size:13.5px;color:var(--sub);margin:0 0 14px;font-weight:600}
-.rank-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:4px}
+.rank-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:4px}
+.rank-grid .rank-item{min-width:0}
 @media(max-width:720px){.rank-grid{grid-template-columns:1fr}}
 .rank-grid .rank-item{border:1px solid var(--line);border-radius:16px;background:#fff}
 .rank-grid .rank-item:hover{background:var(--orange-tint);border-color:var(--orange)}
