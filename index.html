@@ -1001,7 +1001,7 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
         <button type="button" onclick="globeZoom(-1)" aria-label="지구본 축소">−</button>
       </div>
       <div id="globeBox"></div>
-      <div class="gside">
+      <div class="gside" id="gside">
         <div class="gside-h">
           <span class="gside-t" id="gsideT">에디터 픽</span>
           <span class="gside-x" id="gsideX" style="display:none" onclick="clearContinent()">✕ 전체 보기</span>
@@ -1018,7 +1018,7 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
     <div class="rank-grid" id="top5"><div class="empty">코스를 불러오는 중…</div></div>
   </div>
 
-  <div class="mkt-tools reveal">
+  <div class="mkt-tools reveal" id="mktTools">
     <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><input id="q" type="search" placeholder="여행지, 태그로 검색" autocomplete="off"></div>
     <div class="chips" id="chips">
       <button data-filter="all" class="on">전체</button>
@@ -1588,7 +1588,9 @@ function countryOfCourse(c){ return cityCountry[cityOfCourse(c)] || null; }
 
 function renderPicks(){
   const picks = courses.filter(c => c.is_sample).sort((a,b)=>(b.hearts||0)-(a.hearts||0)).slice(0, 5);
-  if (!picks.length){ $("picks").innerHTML = ""; return; }
+  // 🆕 9/21 빈 마켓(영아 "빼기"): 고른 코스가 없으면 패널 머리·설명·더보기까지 통째로 숨긴다 — 제목만 떠 있는 빈 칸 금지
+  if (!picks.length){ $("picks").innerHTML = ""; $("gside").style.display = "none"; return; }
+  $("gside").style.display = "";
   $("gsideT").textContent = "에디터 픽";
   $("gsideD").textContent = "모드니 에디터가 직접 고른 코스";
   $("gsideX").style.display = "none";
@@ -1620,12 +1622,14 @@ function renderCountryPanel(){
     || '<div class="empty">이 도시엔 아직 코스가 없어요.</div>';
   bindGlobeCards();
 }
-function renderSidePanel(){ countryKey ? renderCountryPanel() : continentKey ? renderContinentPanel() : renderPicks(); }
+function renderSidePanel(){ $("gside").style.display = ""; countryKey ? renderCountryPanel() : continentKey ? renderContinentPanel() : renderPicks(); }   // 🆕 9/21: 대륙·나라를 고르면 패널은 다시 보인다(빈 에디터 픽으로 숨긴 것 해제)
 function clearContinent(){ continentKey = null; countryKey = null; renderRegions(); renderSidePanel(); renderCards(); syncAllLabels(); }
 function openCardsFromGlobe(){ openCards(); renderCards(); syncAllLabels(); $("allPanel").scrollIntoView({ behavior:"smooth", block:"start" }); }
 
 function renderTop5(){
   const top = courses.slice().sort((a,b) => (b.hearts||0) - (a.hearts||0)).slice(0, 5);
+  // 🆕 9/21 빈 마켓(영아 "빼기"): 코스 0이면 "아직 코스가 없어요" 한 줄만 — 검색칸·필터 칩(전체·모드니·짧은·긴)은 숨긴다
+  $("mktTools").style.display = top.length ? "" : "none";
   if (!top.length){ $("top5").innerHTML = '<div class="empty">아직 코스가 없어요.</div>'; return; }
   $("top5").innerHTML = top.map((c, i) => `
     <div class="rank-item" data-id="${c.id}">
