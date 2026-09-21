@@ -188,6 +188,7 @@ td.plus{color:var(--green)} td.minus{color:var(--red)}
           </div>
           <div class="seg hidden" id="errSeg">
             <button class="on" data-ek="all">전체 종류</button>
+            <button data-ek="feedback">💬 불편한 점</button>
             <button data-ek="truncated">출력 잘림</button>
             <button data-ek="limit">생성 한도</button>
             <button data-ek="other">기타</button>
@@ -327,7 +328,9 @@ function renderTickets(){
   const errOpen = tkRows.filter(r => r.kind === "error_report" && r.status !== "answered").length;
   document.querySelector('#kindSeg [data-kind="error_report"]').textContent = "🐞 오류 보고" + (errOpen ? " (" + errOpen + ")" : "");
   let rows = kindRows;
-  if (kindFilter === "error_report" && errFilter !== "all") rows = rows.filter(r => (r.error_kind || "other") === errFilter);
+  // 🆕 9/22 지시서 7 §2: 앱 "불편한 점 보내기"(FeedbackFab)는 kind=error_report · snapshot.source=feedback_fab 로 온다
+  if (kindFilter === "error_report" && errFilter === "feedback") rows = rows.filter(r => (r.snapshot || {}).source === "feedback_fab");
+  else if (kindFilter === "error_report" && errFilter !== "all") rows = rows.filter(r => (r.error_kind || "other") === errFilter);
   if (tkFilter === "open") rows = rows.filter(r => r.status !== "answered");
   else if (tkFilter !== "all") rows = rows.filter(r => r.status === tkFilter);
   const over = kindRows.filter(r => r.sla === "over_progress" || r.sla === "over_answer").length;
@@ -339,7 +342,12 @@ function renderTickets(){
     const done = r.status === "answered";
     const isErr = r.kind === "error_report";
     const s = r.snapshot || {}, se = s.error || {};
-    const snapLine = isErr ? [
+    const isFb = isErr && s.source === "feedback_fab";   // 🆕 9/22: 불편한 점 — 화면·tripId·라이브 해시를 한 줄에
+    const snapLine = isFb ? [
+      `📍 ${s.screen ?? "-"}`, s.tripId ? `trip ${String(s.tripId).slice(0, 8)}` : "trip -",
+      s.app ? `v${s.app.version ?? "?"} ${s.app.os ?? ""}` : null, s.app?.liveHash ? `live ${String(s.app.liveHash).slice(0, 7)}` : null,
+      Array.isArray(s.warns) && s.warns.length ? `warn ${s.warns.length}줄` : null,
+    ].filter(Boolean).join(" · ") : isErr ? [
       se.model ? `model ${se.model}` : null, se.outTokens != null ? `out ${se.outTokens}` : null,
       se.limitKind ? `한도 ${se.limitKind}/${se.limit ?? "?"}` : null,
       s.pref ? `${s.pref.region ?? "-"} ${s.pref.nights ?? "-"}박 ${s.pref.month ?? ""}` : null,
@@ -349,7 +357,7 @@ function renderTickets(){
       <div class="tk-head">
         <span class="pill ${st[1]}">${esc(st[0])}</span>
         <span class="pill ${sla[1]}">${esc(sla[0])}</span>
-        <span class="pill">${isErr ? "🐞 " + esc(ERR_KIND[r.error_kind] || r.error_kind || "기타") : esc(TK_CAT[r.category] || r.category)}</span>
+        <span class="pill">${isFb ? "💬 불편한 점" : isErr ? "🐞 " + esc(ERR_KIND[r.error_kind] || r.error_kind || "기타") : esc(TK_CAT[r.category] || r.category)}</span>
         <b>${esc(r.title)}</b>
       </div>
       ${isErr ? `<div class="tk-meta">${esc(snapLine)}</div>` : ""}
