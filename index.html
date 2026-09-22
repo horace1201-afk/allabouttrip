@@ -554,6 +554,9 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
   background:var(--orange);border-radius:14px;padding:15px;text-align:center;box-shadow:0 10px 24px rgba(244,88,28,.24)}
 .take:hover{background:var(--orange-deep);color:#fff}
 .take-note{font-size:12px;color:var(--sub);text-align:center;margin-top:10px;display:none;line-height:1.7}
+/* 🆕 9/22 지시서14 §7 마켓 고지 — 문구 원본은 앱 lib/legal/legalTexts.ts MARKET_NOTICE (짝 수정) · 변경 시 변호사 재검토 */
+.dt-notice{font-size:12px;color:var(--sub);margin-top:8px;line-height:1.7;padding:8px 12px;background:var(--warm);border-radius:10px}
+.mkt-notice{font-size:11.5px;color:var(--faint);text-align:center;margin-top:18px;line-height:1.7}
 .btn-go{display:inline-block;margin-top:26px;background:var(--orange);color:#fff;font-size:14px;font-weight:800;
   border-radius:999px;padding:14px 28px;box-shadow:0 10px 24px rgba(244,88,28,.24);transition:.15s}
 .btn-go:hover{background:var(--orange-deep);color:#fff;transform:translateY(-1px)}
@@ -1043,6 +1046,7 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
       </div>
       <div class="grid-cards" id="cards"><div class="empty">코스를 불러오는 중…</div></div>
     </div>
+    <p class="mkt-notice" id="mktNotice">마켓의 코스는 여행자가 직접 만들어 올린 일정이에요 · (주)하우스두둥은 내용의 정확성·안전을 보증하지 않아요 · 떠나기 전 운영시간·현지 사정을 꼭 확인하세요</p>
   </div>
 </section>
 
@@ -1349,6 +1353,8 @@ const $ = (id) => document.getElementById(id);
 
 const TYPE_KO = { flight:"항공", checkin:"체크인", checkout:"체크아웃", visit:"관광", meal:"식사", move:"이동" };
 const stripPrefix = (t) => (t||"").replace(/^\(모드니 무료\)\s*/, "");
+/* 🆕 9/22 지시서14 §7-a — 앱 legalTexts.ts MARKET_NOTICE.reader와 같은 문자열 (짝 수정 · 변호사 컨펌 전 임시 자리) */
+const MARKET_NOTICE_A = "이 코스는 여행자가 직접 만들어 올린 일정이에요. (주)하우스두둥은 내용의 정확성·안전을 보증하지 않아요. 운영시간·휴무·현지 사정은 떠나기 전에 꼭 확인하세요.";
 
 /* ── 도시 이미지 (앱 lib/cityImages.ts 포팅) ── */
 const IMG = (id) => `https://images.unsplash.com/photo-${id}?w=800&q=60&auto=format&fit=crop`;
@@ -2033,6 +2039,7 @@ function renderDetail(c, seeds){
   $("detailBody").innerHTML = `
     <div class="dt-title">${esc(stripPrefix(c.market_title))}</div>
     <div class="dt-meta">${esc(c.region||"")}${c.nights?` · ${c.nights}박`:""}${c.is_sample?" · 모드니 무료 코스":""}</div>
+    <div class="dt-notice">${MARKET_NOTICE_A}</div>
     ${ (snap.summary || c.summary) ? `<div class="dt-summary">${esc(snap.summary || c.summary)}</div>` : "" }
     <div class="dt-days">${firstHtml || '<div class="empty">일정 준비 중이에요.</div>'}
       ${restHtml ? `<div class="rest-days hidden" id="restDays">${restHtml}</div>
@@ -2401,6 +2408,7 @@ const EN_TEXTS = [
   ["#sect-market .eyebrow", "Travel Market · Trips already completed"],
   ["#sect-market h2", "Post your itinerary,<br>take someone else's"],
   ["#sect-market .lead", "Browse real itineraries completed by fellow travelers. Take one and it redraws itself to your dates — bookings included. (Course content is in Korean.)"],
+  ["#mktNotice", "Courses in the Market are itineraries made and posted by travelers · HouseDoodung Inc. does not guarantee their accuracy or safety · Check opening hours and local conditions before you go"],
   ["#sect-hotel .eyebrow", "Before the trip · Hotels — Booking"],
   ["#sect-hotel h2", "Hotels that fit your budget,<br>linked with dates pre-filled"],
   ["#sect-hotel .lead", "Modni picks the right area and hotels within budget, then links to booking pages with dates and guests already filled in. Flights, rental cars and activities too — all in one place."],
