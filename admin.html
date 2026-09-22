@@ -127,6 +127,7 @@ td.plus{color:var(--green)} td.minus{color:var(--red)}
 .m-meta{font-size:11.5px;color:var(--sub);margin-top:4px}
 .m-hearts{font-size:12.5px;color:var(--orange);font-weight:700;flex-shrink:0}
 .m-badge{font-size:10.5px;color:var(--orange-deep);background:var(--orange-soft);border-radius:999px;padding:2px 9px;margin-left:6px;vertical-align:1px;font-weight:700}
+.m-badge.went{color:var(--green);background:transparent;border:1px solid var(--green)}   /* 다녀왔어요 = 테두리형 초록(식당 초록과 구분) */
 .mk-sub{font-size:12px;color:var(--sub);margin:10px 2px 0;line-height:1.7}
 .mk-sub b{color:var(--ink);font-weight:700}
 .mk-summary{font-size:13px;color:var(--ink);margin:8px 2px 0;line-height:1.7;white-space:pre-wrap}
@@ -198,12 +199,12 @@ td.plus{color:var(--green)} td.minus{color:var(--red)}
     <section id="marketSec">
       <div class="sec-title"><span class="no">00</span><h2>마켓 검수 <span id="mkPendingBadge" style="font-size:12px;color:var(--orange);font-weight:700"></span></h2></div>
       <div class="mk-tabs" role="group" aria-label="검수 상태">
-        <button data-mk="review" class="on">검수 대기<b id="mkN_review"></b></button>
-        <button data-mk="published">올라감<b id="mkN_published"></b></button>
+        <button data-mk="published" class="on">올라감<b id="mkN_published"></b></button>
+        <button data-mk="review">검수 대기<b id="mkN_review"></b></button>
         <button data-mk="rejected">반려<b id="mkN_rejected"></b></button>
       </div>
       <div class="mk-list" id="mkList"><div class="empty">불러오는 중…</div></div>
-      <p class="note">올리면 대문 인기 코스·지구본·앱 마켓에 바로 보여요(published_at·검수자 기록). 반려 사유는 발행자의 내 여행 목록에 그대로 보여요. 모드니 공식 계정 발행분은 "모드니 추천" 뱃지가 붙어요(app_config <code>modni_publisher_id</code>).</p>
+      <p class="note">앱 설정 <code>market_auto_publish</code>가 켜져 있으면 조건을 통과한 코스는 검수 없이 바로 올라와요(지시서14) — 신고가 들어오면 여기서 [마켓에서 내리기]. 꺼져 있으면 "검수 대기"에 쌓이고 [마켓에 올리기]를 눌러야 보여요. 반려 사유는 발행자의 내 여행 목록에 그대로 보여요. "모드니 추천" = app_config <code>modni_publisher_id</code> · "✓ 다녀왔어요" = 증빙 2개 이상 확인(내용 보증 아님).</p>
     </section>
 
     <div class="controls">
@@ -713,7 +714,7 @@ function shortModel(m){
    데이터: RPC admin_market_list(p_status) · admin_market_publish(p_id, p_action, p_reason)
    (앱 레포 supabase/migrations/20260922_market_courses_review.sql · app_config.admin_emails 서버측 게이트)
    미리보기 카드는 대문 index.html .mcard와 같은 마크업 — 도시 사진 표는 대문에만 있어 여기선 첫 글자 썸네일. */
-let mkStatus = "review";
+let mkStatus = "published";      // 🆕 지시서14 §6: 기본 탭 = 올라감(자동 발행 뒤 검수 대기는 내린 것·옛 행뿐)
 let mkRows = [];                       // 현재 탭 행
 let mkCounts = { review:null, published:null, rejected:null };
 const MODNI_SEED_ID = "00000000-0000-4000-8000-00000000a11a";   // 앱 fetchMarketCourses.ts MODNI_PUBLISHER_ID(시드)와 동일
@@ -769,11 +770,22 @@ function mkCard(r){
   return `<div class="mcard">
     <div class="thumb-fallback">${esc(ch)}</div>
     <div class="m-body">
-      <div class="m-t">${esc(stripPrefix(r.market_title))}${isModni(r) ? '<span class="m-badge">모드니 추천</span>' : ""}</div>
+      <div class="m-t">${esc(stripPrefix(r.market_title))}${isModni(r) ? '<span class="m-badge">모드니 추천</span>' : ""}${r.proof?.verified ? '<span class="m-badge went">✓ 다녀왔어요</span>' : ""}</div>
       <div class="m-meta">${esc(r.region||"")}${r.nights ? ` · ${r.nights}박` : ""}${r.download_count ? ` · 담기 ${r.download_count}` : ""}</div>
     </div>
     <span class="m-hearts">♡ ${r.hearts||0}</span>
   </div>`;
+}
+
+/** 🆕 지시서14 §4·§6: 증빙 요약 한 줄 — proof jsonb {verified, items:[{kind,...}]} · 없으면 빈 문자열 */
+const PROOF_KO = { hotel_booking:"호텔 예약", ticket_ocr:"확인증", photo_exif:"사진", ticket:"확인증", receipt:"영수증", entry:"입장권", photo:"사진" };
+function proofLine(r){
+  const p = r.proof; if (!p || typeof p !== "object") return "";
+  const counts = {};
+  for (const it of (Array.isArray(p.items) ? p.items : [])) { const k = PROOF_KO[it.kind] || it.kind || "?"; counts[k] = (counts[k]||0) + 1; }
+  const parts = Object.entries(counts).map(([k,n]) => `${k} ${n}`);
+  if (!parts.length && !p.verified) return "";
+  return ` · 증빙 ${parts.join(" · ") || "없음"}${p.verified ? " ✓" : ""}`;
 }
 
 function mkDays(r){
@@ -812,6 +824,7 @@ function renderMarket(){
     return `<div class="mk-item" data-id="${r.id}">
       ${mkCard(r)}
       <div class="mk-sub">${state} · 발행자 <b>${esc(r.publisher_email || r.publisher_id || "?")}</b> · 신청 ${esc(fmtKst(r.created_at))} · ${days}일 · 항목 ${places}개
+        ${proofLine(r)}
         ${r.reject_reason ? `<br>반려 사유: <b>${esc(r.reject_reason)}</b>` : ""}</div>
       ${r.summary ? `<div class="mk-summary">${esc(r.summary)}</div>` : ""}
       ${tags ? `<div class="mk-tags">${tags}</div>` : ""}
