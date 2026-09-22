@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- 🆕 9/22 미니홈피 P-4 공개 페이지 — allabouttrip.app/u/<handle> (설계안 §3 "공개 페이지(웹)" · §6-5 대문에 공개 페이지, 담기는 plan 딥링크)
+     · 정적 파일 1개(u.html) + 404.html 이 /u/<handle> → /u.html?h=<handle> 로 넘겨준다 (GitHub Pages 는 경로 라우팅이 없다)
+     · 읽기는 Supabase anon — public_profiles 뷰 · public_trips 뷰 · trip_photos(공개 트립만) · RPC public_trip_snapshot (SQL 20260922_minihome_profiles_photos.sql)
+     · 마이그레이션 미적용이면 조회 실패 → "공개된 페이지가 없어요" 빈 상태 (console.warn · 빈 화면 없음)
+     · 이 페이지는 한국어만 (EN 토글 없음 — CLAUDE.md EN_TEXTS 짝 규칙은 index.html 전용) -->
+<meta name="robots" content="noindex"><!-- 공개 결정 뒤 제거 (영아) -->
+<title>여행자의 여행 — 여행의 모든것</title>
+<meta name="description" content="여행자가 직접 만든 일정을 구경하고 그대로 담아가세요 — 여행의 모든것 · 모드니">
+<!-- OG 는 정적 호스트(GitHub Pages)라 유저별로 못 바꾼다 — 아래는 기본값, JS 가 로드 뒤 덮어쓰지만 크롤러는 정적값을 본다.
+     유저별 OG(@handle의 여행 · 지구본 스냅)는 Cloudflare Worker 단계(후속) -->
+<meta property="og:type" content="profile">
+<meta property="og:site_name" content="여행의 모든것">
+<meta property="og:title" content="여행자의 여행 · 여행의 모든것">
+<meta property="og:description" content="여행자가 직접 만든 일정을 구경하고 그대로 담아가세요.">
+<meta property="og:image" content="https://allabouttrip.app/assets/icon.png">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/favicon.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+/* 팔레트 = index.html :root 와 동일 (앱 lib/theme.ts hub 정합) */
+:root{
+  --orange:#F4581C; --orange-deep:#D84A12; --orange-soft:#FFF2EA; --orange-tint:#FFF6F0;
+  --ink:#1D1B19; --sub:#6B6570; --faint:#B2ABA4; --line:#EEECE9; --hair:#F2F0ED;
+  --bg:#FFFFFF; --warm:#FAF8F5; --green:#3DA364; --green-soft:#E8F4EC;
+  --shadow:0 10px 30px rgba(35,30,25,.07); --shadow-lg:0 24px 60px rgba(244,88,28,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--warm)}
+body{font-family:'Pretendard Variable',Pretendard,-apple-system,'Malgun Gothic',sans-serif;color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
+img{max-width:100%;display:block}
+.hidden{display:none!important}
+
+/* ═══ 상단바 (대문 topbar 축약 — 로고 + 여행 만들기) ═══ */
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:12px 20px;
+  background:rgba(255,255,255,.92);backdrop-filter:blur(14px);box-shadow:0 1px 0 var(--hair)}
+.tb-logo{font-size:21px;font-weight:900;letter-spacing:.03em;color:var(--orange);padding:2px 4px}
+.tb-logo:hover{opacity:.8}
+.tb-sp{flex:1}
+.tb-plan{font-size:13.5px;font-weight:700;color:var(--ink);padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:#fff}
+.tb-plan:hover{color:var(--orange);border-color:var(--orange)}
+
+main{flex:1;width:100%;max-width:760px;margin:0 auto;padding:20px 16px 60px}
+@media(min-width:768px){main{padding:28px 24px 80px}}
+
+/* ═══ 프로필 ═══ */
+.prof{background:#fff;border:1px solid var(--hair);border-radius:20px;padding:20px;box-shadow:var(--shadow)}
+.prof-top{display:flex;align-items:center;gap:14px}
+.ava{width:64px;height:64px;border-radius:50%;flex:none;background:linear-gradient(135deg,#FFD7C2,var(--orange));overflow:hidden;
+  display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:24px}
+.ava img{width:100%;height:100%;object-fit:cover}
+.prof-id{min-width:0}
+.handle{color:var(--orange);font-weight:800;font-size:15px;letter-spacing:-.2px}
+.dname{font-size:19px;font-weight:800;letter-spacing:-.4px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stats{display:flex;margin-top:16px;border-top:1px solid var(--hair);padding-top:12px}
+.stats div{flex:1;text-align:center}
+.stats b{display:block;font-size:19px;font-weight:800;letter-spacing:-.3px}
+.stats span{font-size:12px;color:var(--sub)}
+
+/* ═══ 여행 카드 ═══ */
+h2.sec{font-size:15px;font-weight:800;margin:26px 0 10px;letter-spacing:-.2px;display:flex;align-items:baseline;gap:8px}
+h2.sec .c{font-size:12px;color:var(--sub);font-weight:500}
+.trips{display:grid;gap:10px;grid-template-columns:minmax(0,1fr)}
+@media(min-width:768px){.trips{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tcard{min-width:0;background:#fff;border:1px solid var(--hair);border-radius:16px;padding:16px;display:flex;gap:12px;align-items:center;text-align:left;width:100%;transition:.15s}
+.tcard:hover{border-color:var(--orange);box-shadow:var(--shadow)}
+.tcard.on{border-color:var(--orange);background:var(--orange-tint)}
+.tcard .th{width:52px;height:52px;border-radius:12px;flex:none;background:var(--orange-soft);color:var(--orange);font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;letter-spacing:-.3px;line-height:1.1;text-align:center}
+.tcard .tb{min-width:0;flex:1}
+.tcard b{display:block;font-size:15px;font-weight:800;letter-spacing:-.3px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tcard span{font-size:12.5px;color:var(--sub);display:block;margin-top:3px}
+.tcard .chev{color:var(--faint);font-size:18px;flex:none}
+.empty{background:#fff;border:1px dashed var(--line);border-radius:16px;padding:28px 16px;text-align:center;color:var(--sub);font-size:14px}
+
+/* ═══ 일정 보기 (index.html renderDetail 스타일 — 지도 없음) ═══ */
+.tview{background:#fff;border:1px solid var(--hair);border-radius:20px;padding:20px;margin-top:14px;box-shadow:var(--shadow);scroll-margin-top:70px}
+@media(min-width:768px){.tview{padding:26px 28px}}
+.tv-attr{font-size:12.5px;color:var(--sub);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tv-attr .h{color:var(--orange);font-weight:700}
+.tv-title{font-size:22px;font-weight:800;line-height:1.35;margin-top:8px;letter-spacing:-.5px}
+.tv-meta{font-size:12.5px;color:var(--sub);margin-top:6px}
+.tv-actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.take{flex:1 1 200px;background:var(--orange);color:#fff;font-weight:800;font-size:15px;border-radius:999px;padding:13px 20px;text-align:center;transition:.15s;box-shadow:0 8px 20px rgba(244,88,28,.25)}
+.take:hover{background:var(--orange-deep);color:#fff}
+.take-sub{font-size:11.5px;color:var(--faint);width:100%;text-align:center;margin-top:2px}
+.ghost{flex:0 0 auto;border:1px solid var(--line);color:var(--ink);font-weight:700;font-size:13.5px;border-radius:999px;padding:12px 16px;background:#fff}
+.ghost:hover{border-color:var(--orange);color:var(--orange)}
+.day-h{font-size:15px;font-weight:800;margin:24px 0 6px;display:flex;gap:8px;align-items:baseline}
+.day-h .c{font-size:12px;color:var(--sub);font-weight:500}
+.slot{display:grid;grid-template-columns:28px 1fr;gap:10px;padding:10px 0;border-bottom:1px solid var(--hair)}
+.slot .n{width:22px;height:22px;border-radius:50%;background:var(--orange);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.slot .n.m{background:var(--line);color:var(--sub)}
+.slot .ti{font-size:13.5px;line-height:1.5;font-weight:700}
+.slot .ty{font-size:10.5px;color:var(--sub);border:1px solid var(--line);border-radius:999px;padding:0 7px;margin-left:6px;white-space:nowrap;font-weight:600;vertical-align:1px}
+.slot .tip{font-size:12px;color:var(--sub);margin-top:4px;line-height:1.6}
+.rest-days.hidden{display:none}
+.see-all{display:block;width:100%;margin-top:14px;padding:11px;border:1px solid var(--line);border-radius:12px;font-weight:700;font-size:13.5px;background:#fff}
+.see-all:hover{border-color:var(--orange);color:var(--orange)}
+.see-all .c{color:var(--sub);font-weight:500}
+.tv-empty{color:var(--sub);font-size:13.5px;padding:18px 0}
+
+/* ═══ 앨범 ═══ */
+.album{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+@media(min-width:768px){.album{grid-template-columns:repeat(4,1fr);gap:8px}}
+.ph{position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;background:var(--hair);display:block;padding:0}
+.ph img{width:100%;height:100%;object-fit:cover}
+.ph i{position:absolute;left:6px;bottom:6px;right:6px;font-style:normal;font-size:11px;color:#fff;background:rgba(0,0,0,.45);padding:2px 7px;border-radius:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:50;display:none;align-items:center;justify-content:center;padding:16px}
+.lb.on{display:flex}
+.lb img{max-width:100%;max-height:92vh;object-fit:contain;border-radius:8px}
+.lb .x{position:absolute;top:14px;right:16px;color:#fff;font-size:26px;padding:6px 10px}
+.lb .cap{position:absolute;left:0;right:0;bottom:16px;text-align:center;color:#fff;font-size:13px;opacity:.85}
+
+/* ═══ 빈 상태 ═══ */
+.nopage{text-align:center;padding:70px 16px 40px}
+.nopage img{width:84px;margin:0 auto 16px;opacity:.9}
+.nopage h1{font-size:20px;font-weight:800;letter-spacing:-.4px}
+.nopage p{font-size:14px;color:var(--sub);margin-top:8px;word-break:keep-all}
+.nopage a{display:inline-block;margin-top:22px;background:var(--orange);color:#fff;font-weight:800;border-radius:999px;padding:12px 22px;font-size:14px}
+.nopage a:hover{background:var(--orange-deep);color:#fff}
+.loading{text-align:center;color:var(--faint);font-size:13px;padding:60px 0}
+
+/* ═══ 고지·footer (대문 footer 축약 — 새 진입점마다 통신판매중개자 고지 1줄) ═══ */
+.notice{word-break:keep-all;font-size:12px;color:var(--sub);line-height:1.7;background:#fff;border:1px solid var(--hair);border-radius:14px;padding:12px 14px;margin-top:22px}
+footer{background:#fff;border-top:1px solid var(--hair);padding:28px 20px 40px}
+.foot-in{max-width:760px;margin:0 auto;font-size:11.5px;color:var(--faint);line-height:1.8}
+.foot-in b{color:var(--sub)}
+.foot-links{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:12px;color:var(--sub)}
+.foot-links a{text-decoration:underline;text-underline-offset:3px}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="tb-logo" href="/">MODNI</a>
+  <div class="tb-sp"></div>
+  <a class="tb-plan" id="tbPlan" href="https://plan.allabouttrip.app">내 여행 만들기</a>
+</header>
+
+<main id="main">
+  <div class="loading" id="loading">불러오는 중…</div>
+
+  <!-- 빈 상태: 없는 @handle · 비공개 · 조회 실패 -->
+  <section class="nopage hidden" id="nopage">
+    <img src="/assets/modni.png" alt="">
+    <h1>공개된 페이지가 없어요</h1>
+    <p>아이디가 다르거나, 아직 공개하지 않은 페이지예요.</p>
+    <a href="/">여행의 모든것 홈으로</a>
+  </section>
+
+  <!-- 프로필 -->
+  <section class="prof hidden" id="prof">
+    <div class="prof-top">
+      <div class="ava" id="ava"></div>
+      <div class="prof-id">
+        <div class="handle" id="pHandle"></div>
+        <div class="dname" id="pName"></div>
+      </div>
+    </div>
+    <div class="stats">
+      <div><b id="stTrips">0</b><span>여행</span></div>
+      <div><b id="stPhotos">0</b><span>사진</span></div>
+    </div>
+  </section>
+
+  <!-- 공개 여행 목록 -->
+  <section class="hidden" id="tripsSec">
+    <h2 class="sec">공개한 여행 <span class="c" id="tripsCnt"></span></h2>
+    <div class="trips" id="trips"></div>
+  </section>
+
+  <!-- 일정 보기 + 앨범 + 담기 -->
+  <section class="tview hidden" id="tview"></section>
+
+  <!-- 법무 고지: 마켓 고지(MARKET_NOTICE, 지시서14 §7)와 같은 문구 규칙 · 변경 시 변호사 재검토 -->
+  <div class="notice hidden" id="notice">
+    이 페이지의 일정은 여행자가 직접 만들어 올린 것이에요. (주)하우스두둥은 내용의 정확성·안전을 보증하지 않아요.<br>
+    ※ ㈜하우스두둥은 통신판매중개자이며, 호텔 예약의 판매자·계약 당사자는 Nuitée Travel Limited(아일랜드)입니다. 당사는 통신판매의 당사자가 아닙니다.
+  </div>
+</main>
+
+<div class="lb" id="lb" onclick="closeLb()">
+  <button class="x" aria-label="닫기">✕</button>
+  <img id="lbImg" alt="">
+  <div class="cap" id="lbCap"></div>
+</div>
+
+<footer>
+  <div class="foot-in">
+    <b>(주)하우스두둥</b> · 대표자 김영아 · 사업자등록번호 667-88-01630 · 통신판매업 신고번호 제 2026-화성동탄-0946 호<br>
+    경기도 화성시 동탄구 동탄지성로 18, 901-1호(금정프라자) · 전화 070-8098-6091 · 문의 <a href="mailto:allabouttrip.cs@gmail.com">allabouttrip.cs@gmail.com</a>
+    <div class="foot-links">
+      <a href="/">홈</a>
+      <a href="/terms.html">서비스 이용약관</a>
+      <a href="/privacy.html"><b>개인정보 처리방침</b></a>
+      <a href="/faq.html">고객센터</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ── 상수 (index.html · 앱 lib/constants/urls.ts 와 동일) ── */
+const SUPABASE_URL = "https://gecmrywieyntzzwthvlg.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdlY21yeXdpZXludHp6d3RodmxnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0NzU0ODIsImV4cCI6MjA5NDA1MTQ4Mn0.Cakqtz_AOHgNIVWHXyl_v-Dj7bSIJKoPSNbkbAqRemg";
+const PLAN_WEB_URL = "https://plan.allabouttrip.app";
+const MEDIA_PUBLIC = SUPABASE_URL + "/storage/v1/object/public/media/";
+const TYPE_KO = { flight:"항공", checkin:"체크인", checkout:"체크아웃", visit:"관광", meal:"식사", move:"이동", hotel:"숙소", stay:"숙소" };
+
+const $ = (id) => document.getElementById(id);
+function esc(s){ const d = document.createElement("div"); d.textContent = s ?? ""; return d.innerHTML; }
+const takeTripUrl = (id) => `${PLAN_WEB_URL}/take?trip=${encodeURIComponent(id)}`;
+
+/* 로그인·세션 불필요 — 읽기 전용 anon 클라이언트 (대문 쿠키 세션과 섞이지 않게 persistSession:false) */
+let sb = null;
+try {
+  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  });
+} catch(e){ console.warn("[u] supabase init", e); }
+
+/* ── 라우팅: ?h=<handle> (404.html 이 /u/<handle> 을 이렇게 넘겨줌) · 직접 /u/<handle> 로 열린 경우도 대비 ── */
+function readHandle(){
+  const q = new URLSearchParams(location.search);
+  let h = q.get("h") || "";
+  if (!h){ const m = location.pathname.match(/^\/u\/([^/?#]+)/); if (m) h = decodeURIComponent(m[1]); }
+  return h.trim().replace(/^@/, "").toLowerCase();
+}
+function readTripId(){ return new URLSearchParams(location.search).get("t") || ""; }
+function tripUrl(tripId){
+  const q = new URLSearchParams(location.search);
+  if (tripId) q.set("t", tripId); else q.delete("t");
+  const s = q.toString();
+  return location.pathname + (s ? "?" + s : "");
+}
+
+/* ── 표시 도우미 ── */
+function regionLabel(r){
+  if (!r) return "";
+  if (typeof r === "string") return r;
+  if (Array.isArray(r)) return r.map(regionLabel).filter(Boolean).join("·");
+  return r.name || r.ko || r.label || r.city || r.country || "";
+}
+function fmtDate(d){ // "2026-03-16" → "2026.3.16"
+  if (!d) return ""; const m = String(d).match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  return m ? `${m[1]}.${+m[2]}.${+m[3]}` : String(d);
+}
+function fmtRange(a, b){
+  const s = fmtDate(a), e = fmtDate(b);
+  if (s && e){ const ey = e.split("."); const sy = s.split(".");
+    return `${s} ~ ${ey[0] === sy[0] ? ey.slice(1).join(".") : e}`; }
+  return s || e || "";
+}
+function tripMeta(t){
+  const parts = [];
+  const r = regionLabel(t.region); if (r) parts.push(r);
+  if (t.nights) parts.push(`${t.nights}박`);
+  const d = fmtRange(t.depart_date, t.return_date); if (d) parts.push(d);
+  return parts.join(" · ");
+}
+function photoSrc(p){
+  const u = p.url || "";
+  return /^https?:\/\//.test(u) ? u : MEDIA_PUBLIC + u.replace(/^\/?(media\/)?/, "");
+}
+function thumbLabel(t){
+  const r = regionLabel(t.region);
+  return r ? r.split(/[·,/ ]/)[0].slice(0, 4) : (t.nights ? `${t.nights}박` : "✈");
+}
+
+/* ── 상태 ── */
+let profile = null, trips = [], curTripId = "";
+function showEmpty(reason, err){
+  if (err) console.warn("[u] " + reason, err); else console.warn("[u] " + reason);
+  $("loading").classList.add("hidden");
+  ["prof","tripsSec","tview","notice"].forEach(id => $(id).classList.add("hidden"));
+  $("nopage").classList.remove("hidden");
+}
+function setOg(title, desc){
+  document.title = title + " — 여행의 모든것";
+  const set = (sel, v) => { const m = document.querySelector(sel); if (m) m.setAttribute("content", v); };
+  set('meta[property="og:title"]', title); set('meta[property="og:description"]', desc); set('meta[name="description"]', desc);
+}
+
+/* ── 로드 ── */
+async function load(){
+  const handle = readHandle();
+  if (!sb) return showEmpty("no supabase");
+  if (!handle || !/^[a-z0-9_]{3,20}$/.test(handle)) return showEmpty("bad handle: " + handle);
+
+  // 1) 공개 프로필 (뷰 — is_public=false 면 행이 없다)
+  let pr;
+  try {
+    const { data, error } = await sb.from("public_profiles").select("user_id,handle,display_name,avatar_url").eq("handle", handle).maybeSingle();
+    if (error) throw error;
+    pr = data;
+  } catch(e){ return showEmpty("public_profiles", e); }
+  if (!pr) return showEmpty("no public profile: " + handle);
+  profile = pr;
+
+  // 2) 공개 여행 + 사진 수 (실패해도 프로필은 보여준다)
+  let photoN = 0;
+  try {
+    const { data, error } = await sb.from("public_trips").select("id,title,region,depart_date,return_date,nights,updated_at")
+      .eq("user_id", pr.user_id).order("depart_date", { ascending: false, nullsFirst: false });
+    if (error) throw error;
+    trips = data || [];
+  } catch(e){ console.warn("[u] public_trips", e); trips = []; }
+  try {
+    const { count, error } = await sb.from("trip_photos").select("id", { count: "exact", head: true }).eq("user_id", pr.user_id);
+    if (error) throw error;
+    photoN = count || 0;
+  } catch(e){ console.warn("[u] trip_photos count", e); }
+
+  renderProfile(pr, trips.length, photoN);
+  renderTrips();
+  $("loading").classList.add("hidden");
+  $("notice").classList.remove("hidden");
+
+  const t = readTripId();
+  if (t && trips.some(x => x.id === t)) openTrip(t, false);
+  else if (t) history.replaceState(null, "", tripUrl(""));
+}
+
+function renderProfile(pr, tripN, photoN){
+  const name = pr.display_name || pr.handle;
+  const ava = $("ava");
+  if (pr.avatar_url){ const img = document.createElement("img"); img.src = pr.avatar_url; img.alt = ""; img.onerror = () => { img.remove(); ava.textContent = name.slice(0,1).toUpperCase(); }; ava.appendChild(img); }
+  else ava.textContent = name.slice(0,1).toUpperCase();
+  $("pHandle").textContent = "@" + pr.handle;
+  $("pName").textContent = name;
+  $("stTrips").textContent = tripN;
+  $("stPhotos").textContent = photoN;
+  $("prof").classList.remove("hidden");
+  setOg(`@${pr.handle}의 여행`, `${name}님이 공개한 여행 ${tripN}개 · 사진 ${photoN}장 — 일정을 구경하고 그대로 담아가세요.`);
+}
+
+function renderTrips(){
+  const sec = $("tripsSec"); sec.classList.remove("hidden");
+  $("tripsCnt").textContent = trips.length ? `· ${trips.length}개` : "";
+  if (!trips.length){ $("trips").innerHTML = `<div class="empty">아직 공개한 여행이 없어요.</div>`; return; }
+  $("trips").innerHTML = trips.map(t => `
+    <button class="tcard${t.id === curTripId ? " on" : ""}" data-id="${esc(t.id)}">
+      <div class="th">${esc(thumbLabel(t))}</div>
+      <div class="tb"><b>${esc(t.title || "제목 없는 여행")}</b><span>${esc(tripMeta(t))}</span></div>
+      <span class="chev">›</span>
+    </button>`).join("");
+  document.querySelectorAll(".tcard").forEach(b => b.addEventListener("click", () => openTrip(b.dataset.id, true)));
+}
+
+/* ── 트립 보기: RPC public_trip_snapshot(슬림 스냅샷) + trip_photos ── */
+async function openTrip(tripId, push){
+  curTripId = tripId;
+  renderTrips();
+  if (push) history.pushState(null, "", tripUrl(tripId));
+  const tv = $("tview"); tv.classList.remove("hidden");
+  tv.innerHTML = `<div class="loading">일정 불러오는 중…</div>`;
+
+  let snap = null, photos = [];
+  try {
+    const { data, error } = await sb.rpc("public_trip_snapshot", { p_trip_id: tripId });
+    if (error) throw error;
+    snap = data;
+  } catch(e){ console.warn("[u] public_trip_snapshot", e); }
+  try {
+    const { data, error } = await sb.from("trip_photos").select("id,slot_id,place_name,url,taken_at,created_at").eq("trip_id", tripId).order("taken_at", { ascending: true, nullsFirst: false }).order("created_at", { ascending: true });
+    if (error) throw error;
+    photos = data || [];
+  } catch(e){ console.warn("[u] trip_photos", e); }
+  if (curTripId !== tripId) return; // 그새 다른 카드를 눌렀으면 버림
+
+  const card = trips.find(x => x.id === tripId) || {};
+  const t = snap || card;
+  if (!snap && !card.id){ tv.innerHTML = `<div class="tv-empty">이 여행은 지금 볼 수 없어요.</div>`; return; }
+  renderTripView(tv, t, snap, photos);
+  tv.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function renderTripView(tv, t, snap, photos){
+  const itin = (snap && snap.itinerary_snapshot) || {};
+  const days = itin.days || [];
+  const cities = [...new Set(days.map(d => d.city).filter(Boolean))];
+  const daysHtml = days.map((d, i) => {
+    let n = 0;
+    const slots = (d.slots || []).map(s => {
+      const tip = s.tip || s.desc || "";
+      const isMove = s.type === "move" || s.type === "flight";
+      const no = isMove ? "" : ++n;
+      return `<div class="slot">
+        <span class="n${isMove ? " m" : ""}">${no || "·"}</span>
+        <div>
+          <div class="ti">${esc(s.title || s.name || "")}${TYPE_KO[s.type] ? `<span class="ty">${TYPE_KO[s.type]}</span>` : ""}</div>
+          ${tip ? `<div class="tip">${esc(tip)}</div>` : ""}
+        </div>
+      </div>`;
+    }).join("");
+    return `<div class="day-h">Day ${i+1}<span class="c">${esc(d.city || "")}${d.title ? " · " + esc(d.title) : ""}</span></div>${slots || `<div class="tv-empty">이 날은 장소가 없어요.</div>`}`;
+  });
+  const firstHtml = daysHtml.slice(0, 3).join("");
+  const restHtml = daysHtml.slice(3).join("");
+  const meta = [regionLabel(t.region), cities.length ? cities.join("·") : "", t.nights ? `${t.nights}박` : "", fmtRange(t.depart_date, t.return_date)].filter(Boolean);
+
+  const album = photos.length ? `
+    <h2 class="sec">앨범 <span class="c">· ${photos.length}장</span></h2>
+    <div class="album">${photos.map((p, i) => `
+      <button class="ph" data-i="${i}" aria-label="사진 크게 보기"><img src="${esc(photoSrc(p))}" alt="${esc(p.place_name || "")}" loading="lazy">${p.place_name ? `<i>${esc(p.place_name)}</i>` : ""}</button>`).join("")}
+    </div>` : "";
+
+  tv.innerHTML = `
+    <div class="tv-attr"><span class="h">@${esc(profile.handle)}</span>의 일정 · 여행자가 직접 만든 일정이에요</div>
+    <div class="tv-title">${esc(t.title || "제목 없는 여행")}</div>
+    <div class="tv-meta">${esc(meta.join(" · "))}</div>
+    <div class="tv-actions">
+      <a class="take" href="${esc(takeTripUrl(t.trip_id || t.id))}">이 일정 담기</a>
+      <button class="ghost" id="btnShare">공유</button>
+      <div class="take-sub">로그인 뒤 내 여행으로 들어와요 · 출발일·인원은 담을 때 고를 수 있어요</div>
+    </div>
+    ${itin.summary ? `<div class="tv-meta" style="margin-top:14px;line-height:1.7">${esc(itin.summary)}</div>` : ""}
+    <div class="tv-days">${firstHtml || `<div class="tv-empty">${snap ? "일정이 아직 없어요." : "일정을 불러오지 못했어요."}</div>`}
+      ${restHtml ? `<div class="rest-days hidden" id="restDays">${restHtml}</div>
+      <button class="see-all" id="btnSeeAll">전체보기 <span class="c">· 총 ${days.length}일</span></button>` : ""}
+    </div>
+    ${album}
+    <div class="tv-actions" style="margin-top:22px">
+      <a class="take" href="${esc(takeTripUrl(t.trip_id || t.id))}">이 일정 담기</a>
+      <a class="ghost" href="${PLAN_WEB_URL}">내 여행도 만들기</a>
+    </div>`;
+
+  const seeAll = $("btnSeeAll");
+  if (seeAll) seeAll.addEventListener("click", () => { $("restDays").classList.remove("hidden"); seeAll.remove(); });
+  tv.querySelectorAll(".ph").forEach(b => b.addEventListener("click", () => openLb(photos[+b.dataset.i])));
+  $("btnShare").addEventListener("click", async () => {
+    const url = location.origin + "/u/" + encodeURIComponent(profile.handle) + "?t=" + encodeURIComponent(t.trip_id || t.id);
+    const title = `@${profile.handle}의 여행 — ${t.title || ""}`;
+    try {
+      if (navigator.share) await navigator.share({ title, url });
+      else { await navigator.clipboard.writeText(url); $("btnShare").textContent = "링크 복사됨"; setTimeout(() => { $("btnShare").textContent = "공유"; }, 1500); }
+    } catch(e){}
+  });
+}
+
+function openLb(p){ if (!p) return; $("lbImg").src = photoSrc(p); $("lbCap").textContent = p.place_name || ""; $("lb").classList.add("on"); }
+function closeLb(){ $("lb").classList.remove("on"); $("lbImg").src = ""; }
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeLb(); });
+
+window.addEventListener("popstate", () => {
+  const t = readTripId();
+  if (t && trips.some(x => x.id === t)) openTrip(t, false);
+  else { curTripId = ""; $("tview").classList.add("hidden"); $("tview").innerHTML = ""; if (profile) renderTrips(); }
+});
+
+load();
+</script>
+</body>
+</html>
