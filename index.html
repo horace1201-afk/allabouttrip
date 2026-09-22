@@ -2234,8 +2234,10 @@ async function login(){
   await sb.auth.signInWithOAuth({ provider:"google",
     options:{ redirectTo: location.origin + location.pathname } });
 }
+// 🆕 9/23 지시서18 §1 (영아 확정): 로그인 상태의 "○○님" = 플랜 웹 마이페이지 하나 — 종전엔 사이트 드로어(계정 칸 + 로그아웃)를 열어 같은 버튼이 두 얼굴이었다.
+//   사이트 메뉴는 햄버거(☰)가 그대로 연다 · 로그아웃은 마이페이지 → 설정 맨 아래 하나 · 게스트는 종전대로 로그인
 $("tbLogin").addEventListener("click", () => {
-  if (currentUser) toggleMenu(); else login();
+  if (currentUser) location.href = WEB_APP_URL + "/mypage"; else login();
 });
 
 async function boot(){
@@ -2255,11 +2257,11 @@ async function applyAuth(session){
       const { data } = await sb.from("cookie_wallets").select("balance").eq("user_id", currentUser.id).maybeSingle();
       if (data?.balance != null) cook = `<span class="cook">✨ 꿈조각 ${data.balance}</span>`;
     } catch(e){ /* 무시 */ }
+    // 🆕 9/23 지시서18 §1: 드로어 계정 칸 = 인사 + [마이페이지] 한 줄 — 이메일·꿈조각·로그아웃은 마이페이지(프로필·숫자)·설정에 있다
     $("dwAuth").innerHTML = `
       <div class="big">${esc(nm)}님, 반가워요!</div>
-      <div class="who">${esc(currentUser.email||"")}</div>
       ${cook}
-      <br><button class="outbtn" onclick="sb.auth.signOut()">로그아웃</button>`;
+      <br><button class="outbtn" onclick="location.href=WEB_APP_URL + '/mypage'">마이페이지 →</button>`;
   } else {
     $("tbLogin").textContent = "로그인";
     $("dwAuth").innerHTML = `<div class="big"><u onclick="login()">로그인/회원가입</u></div>`;
