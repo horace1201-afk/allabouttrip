@@ -111,6 +111,46 @@ td.plus{color:var(--green)} td.minus{color:var(--red)}
 .frow .rate{font-size:11px;color:var(--orange);font-weight:700;margin-left:5px}
 .note{font-size:11.5px;color:var(--sub);margin-top:12px;line-height:1.7}
 
+/* ── 마켓 검수 (지시서 7 §4-4 · 9/22) ── */
+.mk-tabs{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.mk-tabs button{border:0;background:none;padding:9px 15px;font-size:13px;font-weight:700;color:var(--sub);cursor:pointer;font-family:inherit;transition:.13s}
+.mk-tabs button.on{background:var(--orange);color:#fff}
+.mk-tabs button b{font-weight:800;margin-left:4px}
+.mk-list{display:flex;flex-direction:column;gap:12px}
+.mk-item{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}
+/* 대문 index.html .mcard와 같은 모양 — 영아가 보는 것이 실제 노출 모양 */
+.mcard{display:flex;gap:13px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px}
+.thumb-fallback{width:58px;height:58px;flex:0 0 58px;border-radius:14px;background:var(--orange-soft);
+  display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:var(--orange-deep)}
+.m-body{min-width:0;flex:1}
+.m-t{font-size:14.5px;line-height:1.4;font-weight:800;letter-spacing:-.2px}
+.m-meta{font-size:11.5px;color:var(--sub);margin-top:4px}
+.m-hearts{font-size:12.5px;color:var(--orange);font-weight:700;flex-shrink:0}
+.m-badge{font-size:10.5px;color:var(--orange-deep);background:var(--orange-soft);border-radius:999px;padding:2px 9px;margin-left:6px;vertical-align:1px;font-weight:700}
+.m-badge.went{color:var(--green);background:transparent;border:1px solid var(--green)}   /* 다녀왔어요 = 테두리형 초록(식당 초록과 구분) */
+.mk-sub{font-size:12px;color:var(--sub);margin:10px 2px 0;line-height:1.7}
+.mk-sub b{color:var(--ink);font-weight:700}
+.mk-summary{font-size:13px;color:var(--ink);margin:8px 2px 0;line-height:1.7;white-space:pre-wrap}
+.mk-tags{margin-top:6px}
+.mk-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.btn.publish{background:var(--orange);border-color:var(--orange);color:#fff}
+.btn.publish:hover{filter:brightness(1.07);color:#fff}
+.btn.danger:hover{border-color:var(--red);color:var(--red)}
+.mk-reject{display:none;gap:8px;align-items:center;width:100%;margin-top:8px}
+.mk-reject.open{display:flex}
+.mk-reject input{flex:1;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13px;font-family:inherit;color:var(--ink);min-width:0}
+.mk-days{display:none;margin-top:12px;border-top:1px solid var(--hair);padding-top:4px}
+.mk-days.open{display:block}
+.day-h{font-size:14px;font-weight:800;margin:16px 0 4px;display:flex;gap:8px;align-items:baseline}
+.day-h .c{font-size:12px;color:var(--sub);font-weight:600}
+.slot{display:grid;grid-template-columns:46px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid var(--hair);font-size:13px}
+.slot .t{color:var(--sub);font-size:12px;padding-top:2px}
+.slot .ti{font-weight:700;line-height:1.5}
+.slot .ty{font-size:10.5px;color:var(--sub);border:1px solid var(--line);border-radius:999px;padding:0 7px;margin-left:6px;white-space:nowrap;font-weight:600}
+.slot .tip{font-size:12px;color:var(--sub);margin-top:3px;line-height:1.6}
+.mk-msg{font-size:12.5px;color:var(--sub);margin-top:8px}
+.mk-msg.err{color:var(--red)}
+
 @media(max-width:760px){
   .grid2{grid-template-columns:1fr}
   .wrap{padding:0 14px 60px}
@@ -154,6 +194,18 @@ td.plus{color:var(--green)} td.minus{color:var(--red)}
 
   <!-- 대시보드 -->
   <main id="dashView" class="hidden">
+
+    <!-- 🆕 00 마켓 검수 (지시서 7 §4-4 · 9/22) — 유저 발행 코스는 status='review'로 들어오고, 여기서 [마켓에 올리기]를 눌러야 대문·앱 마켓에 보인다 -->
+    <section id="marketSec">
+      <div class="sec-title"><span class="no">00</span><h2>마켓 검수 <span id="mkPendingBadge" style="font-size:12px;color:var(--orange);font-weight:700"></span></h2></div>
+      <div class="mk-tabs" role="group" aria-label="검수 상태">
+        <button data-mk="published" class="on">올라감<b id="mkN_published"></b></button>
+        <button data-mk="review">검수 대기<b id="mkN_review"></b></button>
+        <button data-mk="rejected">반려<b id="mkN_rejected"></b></button>
+      </div>
+      <div class="mk-list" id="mkList"><div class="empty">불러오는 중…</div></div>
+      <p class="note">앱 설정 <code>market_auto_publish</code>가 켜져 있으면 조건을 통과한 코스는 검수 없이 바로 올라와요(지시서14) — 신고가 들어오면 여기서 [마켓에서 내리기]. 꺼져 있으면 "검수 대기"에 쌓이고 [마켓에 올리기]를 눌러야 보여요. 반려 사유는 발행자의 내 여행 목록에 그대로 보여요. "모드니 추천" = app_config <code>modni_publisher_id</code> · "✓ 다녀왔어요" = 증빙 2개 이상 확인(내용 보증 아님).</p>
+    </section>
 
     <div class="controls">
       <div class="seg" role="group" aria-label="기간 선택">
@@ -323,7 +375,7 @@ $("btnLogin").addEventListener("click", async () => {
   });
 });
 $("btnLogout").addEventListener("click", () => sb.auth.signOut());
-$("btnRefresh").addEventListener("click", () => load());
+$("btnRefresh").addEventListener("click", () => { load(); loadMarket(); });
 
 function toggleTopBtns(on){
   $("btnRefresh").classList.toggle("hidden", !on);
@@ -334,6 +386,7 @@ function afterLogin(session){
   $("whoami").textContent = session.user?.email || "";
   toggleTopBtns(true);
   load();
+  loadMarket();
 }
 
 /* ── 기간/월별 토글 ── */
@@ -655,6 +708,164 @@ function shortModel(m){
   if (m.includes("sonnet")) return "Sonnet";
   if (m.includes("haiku")) return "Haiku";
   return m;
+}
+
+/* ═══ 🆕 마켓 검수 (지시서 7 §4-4 · 9/22) ═══
+   데이터: RPC admin_market_list(p_status) · admin_market_publish(p_id, p_action, p_reason)
+   (앱 레포 supabase/migrations/20260922_market_courses_review.sql · app_config.admin_emails 서버측 게이트)
+   미리보기 카드는 대문 index.html .mcard와 같은 마크업 — 도시 사진 표는 대문에만 있어 여기선 첫 글자 썸네일. */
+let mkStatus = "published";      // 🆕 지시서14 §6: 기본 탭 = 올라감(자동 발행 뒤 검수 대기는 내린 것·옛 행뿐)
+let mkRows = [];                       // 현재 탭 행
+let mkCounts = { review:null, published:null, rejected:null };
+const MODNI_SEED_ID = "00000000-0000-4000-8000-00000000a11a";   // 앱 fetchMarketCourses.ts MODNI_PUBLISHER_ID(시드)와 동일
+let modniPublisherId = null;
+const stripPrefix = (t) => (t||"").replace(/^\(모드니 무료\)\s*/, "");
+const TYPE_KO = { flight:"항공", checkin:"체크인", checkout:"체크아웃", visit:"관광", meal:"식사", move:"이동", hotel:"호텔" };
+const fmtKst = (iso) => iso ? new Date(iso).toLocaleString("ko-KR", { month:"numeric", day:"numeric", hour:"2-digit", minute:"2-digit" }) : "";
+
+async function loadModniId(){
+  if (modniPublisherId) return;
+  try {
+    const { data } = await sb.from("app_config").select("value").eq("key", "modni_publisher_id").maybeSingle();
+    const v = data?.value;
+    modniPublisherId = (typeof v === "string" ? v : (v?.id || v?.value)) || MODNI_SEED_ID;
+  } catch (e) { modniPublisherId = MODNI_SEED_ID; }
+}
+const isModni = (r) => r.is_sample === true || (modniPublisherId && r.publisher_id === modniPublisherId) || r.publisher_id === MODNI_SEED_ID;
+
+document.querySelectorAll(".mk-tabs button").forEach(b => {
+  b.addEventListener("click", () => {
+    document.querySelectorAll(".mk-tabs button").forEach(x => x.classList.remove("on"));
+    b.classList.add("on");
+    mkStatus = b.dataset.mk;
+    loadMarket();
+  });
+});
+
+async function loadMarket(){
+  const box = $("mkList");
+  box.innerHTML = '<div class="empty">불러오는 중…</div>';
+  try {
+    await loadModniId();
+    // 탭 개수는 전체를 한 번 받아 센다 (행 수가 작다 — 9/21 purge 후 0부터)
+    const { data, error } = await sb.rpc("admin_market_list", { p_status: null });
+    if (error) throw new Error(error.message || "RPC 오류");
+    const all = Array.isArray(data) ? data : [];
+    mkCounts = { review:0, published:0, rejected:0 };
+    for (const r of all) if (r.status in mkCounts) mkCounts[r.status]++;
+    for (const k of Object.keys(mkCounts)) $("mkN_" + k).textContent = mkCounts[k] ? mkCounts[k] : "";
+    $("mkPendingBadge").textContent = mkCounts.review ? `검수 대기 ${mkCounts.review}` : "";
+    mkRows = all.filter(r => r.status === mkStatus);
+    renderMarket();
+  } catch (e) {
+    console.error("[admin] market 로드 실패:", e);
+    const msg = String(e?.message || e);
+    box.innerHTML = `<div class="empty">${msg.includes("not authorized") ? "이 계정은 관리자 권한이 없어요." : "마켓 목록을 불러오지 못했어요: " + esc(msg)}</div>`;
+  }
+}
+
+/** 대문 .mcard와 같은 마크업 (index.html renderCards 참조) */
+function mkCard(r){
+  const ch = (r.region || r.market_title || "여").trim().charAt(0);
+  return `<div class="mcard">
+    <div class="thumb-fallback">${esc(ch)}</div>
+    <div class="m-body">
+      <div class="m-t">${esc(stripPrefix(r.market_title))}${isModni(r) ? '<span class="m-badge">모드니 추천</span>' : ""}${r.proof?.verified ? '<span class="m-badge went">✓ 다녀왔어요</span>' : ""}</div>
+      <div class="m-meta">${esc(r.region||"")}${r.nights ? ` · ${r.nights}박` : ""}${r.download_count ? ` · 담기 ${r.download_count}` : ""}</div>
+    </div>
+    <span class="m-hearts">♡ ${r.hearts||0}</span>
+  </div>`;
+}
+
+/** 🆕 지시서14 §4·§6: 증빙 요약 한 줄 — proof jsonb {verified, items:[{kind,...}]} · 없으면 빈 문자열 */
+const PROOF_KO = { hotel_booking:"호텔 예약", ticket_ocr:"확인증", photo_exif:"사진", ticket:"확인증", receipt:"영수증", entry:"입장권", photo:"사진" };
+function proofLine(r){
+  const p = r.proof; if (!p || typeof p !== "object") return "";
+  const counts = {};
+  for (const it of (Array.isArray(p.items) ? p.items : [])) { const k = PROOF_KO[it.kind] || it.kind || "?"; counts[k] = (counts[k]||0) + 1; }
+  const parts = Object.entries(counts).map(([k,n]) => `${k} ${n}`);
+  if (!parts.length && !p.verified) return "";
+  return ` · 증빙 ${parts.join(" · ") || "없음"}${p.verified ? " ✓" : ""}`;
+}
+
+function mkDays(r){
+  const days = r.itinerary_snapshot?.days || [];
+  if (!days.length) return '<div class="empty">일정 없음</div>';
+  return days.map((d, i) => {
+    const slots = (d.slots || []).map(s => {
+      const tip = s.tip || s.desc || "";
+      return `<div class="slot"><span class="t">${esc(s.time||"")}</span><div>
+        <div class="ti">${esc(s.title||"")}${TYPE_KO[s.type] ? `<span class="ty">${TYPE_KO[s.type]}</span>` : ""}</div>
+        ${tip ? `<div class="tip">${esc(tip)}</div>` : ""}</div></div>`;
+    }).join("");
+    return `<div class="day-h">Day ${i+1}<span class="c">${esc(d.city||"")}</span></div>${slots || '<div class="empty">비어 있음</div>'}`;
+  }).join("");
+}
+
+function renderMarket(){
+  const box = $("mkList");
+  if (!mkRows.length){
+    box.innerHTML = `<div class="empty">${mkStatus === "review" ? "검수 대기 코스가 없어요." : mkStatus === "published" ? "올라간 코스가 없어요." : "반려한 코스가 없어요."}</div>`;
+    return;
+  }
+  box.innerHTML = mkRows.map(r => {
+    const tags = (r.tags||[]).map(t => `<span class="pill">${esc(t)}</span>`).join(" ");
+    const places = (r.itinerary_snapshot?.days || []).reduce((a, d) => a + (d.slots||[]).length, 0);
+    const days = (r.itinerary_snapshot?.days || []).length;
+    const state = r.status === "published" ? `<span class="pill ok">올라감 ${fmtKst(r.published_at)}</span>`
+                : r.status === "rejected"  ? `<span class="pill warn">반려 ${fmtKst(r.reviewed_at)}</span>`
+                : `<span class="pill">검수 대기</span>`;
+    const actions = r.status === "review"
+      ? `<button class="btn publish" data-act="publish">마켓에 올리기</button>
+         <button class="btn danger" data-act="reject-open">반려</button>`
+      : r.status === "published"
+      ? `<button class="btn danger" data-act="review">마켓에서 내리기</button>`
+      : `<button class="btn" data-act="review">검수 대기로 되돌리기</button>`;
+    return `<div class="mk-item" data-id="${r.id}">
+      ${mkCard(r)}
+      <div class="mk-sub">${state} · 발행자 <b>${esc(r.publisher_email || r.publisher_id || "?")}</b> · 신청 ${esc(fmtKst(r.created_at))} · ${days}일 · 항목 ${places}개
+        ${proofLine(r)}
+        ${r.reject_reason ? `<br>반려 사유: <b>${esc(r.reject_reason)}</b>` : ""}</div>
+      ${r.summary ? `<div class="mk-summary">${esc(r.summary)}</div>` : ""}
+      ${tags ? `<div class="mk-tags">${tags}</div>` : ""}
+      <div class="mk-actions">
+        <button class="btn" data-act="toggle-days">일정 보기</button>
+        ${actions}
+        <div class="mk-reject"><input type="text" maxlength="200" placeholder="반려 사유 (발행자에게 그대로 보여요)"><button class="btn danger" data-act="reject">반려 확정</button><button class="btn" data-act="reject-close">취소</button></div>
+      </div>
+      <div class="mk-msg"></div>
+      <div class="mk-days">${mkDays(r)}</div>
+    </div>`;
+  }).join("");
+
+  box.querySelectorAll(".mk-item").forEach(item => {
+    const id = item.dataset.id;
+    item.querySelectorAll("button[data-act]").forEach(b => b.addEventListener("click", () => onMarketAct(item, id, b.dataset.act, b)));
+  });
+}
+
+async function onMarketAct(item, id, act, btn){
+  const msg = item.querySelector(".mk-msg");
+  if (act === "toggle-days"){ const d = item.querySelector(".mk-days"); d.classList.toggle("open"); btn.textContent = d.classList.contains("open") ? "일정 접기" : "일정 보기"; return; }
+  if (act === "reject-open"){ item.querySelector(".mk-reject").classList.add("open"); item.querySelector(".mk-reject input").focus(); return; }
+  if (act === "reject-close"){ item.querySelector(".mk-reject").classList.remove("open"); return; }
+
+  let action = act, reason = null;
+  if (act === "reject"){
+    reason = (item.querySelector(".mk-reject input").value || "").trim();
+    if (!reason){ msg.className = "mk-msg err"; msg.textContent = "반려 사유를 적어 주세요."; return; }
+  }
+  item.querySelectorAll("button").forEach(b => b.disabled = true);
+  msg.className = "mk-msg"; msg.textContent = "처리 중…";
+  try {
+    const { error } = await sb.rpc("admin_market_publish", { p_id: id, p_action: action, p_reason: reason });
+    if (error) throw new Error(error.message || "RPC 오류");
+    await loadMarket();           // 실제 서버 상태로 다시 그린다 (성공 토스트는 화면이 바뀐 뒤에만 — 교훈 120)
+  } catch (e) {
+    console.error("[admin] market 처리 실패:", e);
+    item.querySelectorAll("button").forEach(b => b.disabled = false);
+    msg.className = "mk-msg err"; msg.textContent = "처리하지 못했어요: " + String(e?.message || e);
+  }
 }
 
 boot();
