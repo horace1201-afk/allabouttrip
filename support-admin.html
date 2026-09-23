@@ -155,6 +155,8 @@ td.plus{color:var(--green)} td.minus{color:var(--red)}
     <span id="whoami"></span>
     <button class="btn hidden" id="btnRefresh">새로고침</button>
     <a class="btn hidden" id="btnDash" href="admin.html">운영 지표</a>
+    <!-- 🆕 9/24 UXUI-7 §5: 접수 모아 보기(원문+스냅샷을 화면별 md 한 장 · AI 0원) -->
+    <a class="btn hidden" id="btnDigest" href="support-digest.html">접수 모아 보기</a>
     <button class="btn hidden" id="btnLogout">로그아웃</button>
     <div class="head-sub">1:1 문의 답변 · 분쟁처리 SLA (전자상거래법 §20③)</div>
   </div>
@@ -240,7 +242,7 @@ $("btnLogin").addEventListener("click", async () => {
 });
 $("btnLogout").addEventListener("click", () => sb.auth.signOut());
 $("btnRefresh").addEventListener("click", () => loadTickets());
-function toggleTopBtns(on){ ["btnRefresh","btnDash","btnLogout"].forEach(i => $(i).classList.toggle("hidden", !on)); }
+function toggleTopBtns(on){ ["btnRefresh","btnDash","btnDigest","btnLogout"].forEach(i => $(i).classList.toggle("hidden", !on)); }
 function afterLogin(session){ $("whoami").textContent = session.user?.email || ""; toggleTopBtns(true); show("loadingView"); loadTickets(true); }
 
 /* ═══ 고객문의 · SLA (RPC admin_ticket_list / admin_ticket_update) ═══ */

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>접수 모아 보기 · 여행의 모든것</title>
+<link rel="icon" href="assets/favicon.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --orange:#F4581C; --orange-deep:#D84A12; --orange-soft:#FFF2EA;
+  --ink:#1D1B19; --sub:#6B6570; --faint:#B2ABA4; --line:#EEECE9;
+  --bg:#FFFFFF; --warm:#FAF8F5; --green:#3DA364; --red:#D84A12;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;background:var(--warm);color:var(--ink);line-height:1.55}
+.wrap{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+h1{font-size:20px;font-weight:800}
+.muted{color:var(--sub);font-size:13px}
+.btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 14px;font-size:14px;font-weight:700;cursor:pointer;color:var(--ink)}
+.btn.primary{background:var(--orange);border-color:var(--orange);color:#fff}
+.btn:disabled{opacity:.45;cursor:default}
+.spacer{flex:1}
+.hidden{display:none!important}
+
+/* 대시보드 칸 */
+.cells{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:22px}
+.cell{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.cell .k{font-size:12px;color:var(--sub);font-weight:700}
+.cell .v{font-size:24px;font-weight:800;margin-top:2px}
+.cell.warn .v{color:#B8860B}
+.cell.bad .v{color:var(--red)}
+.note{font-size:12px;color:var(--sub);margin:-10px 0 20px}
+
+/* 집계 — get_page_text가 이 덩어리만 읽으면 되게 한 <pre> */
+.tools{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+pre#digest{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;
+  white-space:pre-wrap;word-break:break-word;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:13px;line-height:1.7;color:var(--ink);min-height:120px}
+.err{color:var(--red);font-size:14px;font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>접수 모아 보기</h1>
+    <span class="muted" id="whoami"></span>
+    <span class="spacer"></span>
+    <button class="btn hidden" id="btnReload">새로고침</button>
+    <a class="btn" href="support-admin.html">문의 관리 →</a>
+    <button class="btn hidden" id="btnLogout">로그아웃</button>
+  </header>
+
+  <div id="loginView">
+    <button class="btn primary" id="btnLogin">구글로 로그인</button>
+    <p class="muted" style="margin-top:8px">관리자 계정만 열립니다(app_config.admin_emails 서버측 검증).</p>
+  </div>
+
+  <div id="mainView" class="hidden">
+    <div class="cells" id="cells"></div>
+    <p class="note">AI 실패 수에서 <b>anon_limited · daily_limited는 뺐습니다</b> — 한도는 장애가 아닙니다(스크립트가 JWT 없이 부른 것).
+      비용은 기존 <a href="admin.html">admin.html</a> 대시보드에 있습니다.</p>
+
+    <div class="tools">
+      <button class="btn primary" id="btnBuild">모아 보기</button>
+      <button class="btn" id="btnCopy" disabled>복사</button>
+      <button class="btn" id="btnMark" disabled>모아 봤다고 표시</button>
+      <span class="muted" id="buildInfo"></span>
+    </div>
+    <pre id="digest">[모아 보기]를 누르면 아직 안 모은 접수가 화면별로 묶여 여기에 나옵니다.</pre>
+    <p class="err hidden" id="err"></p>
+  </div>
+</div>
+
+<script>
+/* support-digest.html — 🆕 9/24 UXUI-7 §5: 접수 [모아 보기] · 첫 화면 칸
+ *
+ * 원칙: **AI를 쓰지 않는다.** 코드가 원문+스냅샷을 화면별로 묶기만 한다(0원).
+ *   지시서는 클로디가 이 페이지를 내장 브라우저로 읽고 쓴다 → 그래서
+ *   집계는 <pre> 한 덩어리 · 접기 없음 · 표·배지 안 섞음(get_page_text가 깨끗하게 읽게).
+ *
+ * RPC(전부 새 이름 — 기존 admin_ticket_list/admin_dashboard_stats는 건드리지 않았다):
+ *   admin_tickets_undigested(p_since) · admin_ticket_mark_digested(p_ids) · admin_support_dashboard()
+ */
+const SUPABASE_URL = "https://gecmrywieyntzzwthvlg.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdlY21yeXdpZXludHp6d3RodmxnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0NzU0ODIsImV4cCI6MjA5NDA1MTQ4Mn0.Cakqtz_AOHgNIVWHXyl_v-Dj7bSIJKoPSNbkbAqRemg";
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+const $ = (id) => document.getElementById(id);
+
+let rows = [];          // 이번에 모은 접수
+let lastMd = "";        // 마지막으로 만든 집계
+
+/* ── 인증 (support-admin.html과 같은 길) ── */
+async function boot(){
+  const { data:{ session } } = await sb.auth.getSession();
+  if (session) afterLogin(session); else show(false);
+}
+sb.auth.onAuthStateChange((e, s) => {
+  if (e === "SIGNED_IN" && s) afterLogin(s);
+  if (e === "SIGNED_OUT") { $("whoami").textContent = ""; show(false); }
+});
+function show(on){
+  $("loginView").classList.toggle("hidden", on);
+  $("mainView").classList.toggle("hidden", !on);
+  $("btnReload").classList.toggle("hidden", !on);
+  $("btnLogout").classList.toggle("hidden", !on);
+}
+function afterLogin(session){
+  $("whoami").textContent = session.user?.email || "";
+  show(true);
+  loadCells();
+}
+$("btnLogin").addEventListener("click", () => sb.auth.signInWithOAuth({
+  provider: "google", options: { redirectTo: location.origin + location.pathname },
+}));
+$("btnLogout").addEventListener("click", () => sb.auth.signOut());
+$("btnReload").addEventListener("click", () => loadCells());
+
+const esc = (s) => String(s ?? "");
+function fail(msg){ $("err").textContent = msg; $("err").classList.remove("hidden"); }
+function clearFail(){ $("err").classList.add("hidden"); }
+
+/* ── 첫 화면 칸 (admin_support_dashboard) ── */
+const CELLS = [
+  ["tickets_open",       "미처리 문의",     (v) => v > 10 ? "bad" : v > 0 ? "warn" : ""],
+  ["tickets_undigested", "안 모은 접수",    (v) => v > 0 ? "warn" : ""],
+  ["tickets_7d",         "이번 주 접수",    () => ""],
+  ["ai_calls_24h",       "AI 호출 24h",     () => ""],
+  ["ai_err_real_24h",    "AI 실패 24h",     (v) => v > 0 ? "bad" : ""],
+  ["trips_7d",           "새 여행 7일",     () => ""],
+  ["trips_done_7d",      "완성 7일",        () => ""],
+  ["market_review",      "마켓 검수 대기",  (v) => v > 0 ? "warn" : ""],
+  ["videos_failed_7d",   "영상 실패 7일",   (v) => v > 0 ? "bad" : ""],
+];
+async function loadCells(){
+  clearFail();
+  const { data, error } = await sb.rpc("admin_support_dashboard");
+  if (error) { fail("대시보드를 불러오지 못했어요: " + error.message); return; }
+  $("cells").innerHTML = CELLS.map(([k, label, tone]) => {
+    const v = Number(data?.[k] ?? 0);
+    return `<div class="cell ${tone(v)}"><div class="k">${label}</div><div class="v">${v.toLocaleString()}</div></div>`;
+  }).join("");
+}
+
+/* ══ 집계 — 원문 그대로, 화면 키별로 묶는다. 요약·추정 없음 ══ */
+const kstOf = (r) => {
+  const v = r.created_kst || r.created_at;
+  if (!v) return "-";
+  const s = String(v).replace("T", " ");
+  return s.slice(5, 16);                       // MM-DD HH:MM
+};
+const keyOf = (r) => {
+  const s = r.snapshot || {};
+  const screen = s.screen || "(화면 미상)";
+  const step = s.step || s.detail || "";
+  return step ? `${screen} (${step})` : screen;
+};
+const quote = (body) => String(body ?? "").split("\n").map(l => "> " + l).join("\n");
+
+/** 스냅샷에서 빠진 것 세기 — 무엇을 더 실어야 하는지가 다음 지시서의 재료다 */
+function missingOf(list){
+  const n = list.length, miss = { device: 0, viewport: 0, prevScreen: 0, warns0: 0, step: 0 };
+  for (const r of list) {
+    const s = r.snapshot || {}, a = s.app || {};
+    if (!a.device) miss.device++;
+    if (!s.viewport) miss.viewport++;
+    if (!s.prevScreen) miss.prevScreen++;
+    if (!(s.warns || []).length) miss.warns0++;
+    if (!s.step && !s.detail) miss.step++;
+  }
+  return [
+    `- device 없음 ${miss.device}/${n} · 화면 폭 없음 ${miss.viewport}/${n} · 직전 화면 없음 ${miss.prevScreen}/${n}`,
+    `- 단계(step) 없음 ${miss.step}/${n} · warns 0줄 ${miss.warns0}/${n}`,
+  ].join("\n");
+}
+
+/** rows → 마크다운 한 장 */
+function digestReport(list){
+  if (!list.length) return "# 접수 모아 보기\n\n안 모은 접수가 없습니다.";
+  const groups = new Map();
+  for (const r of list) {
+    const k = keyOf(r);
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(r);
+  }
+  const ordered = [...groups.entries()].sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0]));
+
+  const firstKst = kstOf(list[0]), lastKst = kstOf(list[list.length - 1]);
+  const trips = new Set(list.map(r => (r.snapshot || {}).tripId).filter(Boolean));
+  const users = new Set(list.map(r => r.user_email).filter(Boolean));
+  // OTA updateId는 uuid라 길다 — 앞 8자만(웹 sha도 7자라 그대로 읽힌다)
+  const hashes = new Set(list.map(r => ((r.snapshot || {}).app || {}).liveHash).filter(Boolean).map(h => String(h).slice(0, 8)));
+
+  const out = [];
+  out.push(`# 접수 모아 보기 — ${firstKst} ~ ${lastKst} (KST)`);
+  out.push("");
+  out.push(`- 접수 ${list.length}건 · 화면 ${ordered.length}종 · 트립 ${trips.size}개 · 이용자 ${users.size}명`);
+  out.push(`- 라이브 해시: ${hashes.size ? [...hashes].join(", ") : "(없음)"}`);
+  out.push(`- 화면별: ${ordered.map(([k, v]) => `${k} ${v.length}`).join(" · ")}`);
+  out.push("");
+  out.push("원문 그대로입니다 — 오타·줄바꿈을 고치지 않았고, 요약·추정을 넣지 않았습니다.");
+
+  for (const [k, list2] of ordered) {
+    out.push("", `## ${k} — ${list2.length}건`);
+    for (const r of list2.sort((a, b) => String(a.created_at).localeCompare(String(b.created_at)))) {
+      const s = r.snapshot || {}, a = s.app || {};
+      out.push("", `### [${String(r.id).slice(0, 8)}] ${kstOf(r)} · ${r.status || "-"}${r.user_email ? " · " + r.user_email : ""}`);
+      out.push(quote(r.body));
+      const meta = [];
+      if (s.tripId) meta.push(`trip ${String(s.tripId).slice(0, 8)}`);
+      if (s.prevScreen) meta.push(`직전 ${s.prevScreen}`);
+      if ((s.trail || []).length) meta.push(`경로 ${s.trail.join(" → ")}`);
+      if (s.viewport) meta.push(`폭 ${s.viewport.w}×${s.viewport.h}`);
+      if (a.device) meta.push(a.device);
+      if (a.version) meta.push(`v${a.version}`);
+      if (a.liveHash) meta.push(String(a.liveHash).slice(0, 8));
+      if (meta.length) out.push(`- ${meta.join(" · ")}`);
+      const warns = s.warns || [];
+      if (warns.length) out.push(`- warns(${warns.length}): ${warns.join(" | ")}`);
+      if (r.admin_note) out.push(`- 내부 메모: ${r.admin_note}`);
+    }
+  }
+
+  out.push("", "## 스냅샷에서 빠진 것", missingOf(list));
+  out.push("", `## 티켓 id (모아 봤다고 표시할 대상 ${list.length}건)`, list.map(r => r.id).join(" "));
+  return out.join("\n");
+}
+
+/* ── 버튼 ── */
+$("btnBuild").addEventListener("click", async () => {
+  clearFail();
+  $("btnBuild").disabled = true;
+  $("buildInfo").textContent = "불러오는 중…";
+  const { data, error } = await sb.rpc("admin_tickets_undigested", { p_since: null });
+  $("btnBuild").disabled = false;
+  if (error) { $("buildInfo").textContent = ""; fail("접수를 불러오지 못했어요: " + error.message); return; }
+  rows = Array.isArray(data) ? data : [];
+  lastMd = digestReport(rows);
+  $("digest").textContent = lastMd;
+  $("buildInfo").textContent = `${rows.length}건 · ${lastMd.length.toLocaleString()}자`;
+  $("btnCopy").disabled = !rows.length;
+  $("btnMark").disabled = !rows.length;
+});
+
+$("btnCopy").addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText(lastMd); $("buildInfo").textContent = "복사했어요"; }
+  catch { window.prompt("복사가 막혀서 직접 복사해 주세요:", lastMd); }
+});
+
+$("btnMark").addEventListener("click", async () => {
+  if (!rows.length) return;
+  if (!window.confirm(`${rows.length}건을 "모아 봤다"로 표시할까요?\n(다음 [모아 보기]에서 빠집니다 · 되돌리려면 DB에서 digested_at을 null로)`)) return;
+  $("btnMark").disabled = true;
+  const { data, error } = await sb.rpc("admin_ticket_mark_digested", { p_ids: rows.map(r => r.id) });
+  if (error) { $("btnMark").disabled = false; fail("표시하지 못했어요: " + error.message); return; }
+  $("buildInfo").textContent = `${data ?? 0}건 표시했어요`;
+  loadCells();
+});
+
+boot();
+</script>
+</body>
+</html>
