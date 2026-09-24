@@ -950,6 +950,7 @@ function renderDocent(){
 async function openDocent(id){
   const body = $("dcBody_" + id);
   if (!body) return;
+  body.classList.add("open");   // .mk-days는 open이 있어야 보인다(마켓 섹션과 같은 CSS)
   body.innerHTML = '<div class="empty">불러오는 중…</div>';
   try {
     const { data, error } = await sb.rpc("admin_script_get", { p_id: id });
@@ -1001,8 +1002,8 @@ document.getElementById("dcList")?.addEventListener("click", async (ev) => {
   const msg = $("dcMsg_" + id);
 
   if (act === "open") { dcOpen = (dcOpen === id) ? null : id; renderDocent(); return; }
-  if (act === "reject-open") { item.querySelector(".mk-reject")?.classList.add("on"); return; }
-  if (act === "reject-close") { item.querySelector(".mk-reject")?.classList.remove("on"); return; }
+  if (act === "reject-open") { item.querySelector(".mk-reject")?.classList.add("open"); return; }
+  if (act === "reject-close") { item.querySelector(".mk-reject")?.classList.remove("open"); return; }
   if (act === "speak") {
     const t = $("dcText_" + id)?.value || "";
     try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = "ko-KR"; speechSynthesis.speak(u); }
