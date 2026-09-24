@@ -928,8 +928,11 @@ function renderDocent(){
   const box = $("dcList");
   if (!dcRows.length) { box.innerHTML = '<div class="empty">해당하는 원고가 없어요</div>'; return; }
   box.innerHTML = dcRows.map(r => {
-    const flags = r.check_flags > 0
-      ? `<b style="color:#c0392b">검수 지적 ${r.check_flags}</b>`
+    // 🆕 9/25: false(사실과 다름)와 uncertain(확인 불가)을 갈라 보여 준다.
+    //   첫 배치에서 13건 중 12건이 걸렸다 — 전부 빨간불이면 우선순위 신호가 죽는다.
+    const nF = Number(r.flags_false ?? 0), nU = Number(r.flags_uncertain ?? 0);
+    const flags = (nF || nU)
+      ? `${nF ? `<b style="color:#c0392b">사실 다름 ${nF}</b>` : ""}${nF && nU ? " · " : ""}${nU ? `<span style="color:#b26a00">확인 불가 ${nU}</span>` : ""}`
       : `<span style="color:var(--faint)">검수 지적 없음</span>`;
     const edited = r.edited ? ` · <b style="color:var(--orange)">수정본</b>` : "";
     return `<div class="mk-item" data-dcid="${r.id}">
