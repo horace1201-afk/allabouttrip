@@ -207,6 +207,26 @@ td.plus{color:var(--green)} td.minus{color:var(--red)}
       <p class="note">앱 설정 <code>market_auto_publish</code>가 켜져 있으면 조건을 통과한 코스는 검수 없이 바로 올라와요(지시서14) — 신고가 들어오면 여기서 [마켓에서 내리기]. 꺼져 있으면 "검수 대기"에 쌓이고 [마켓에 올리기]를 눌러야 보여요. 반려 사유는 발행자의 내 여행 목록에 그대로 보여요. "모드니 추천" = app_config <code>modni_publisher_id</code> · "✓ 다녀왔어요" = 증빙 2개 이상 확인(내용 보증 아님).</p>
     </section>
 
+    <!-- 9/25 지시서48 §3: 도슨트·메뉴 저장본 승인. 앱은 approved 만 읽는다.
+         검수 결과는 참고 표시일 뿐 승인을 막지 않는다(검수 0건인데 오류가 있던 편이 있었다).
+         일괄 승인 버튼은 일부러 만들지 않았다 - 같은 이유. -->
+    <section id="docentSec">
+      <div class="sec-title"><span class="no">00b</span><h2>도슨트·메뉴 원고 검수 <span id="dcPendingBadge" style="font-size:12px;color:var(--orange);font-weight:700"></span></h2></div>
+      <div class="mk-tabs" role="group" aria-label="원고 종류">
+        <button data-dc="city" class="on">도시 이야기<b id="dcN_city"></b></button>
+        <button data-dc="place">장소 심화<b id="dcN_place"></b></button>
+        <button data-dc="menu">메뉴 설명<b id="dcN_menu"></b></button>
+      </div>
+      <div class="mk-tabs" role="group" aria-label="상태" style="margin-left:8px">
+        <button data-dcs="checked" class="on">검수됨</button>
+        <button data-dcs="approved">승인됨</button>
+        <button data-dcs="hold">보류</button>
+        <button data-dcs="draft">초안</button>
+      </div>
+      <div class="mk-list" id="dcList"><div class="empty">불러오는 중…</div></div>
+      <p class="note">원고는 <b>저장본</b>이에요 - 한 번 만들고 모두에게 같은 것을 들려줘요. <b>[승인]을 누른 것만 앱에 나가요.</b> 검수 표의 빨간 줄은 <b>다른 모델이 미심쩍다고 한 것</b>일 뿐 최종 판정이 아니에요(검수가 0건이어도 사람이 틀린 걸 찾은 적이 있어요). [고치기]로 고친 글은 <b>원본을 덮지 않고</b> 따로 저장돼 앱이 그걸 먼저 읽어요.</p>
+    </section>
+
     <div class="controls">
       <div class="seg" role="group" aria-label="기간 선택">
         <button data-view="7">7일</button>
@@ -375,7 +395,7 @@ $("btnLogin").addEventListener("click", async () => {
   });
 });
 $("btnLogout").addEventListener("click", () => sb.auth.signOut());
-$("btnRefresh").addEventListener("click", () => { load(); loadMarket(); });
+$("btnRefresh").addEventListener("click", () => { load(); loadMarket(); loadDocent(); });
 
 function toggleTopBtns(on){
   $("btnRefresh").classList.toggle("hidden", !on);
@@ -387,6 +407,7 @@ function afterLogin(session){
   toggleTopBtns(true);
   load();
   loadMarket();
+  loadDocent();
 }
 
 /* ── 기간/월별 토글 ── */
@@ -867,6 +888,146 @@ async function onMarketAct(item, id, act, btn){
     msg.className = "mk-msg err"; msg.textContent = "처리하지 못했어요: " + String(e?.message || e);
   }
 }
+
+/* ── 🆕 9/25 지시서48 §3: 도슨트·메뉴 저장본 승인 ──────────────────────────
+   정렬은 RPC가 **검수 걸림 많은 순**으로 준다(문제부터 보이게).
+   일괄 승인은 없다 — 검수 0건인데 오류가 있던 편이 있었다. 한 건씩 사람이 본다. */
+let dcKind = "city", dcStatus = "checked", dcRows = [], dcOpen = null;
+
+document.querySelectorAll("[data-dc]").forEach(b => {
+  b.addEventListener("click", () => {
+    document.querySelectorAll("[data-dc]").forEach(x => x.classList.remove("on"));
+    b.classList.add("on"); dcKind = b.dataset.dc; dcOpen = null; loadDocent();
+  });
+});
+document.querySelectorAll("[data-dcs]").forEach(b => {
+  b.addEventListener("click", () => {
+    document.querySelectorAll("[data-dcs]").forEach(x => x.classList.remove("on"));
+    b.classList.add("on"); dcStatus = b.dataset.dcs; dcOpen = null; loadDocent();
+  });
+});
+
+async function loadDocent(){
+  const box = $("dcList");
+  if (!box) return;
+  box.innerHTML = '<div class="empty">불러오는 중…</div>';
+  try {
+    const { data, error } = await sb.rpc("admin_scripts_list", { p_kind: dcKind, p_status: dcStatus });
+    if (error) throw new Error(error.message || "RPC 오류");
+    dcRows = Array.isArray(data) ? data : [];
+    const el = $("dcN_" + dcKind);
+    if (el && dcStatus === "checked") el.textContent = dcRows.length ? dcRows.length : "";
+    $("dcPendingBadge").textContent = (dcStatus === "checked" && dcRows.length) ? `검수됨 ${dcRows.length}` : "";
+    renderDocent();
+  } catch (e) {
+    box.innerHTML = `<div class="err-box">${esc(e.message || String(e))}</div>`;
+  }
+}
+
+function renderDocent(){
+  const box = $("dcList");
+  if (!dcRows.length) { box.innerHTML = '<div class="empty">해당하는 원고가 없어요</div>'; return; }
+  box.innerHTML = dcRows.map(r => {
+    const flags = r.check_flags > 0
+      ? `<b style="color:#c0392b">검수 지적 ${r.check_flags}</b>`
+      : `<span style="color:var(--faint)">검수 지적 없음</span>`;
+    const edited = r.edited ? ` · <b style="color:var(--orange)">수정본</b>` : "";
+    return `<div class="mk-item" data-dcid="${r.id}">
+      <div class="mk-sub"><b>${esc(r.name_ko || r.key)}</b> · ${esc(r.city || r.region || "")} · ${r.chars}자 · 약 ${r.read_sec}초 · ${flags}${edited} · ${esc(r.status)}</div>
+      <div class="mk-actions">
+        <button class="btn" data-dcact="open">${dcOpen === r.id ? "접기" : "원고 보기"}</button>
+      </div>
+      <div class="mk-days" id="dcBody_${r.id}"></div>
+      <div class="mk-msg" id="dcMsg_${r.id}"></div>
+    </div>`;
+  }).join("");
+  if (dcOpen) openDocent(dcOpen);
+}
+
+async function openDocent(id){
+  const body = $("dcBody_" + id);
+  if (!body) return;
+  body.innerHTML = '<div class="empty">불러오는 중…</div>';
+  try {
+    const { data, error } = await sb.rpc("admin_script_get", { p_id: id });
+    if (error) throw new Error(error.message || "RPC 오류");
+    const r = data || {};
+    const text = (r.human_edit && r.human_edit.trim()) ? r.human_edit : (r.script || "");
+    const claims = r.claims || [];
+    const results = r.check_result || [];
+    const bad = results.filter(x => x.verdict === "false" || x.verdict === "uncertain");
+    const checkRows = results.map(x => {
+      const c = claims[(x.n || 0) - 1];
+      const red = (x.verdict === "false" || x.verdict === "uncertain");
+      return `<tr style="${red ? "color:#c0392b" : "color:var(--sub)"}">
+        <td style="padding:3px 6px;vertical-align:top;white-space:nowrap">${esc(x.verdict || "")}</td>
+        <td style="padding:3px 6px">${esc(c ? c.claim : "?")}${x.note ? `<br><span style="font-size:11px">${esc(x.note)}</span>` : ""}</td></tr>`;
+    }).join("");
+    body.innerHTML = `
+      <div style="display:flex;gap:14px;flex-wrap:wrap">
+        <div style="flex:1 1 320px;min-width:260px">
+          <textarea id="dcText_${id}" style="width:100%;min-height:180px;font-family:inherit;font-size:13px;line-height:1.7;padding:10px;border:1px solid var(--line);border-radius:10px;box-sizing:border-box">${esc(text)}</textarea>
+          <div style="margin-top:6px;font-size:11px;color:var(--faint)">${text.length}자 · 약 ${Math.round(text.length / 395 * 60)}초${r.human_edit ? " · 수정본을 보고 있어요(원본은 그대로 남아 있어요)" : ""}</div>
+        </div>
+        <div style="flex:1 1 260px;min-width:240px">
+          <div style="font-size:12px;font-weight:700;margin-bottom:4px">검수 결과 <span style="font-weight:400;color:var(--faint)">(참고용 — 승인을 막지 않아요)</span></div>
+          <div class="tscroll"><table>${checkRows || "<tr><td style='padding:6px;color:var(--faint)'>검수 기록 없음</td></tr>"}</table></div>
+          ${bad.length ? `<div style="margin-top:6px;font-size:11px;color:#c0392b">빨간 줄 ${bad.length}건 — 읽어 보고 정하세요</div>` : ""}
+        </div>
+      </div>
+      <div class="mk-actions" style="margin-top:8px">
+        <button class="btn" data-dcact="speak">들어보기</button>
+        <button class="btn" data-dcact="edit">고치기 저장</button>
+        <button class="btn primary" data-dcact="approve">승인</button>
+        <button class="btn" data-dcact="hold">보류</button>
+        <button class="btn danger" data-dcact="reject-open">반려</button>
+        <div class="mk-reject"><input type="text" maxlength="200" placeholder="반려 사유"><button class="btn danger" data-dcact="reject">반려 확정</button><button class="btn" data-dcact="reject-close">취소</button></div>
+      </div>`;
+  } catch (e) {
+    body.innerHTML = `<div class="err-box">${esc(e.message || String(e))}</div>`;
+  }
+}
+
+document.getElementById("dcList")?.addEventListener("click", async (ev) => {
+  const btn = ev.target.closest("[data-dcact]");
+  if (!btn) return;
+  const item = btn.closest("[data-dcid]");
+  const id = item?.dataset.dcid;
+  if (!id) return;
+  const act = btn.dataset.dcact;
+  const msg = $("dcMsg_" + id);
+
+  if (act === "open") { dcOpen = (dcOpen === id) ? null : id; renderDocent(); return; }
+  if (act === "reject-open") { item.querySelector(".mk-reject")?.classList.add("on"); return; }
+  if (act === "reject-close") { item.querySelector(".mk-reject")?.classList.remove("on"); return; }
+  if (act === "speak") {
+    const t = $("dcText_" + id)?.value || "";
+    try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = "ko-KR"; speechSynthesis.speak(u); }
+    catch (_) { if (msg) msg.textContent = "이 브라우저는 읽어 주기를 지원하지 않아요"; }
+    return;
+  }
+
+  const payload = { p_id: id, p_action: act, p_text: null, p_reason: null };
+  if (act === "edit") {
+    payload.p_text = $("dcText_" + id)?.value || "";
+    if (!payload.p_text.trim()) { if (msg) msg.textContent = "내용이 비어 있어요"; return; }
+  }
+  if (act === "reject") {
+    payload.p_reason = item.querySelector(".mk-reject input")?.value?.trim() || "";
+    if (!payload.p_reason) { if (msg) msg.textContent = "반려 사유를 적어 주세요"; return; }
+  }
+  if (act === "approve" && !confirm("이 원고를 승인할까요? 승인하면 앱에 그대로 나가요.")) return;
+
+  if (msg) msg.textContent = "처리 중…";
+  try {
+    const { error } = await sb.rpc("admin_script_action", payload);
+    if (error) throw new Error(error.message || "RPC 오류");
+    if (msg) msg.textContent = "완료";
+    loadDocent();
+  } catch (e) {
+    if (msg) msg.textContent = e.message || String(e);
+  }
+});
 
 boot();
 </script>
