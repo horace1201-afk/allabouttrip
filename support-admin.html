@@ -191,6 +191,8 @@ td.plus{color:var(--green)} td.minus{color:var(--red)}
           <div class="seg" id="kindSeg">
             <button class="on" data-kind="inquiry">💬 1:1 문의</button>
             <button data-kind="error_report">🐞 오류 보고</button>
+            <!-- 🆕 9/25 지시서53 §1-3 (영아 승인 13:05): 마켓 코스 신고 — 같은 로그인·같은 화면 -->
+            <button data-kind="market_report">🚩 신고</button>
           </div>
           <div class="seg hidden" id="errSeg">
             <button class="on" data-ek="all">전체 종류</button>
@@ -213,6 +215,11 @@ td.plus{color:var(--green)} td.minus{color:var(--red)}
           <span class="cnt" id="tkCount"></span>
         </div>
         <div id="ticketList"><div class="empty">불러오는 중…</div></div>
+        <!-- 🆕 9/25 신고 목록 — RPC admin_report_list / admin_course_restore (app_config.admin_emails 서버측 검증) -->
+        <div id="reportList" class="hidden"><div class="empty">불러오는 중…</div></div>
+        <p class="note" id="repNote" style="display:none">🚩 신고 = 이용자가 마켓 코스에 올린 신고. <b>서로 다른 신고자 3명</b>이면 앱이 자동으로 코스를 숨겨요(<code>status=hidden</code>).
+        여기서는 <b>숨김 해제</b>만 할 수 있어요 — 신고 기록은 지우지 않아요(왜 숨겨졌는지가 남아야 해요).
+        신고 이유는 앱에서 고른 값 그대로예요: 틀린 정보 · 광고 · 불쾌함 · 기타(+ 연락처·베낌).</p>
         <p class="note" id="errNote" style="display:none">🐞 오류 보고 = 앱 오류 화면에서 이용자가 [오류 보고]를 눌러 자동 접수된 건. <b>스냅샷</b>(오류·모델·토큰·응답 끝부분·여행 설정·앱 버전)이 함께 저장돼요.
         <b>🐞 오류는 접수 시각 기준 달력 24시간</b> 안에 결과 통지(영업일 아님) · 💡 개선은 종전 기한(경과 3영업일 · 답변 10영업일).
         <b>클로드 코드용 복사</b>를 누르면 마크다운 보고서가 클립보드에 담겨요 — 그대로 클로드 코드에 붙여 원인 분석. 내부 메모는 이용자에게 안 보여요. 해결 후 <b>결과 통지</b>로 이용자에게 답변(앱·웹 나의 문의 노출).</p>
@@ -265,10 +272,16 @@ const ERR_KIND = { bug:"오류", improve:"개선", truncated:"출력 잘림", li
 document.querySelectorAll("#kindSeg button").forEach(b => b.addEventListener("click", () => {
   document.querySelectorAll("#kindSeg button").forEach(x => x.classList.remove("on"));
   b.classList.add("on"); kindFilter = b.dataset.kind;
+  // 🆕 9/25 신고 탭 — 문의 목록·상태 필터·안내를 감추고 신고 목록을 띄운다(같은 카드 안에서 바뀐다)
+  const isRep = kindFilter === "market_report";
   $("errSeg").classList.toggle("hidden", kindFilter !== "error_report");
+  $("tkSeg").classList.toggle("hidden", isRep);
+  $("ticketList").classList.toggle("hidden", isRep);
+  $("reportList").classList.toggle("hidden", !isRep);
   $("errNote").style.display = kindFilter === "error_report" ? "" : "none";
-  $("inqNote").style.display = kindFilter === "error_report" ? "none" : "";
-  renderTickets();
+  $("inqNote").style.display = isRep || kindFilter === "error_report" ? "none" : "";
+  $("repNote").style.display = isRep ? "" : "none";
+  if (isRep) loadReports(); else renderTickets();
 }));
 document.querySelectorAll("#errSeg button").forEach(b => b.addEventListener("click", () => {
   document.querySelectorAll("#errSeg button").forEach(x => x.classList.remove("on"));
@@ -280,6 +293,59 @@ $("kBugBox")?.addEventListener("click", () => {
   document.querySelector('#errSeg [data-ek="bug"]')?.click();
   document.querySelector('#tkSeg [data-st="open"]')?.click();
 });
+/* ═══ 🚩 신고 (RPC admin_report_list / admin_course_restore) — 🆕 9/25 지시서53 §1-3 ═══ */
+/* 이유 라벨 — 앱 `lib/marketplace/reportCourse.REPORT_REASONS`와 **같은 값**을 쓴다.
+   ⚠️ 앱은 6가지(광고·연락처·틀린 정보·베낌·불쾌함·기타)를 보낸다. 지시서엔 4개로 적혀 있었지만
+   목록에서 값을 빼면 **실제 신고가 화면에서 사라진다** → 6개를 다 보여주고, 줄이는 건 앱 쪽에서 정한다. */
+const REP_REASON = { wrong:"틀린 정보", spam:"광고", offensive:"불쾌함", other:"기타", contact:"연락처", copy:"베낌" };
+const PLAN_URL = "https://plan.allabouttrip.app";
+let repRows = [];
+
+async function loadReports(){
+  const box = $("reportList");
+  const { data, error } = await sb.rpc("admin_report_list", { p_limit: 200 });
+  if (error) { box.innerHTML = "<div class='empty'>신고를 불러오지 못했어요: " + esc(error.message) + "</div>"; return; }
+  repRows = Array.isArray(data) ? data : [];
+  renderReports();
+}
+
+function renderReports(){
+  const box = $("reportList");
+  const rows = repRows.slice().sort((a, b) =>
+    ((a.status === "hidden") - (b.status === "hidden")) * -1     // 숨겨진 것 먼저(볼 일이 있다)
+    || (new Date(b.last_reported_at) - new Date(a.last_reported_at)));
+  const hidden = rows.filter(r => r.status === "hidden").length;
+  $("tkCount").textContent = rows.length + "건" + (hidden ? " · 🚩 숨김 " + hidden + "건" : "");
+  if (!rows.length) { box.innerHTML = "<div class='empty'>신고된 코스가 없어요.</div>"; return; }
+  box.innerHTML = rows.map(r => {
+    const isHidden = r.status === "hidden";
+    const reasons = String(r.reasons || "").split(" · ").filter(Boolean)
+      .map(v => REP_REASON[v] || v).join(" · ");
+    return `<div class="tk ${isHidden ? "sla-over" : ""}" data-cid="${esc(r.course_id)}">
+      <div class="tk-head">
+        <span class="pill ${isHidden ? "red" : "ok"}">${isHidden ? "숨김" : esc(r.status || "-")}</span>
+        <span class="pill">신고자 ${esc(String(r.reporters ?? 0))}명</span>
+        <span class="pill">신고 ${esc(String(r.reports ?? 0))}건</span>
+        <b>${esc(r.market_title || "(제목 없음)")}</b>
+      </div>
+      <div class="tk-meta">사유 ${esc(reasons || "-")} · 최근 신고 ${esc(fmtDT(r.last_reported_at))}${r.hidden_reason ? " · 숨긴 이유 " + esc(r.hidden_reason) : ""}</div>
+      <div class="tk-act">
+        ${isHidden ? `<button class="btn" data-act="restore">숨김 해제</button>` : ""}
+        <a class="btn" href="${PLAN_URL}/course-detail?marketId=${encodeURIComponent(r.course_id)}" target="_blank" rel="noopener">코스 보기</a>
+      </div>
+    </div>`;
+  }).join("");
+  box.querySelectorAll('[data-act="restore"]').forEach(b => b.addEventListener("click", async () => {
+    const cid = b.closest("[data-cid]")?.dataset.cid;
+    if (!cid || !confirm("이 코스를 다시 공개할까요? (신고 기록은 남아요)")) return;
+    b.disabled = true; b.textContent = "해제 중…";
+    const { data, error } = await sb.rpc("admin_course_restore", { p_course_id: cid });
+    if (error) { alert("숨김 해제 실패: " + error.message); b.disabled = false; b.textContent = "숨김 해제"; return; }
+    if (data === "not_hidden") alert("이미 공개 상태예요.");
+    await loadReports();
+  }));
+}
+
 /* 스냅샷 → 클로드 코드용 마크다운 보고서 */
 function snapshotReport(r){
   const s = r.snapshot || {}, e = s.error || {}, p = s.pref || {}, a = s.app || {};
