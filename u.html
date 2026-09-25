@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- 🆕 9/22 미니홈피 P-4 공개 페이지 — allabouttrip.app/u/<handle> (설계안 §3 "공개 페이지(웹)" · §6-5 대문에 공개 페이지, 담기는 plan 딥링크)
      · 정적 파일 1개(u.html) + 404.html 이 /u/<handle> → /u.html?h=<handle> 로 넘겨준다 (GitHub Pages 는 경로 라우팅이 없다)
-     · 읽기는 Supabase anon — public_profiles 뷰 · public_trips 뷰 · trip_photos(공개 트립만) · RPC public_trip_snapshot (SQL 20260922_minihome_profiles_photos.sql)
+     · 읽기는 Supabase anon — public_profiles 뷰 · public_trips 뷰(9/25부터 날짜 없이 trip_month) · trip_photos(공개 트립만) · RPC public_trip_snapshot (SQL 20260922_minihome_profiles_photos.sql)
      · 마이그레이션 미적용이면 조회 실패 → "공개된 페이지가 없어요" 빈 상태 (console.warn · 빈 화면 없음)
      · 이 페이지는 한국어만 (EN 토글 없음 — CLAUDE.md EN_TEXTS 짝 규칙은 index.html 전용) -->
 <meta name="robots" content="noindex"><!-- 공개 결정 뒤 제거 (영아) -->
@@ -247,21 +247,19 @@ function regionLabel(r){
   if (Array.isArray(r)) return r.map(regionLabel).filter(Boolean).join("·");
   return r.name || r.ko || r.label || r.city || r.country || "";
 }
-function fmtDate(d){ // "2026-03-16" → "2026.3.16"
-  if (!d) return ""; const m = String(d).match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-  return m ? `${m[1]}.${+m[2]}.${+m[3]}` : String(d);
-}
-function fmtRange(a, b){
-  const s = fmtDate(a), e = fmtDate(b);
-  if (s && e){ const ey = e.split("."); const sy = s.split(".");
-    return `${s} ~ ${ey[0] === sy[0] ? ey.slice(1).join(".") : e}`; }
-  return s || e || "";
+/* 9/25 지시서57 §1: 공개 페이지는 **날짜를 받지 않는다.**
+   `public_trips` 뷰에서 depart_date·return_date를 뺐고 `trip_month`(YYYY-MM)만 온다 —
+   여행 시기는 코스를 고를 때 쓸모가 있지만(겨울인지), **집을 비운 날짜**는 남에게 보일 것이 아니다.
+   그래서 날짜 두 개를 이어 붙이던 fmtDate·fmtRange를 지우고 달 하나만 적는다. */
+function fmtMonth(m){  // "2026-12" → "2026년 12월"
+  const x = String(m || "").match(/^(\d{4})-(\d{1,2})/);
+  return x ? `${x[1]}년 ${+x[2]}월` : "";
 }
 function tripMeta(t){
   const parts = [];
   const r = regionLabel(t.region); if (r) parts.push(r);
   if (t.nights) parts.push(`${t.nights}박`);
-  const d = fmtRange(t.depart_date, t.return_date); if (d) parts.push(d);
+  const d = fmtMonth(t.trip_month); if (d) parts.push(d);
   return parts.join(" · ");
 }
 function photoSrc(p){
@@ -306,8 +304,8 @@ async function load(){
   // 2) 공개 여행 + 사진 수 (실패해도 프로필은 보여준다)
   let photoN = 0;
   try {
-    const { data, error } = await sb.from("public_trips").select("id,title,region,depart_date,return_date,nights,updated_at")
-      .eq("user_id", pr.user_id).order("depart_date", { ascending: false, nullsFirst: false });
+    const { data, error } = await sb.from("public_trips").select("id,title,region,nights,trip_month,updated_at")
+      .eq("user_id", pr.user_id).order("trip_month", { ascending: false, nullsFirst: false });
     if (error) throw error;
     trips = data || [];
   } catch(e){ console.warn("[u] public_trips", e); trips = []; }
@@ -403,7 +401,7 @@ function renderTripView(tv, t, snap, photos){
   });
   const firstHtml = daysHtml.slice(0, 3).join("");
   const restHtml = daysHtml.slice(3).join("");
-  const meta = [regionLabel(t.region), cities.length ? cities.join("·") : "", t.nights ? `${t.nights}박` : "", fmtRange(t.depart_date, t.return_date)].filter(Boolean);
+  const meta = [regionLabel(t.region), cities.length ? cities.join("·") : "", t.nights ? `${t.nights}박` : "", fmtMonth(t.trip_month)].filter(Boolean);
 
   const album = photos.length ? `
     <h2 class="sec">앨범 <span class="c">· ${photos.length}장</span></h2>

@@ -316,13 +316,18 @@ function renderReports(){
     || (new Date(b.last_reported_at) - new Date(a.last_reported_at)));
   const hidden = rows.filter(r => r.status === "hidden").length;
   $("tkCount").textContent = rows.length + "건" + (hidden ? " · 🚩 숨김 " + hidden + "건" : "");
-  if (!rows.length) { box.innerHTML = "<div class='empty'>신고된 코스가 없어요.</div>"; return; }
+  if (!rows.length) { box.innerHTML = "<div class='empty'>신고된 코스·프로필이 없어요.</div>"; return; }
   box.innerHTML = rows.map(r => {
     const isHidden = r.status === "hidden";
+    /* 9/25 지시서57 §1-4: 신고 대상이 코스만이 아니다.
+       프로필 신고는 **자동으로 내리지 않는다** — 사람의 공개를 끄는 건 코스 하나 숨기는 것과 무게가 다르다.
+       여기 목록에만 뜨고, 보고 판단하는 건 사람이다. 그래서 [숨김 해제]는 코스에만 단다. */
+    const isProfile = r.target_type === "profile";
     const reasons = String(r.reasons || "").split(" · ").filter(Boolean)
       .map(v => REP_REASON[v] || v).join(" · ");
     return `<div class="tk ${isHidden ? "sla-over" : ""}" data-cid="${esc(r.course_id)}">
       <div class="tk-head">
+        <span class="pill">${isProfile ? "프로필" : "코스"}</span>
         <span class="pill ${isHidden ? "red" : "ok"}">${isHidden ? "숨김" : esc(r.status || "-")}</span>
         <span class="pill">신고자 ${esc(String(r.reporters ?? 0))}명</span>
         <span class="pill">신고 ${esc(String(r.reports ?? 0))}건</span>
@@ -330,8 +335,12 @@ function renderReports(){
       </div>
       <div class="tk-meta">사유 ${esc(reasons || "-")} · 최근 신고 ${esc(fmtDT(r.last_reported_at))}${r.hidden_reason ? " · 숨긴 이유 " + esc(r.hidden_reason) : ""}</div>
       <div class="tk-act">
-        ${isHidden ? `<button class="btn" data-act="restore">숨김 해제</button>` : ""}
-        <a class="btn" href="${PLAN_URL}/course-detail?marketId=${encodeURIComponent(r.course_id)}" target="_blank" rel="noopener">코스 보기</a>
+        ${isHidden && !isProfile ? `<button class="btn" data-act="restore">숨김 해제</button>` : ""}
+        ${isProfile
+          ? (r.handle
+              ? `<a class="btn" href="/u/${encodeURIComponent(r.handle)}" target="_blank" rel="noopener">프로필 보기</a>`
+              : `<span class="tk-meta">핸들이 없는 프로필</span>`)
+          : `<a class="btn" href="${PLAN_URL}/course-detail?marketId=${encodeURIComponent(r.course_id)}" target="_blank" rel="noopener">코스 보기</a>`}
       </div>
     </div>`;
   }).join("");
