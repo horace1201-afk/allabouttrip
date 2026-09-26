@@ -565,6 +565,17 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
 .day-wrap{display:grid;grid-template-columns:1fr 320px;gap:18px;align-items:start}
 @media(max-width:900px){.day-wrap{grid-template-columns:1fr}.day-map{order:-1}}
 .day-map{height:300px;border:1px solid var(--line);border-radius:14px;overflow:hidden;position:sticky;top:66px;z-index:0}
+/* 🆕 9/26 #059 (창5 실기 412 🔴): 좁은 화면에선 sticky 지도가 목록 위에 떠서 Day 제목·첫 줄을 가렸다(Day 2 앞 빈 칸·지도 겹침도 같은 원인)
+   → ≤900: 지도 = 목록 **위의 보통 띠**(sticky ✗) · ≤767: 높이 40% + 「지도 접기/펼치기」 띠 */
+.map-fold{display:none}
+@media(max-width:900px){.day-map{position:relative;top:auto;height:260px}}
+@media(max-width:767px){
+  .day-map{height:40vh;min-height:200px}
+  .day-map.folded{height:0;min-height:0;border:0}
+  .map-fold{display:flex;order:-2;align-items:center;justify-content:space-between;width:100%;padding:8px 12px;margin:0;
+    border:1px solid var(--line);border-radius:12px;background:#fff;font:700 13px 'Pretendard Variable',Pretendard,sans-serif;color:var(--ink);cursor:pointer}
+}
+.day-wrap + .day-h, .day-wrap + .see-all{margin-top:22px}
 .day-map.map-off{display:none}   /* 🆕 9/26 #051: 구글 지도 로드·인증 실패 → 칸을 접는다(워터마크 타일 ✗) */
 .map-pin{width:24px;height:24px;border-radius:50%;background:var(--orange);color:#fff;
   font:700 12px 'Pretendard Variable',Pretendard,sans-serif;display:flex;align-items:center;justify-content:center;
@@ -2105,7 +2116,7 @@ function renderDetail(c, seeds){
     const head = `<div class="day-h">Day ${i+1}<span class="c">${esc(d.city||"")}${d.date?" · "+esc(d.date):""}</span></div>`;
     if (pts.length){
       mapData[i] = pts;
-      return `${head}<div class="day-wrap"><div class="day-slots">${slots}</div><div class="day-map" id="dmap-${i}"></div></div>`;
+      return `${head}<div class="day-wrap"><div class="day-slots">${slots}</div><button class="map-fold" type="button" data-map="${i}" aria-expanded="true"><span>🗺 Day ${i+1} 지도</span><span class="mf-t">접기 ▴</span></button><div class="day-map" id="dmap-${i}"></div></div>`;
     }
     return head + slots;
   });
@@ -2137,6 +2148,15 @@ function renderDetail(c, seeds){
     $("takeNote").style.display = "block";
   });
   document.querySelectorAll(".guide-btn").forEach(b => b.addEventListener("click", () => toggleBucket(b)));
+  // 🆕 #059: 폰(≤767) 지도 띠 접기/펼치기 — 펼칠 때 그 지도 크기 다시 재고 맞춘다
+  document.querySelectorAll(".map-fold").forEach(b => b.addEventListener("click", () => {
+    const i = b.dataset.map, el = document.getElementById("dmap-" + i);
+    if (!el) return;
+    const folded = el.classList.toggle("folded");
+    b.setAttribute("aria-expanded", folded ? "false" : "true");
+    b.querySelector(".mf-t").textContent = folded ? "펼치기 ▾" : "접기 ▴";
+    if (!folded) dayMaps.forEach(m => { try { m.invalidateSize(); } catch(e){} });
+  }));
   initDayMaps(mapData);
 }
 
