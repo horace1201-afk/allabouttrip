@@ -9,6 +9,8 @@
      /u/ 가 아닌 경로는 홈 링크만 — 이 파일은 그 이상 키우지 않는다 -->
 <script>
 (function(){
+  // 9/27 #061: "여기 어때?" place links (/plan/place?seed=...) -> plan web public card (query kept)
+  if (/^\/plan\//.test(location.pathname)) { location.replace("https://plan.allabouttrip.app" + location.pathname + location.search + location.hash); return; }
   var m = location.pathname.match(/^\/u\/([^/?#]+)/);
   if (!m) return;
   var q = new URLSearchParams(location.search);
