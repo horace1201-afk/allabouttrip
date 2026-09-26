@@ -195,7 +195,8 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .hg-house{display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-80%);pointer-events:auto;cursor:pointer}
 #hgBox canvas{cursor:grab}#hgBox canvas:active{cursor:grabbing}   /* 9/25 규칙: 누를 수 있는 것은 손 · 지구본은 잡기 */
 .hg-house span{font-size:22px;line-height:1;filter:drop-shadow(0 2px 2px rgba(0,0,0,.25))}
-.hg-house small{font:600 10px Pretendard,system-ui,sans-serif;color:var(--ink);margin-top:1px;text-shadow:0 0 3px #fff,0 0 3px #fff}
+.hg-house small{font:600 10px Pretendard,system-ui,sans-serif;color:rgba(33,27,49,.58);margin-top:1px}   /* 🆕 #046: 회색만 · 테두리·그림자 ✗ */
+.hg-hover{transform:translate(-50%,-50%);font:600 11px Pretendard,system-ui,sans-serif;color:rgba(33,27,49,.58);white-space:nowrap;pointer-events:none}   /* 🆕 #046: 커서 올린 나라 이름 — 상자·툴팁 ✗ */
 @media (max-width:1023px){.hero-in.has-globe{grid-template-columns:1fr}}
 @media (max-width:600px){.hg-bar{flex-wrap:wrap;gap:6px}.hg-doc{position:static}}   /* 폰: 링크가 토글을 덮지 않게 한 줄 아래로 */
 @media (max-width:900px){.hg-pop{left:10px;right:10px;width:auto;top:auto;bottom:10px;max-height:60%}}
@@ -714,7 +715,7 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
          <button type="button" class="hg-tab" role="tab" data-tab="mine" aria-selected="false">내 여행</button>
          <button type="button" class="hg-tab" role="tab" data-tab="market" aria-selected="true">여행 담기</button>
        </div>
-       <button type="button" class="hg-doc" id="hgDoc">🎧 <b>도슨트 미리듣기</b></button>
+       <button type="button" class="hg-doc" id="hgDoc">🎧 <b>도슨트 미리듣기</b> · 마카오 퀴즈 2분</button>
      </div>
      <div class="hg-stage" id="hgStage"><div id="hgBox"></div><div class="hg-pop" id="hgPop" hidden></div>
        <div class="hg-play" id="hgPlay" hidden><img src="assets/modni_symbol.png" alt=""><span id="hgPlayT">니스 구시가지 · 모드니 도슨트</span><button type="button" id="hgStop">그만 듣기</button></div>
@@ -2469,8 +2470,9 @@ let hgMine = { rows: [], upcoming: null, planning: null, rest: 0 };
 const HG_RING = { visited:"#2E9E5B", modni:"#C6431F", planned:"#8A8494" };
 const HG_RANK = { visited:0, modni:1, planned:2 };
 const HG_LABEL = { visited:"✓ 다녀옴", modni:"모드니 추천", planned:"계획 중" };
-const HG_DOCENT = { city: "니스", title: "니스 구시가지", lat: 43.6966, lng: 7.2760,
-  url: "https://gecmrywieyntzzwthvlg.supabase.co/storage/v1/object/public/bucket-audio/bca9d0be-616d-4ca0-923e-f0e71d5d22cd_v2.mp3" };
+/* 🆕 9/26 지시함 #046 (영아): 샘플 = 마카오 퀴즈 도슨트(scripts 08dc0252… · city · 125초) · 정답이 끝에 나와 **끝까지** 재생(30초 컷 ✗) · plan 웹·앱과 같은 상수 */
+const HG_DOCENT = { city: "마카오", title: "마카오 퀴즈", lat: 22.1987, lng: 113.5439,
+  url: "https://gecmrywieyntzzwthvlg.supabase.co/storage/v1/object/public/bucket-audio/docent/08dc0252-da4e-4091-97c3-152dae3e5e26.mp3" };
 const hgRing = c => (c.proof && c.proof.verified === true) ? "visited" : (c.is_sample ? "modni" : "planned");
 const hgPinCity = c => String(c.first_city || "").trim() || cityOfCourse(c);
 /** 지름 — hero 높이 80%(≤ 칸 폭) · ≤1023 은 폭 90% */
@@ -2567,10 +2569,26 @@ function hgTripsHtml(){
   if (rest) out.push('<div><span class="k">저장 :</span><span class="v">여행 ' + rest + '개 <span class="s">·</span></span><a onclick="openMyTripsApp()">모두 보기 ›</a></div>');
   return out.join("");
 }
+/* 🆕 #046: 지구본 위 요소 = 칸(집·얼굴) + 커서 나라 이름 한 개 */
+let hgHover = null;
+function hgPushData(){
+  if (!hgGlobe) return;
+  const base = hgTab === "mine" ? (hgHouses || []) : hgPins;
+  hgGlobe.htmlElementsData(hgHover ? base.concat([hgHover]) : base);
+}
+function hgHoverEl(h){ const w = document.createElement("div"); w.className = "hg-hover"; w.textContent = h.name; return w; }
+/** 나라 가운데 — 가장 큰 고리 꼭짓점 평균(표시용 · 대략이면 된다) */
+function hgCenterOf(f){
+  const g = f && f.geometry; if (!g) return null;
+  const rings = g.type === "Polygon" ? [g.coordinates[0]] : g.type === "MultiPolygon" ? g.coordinates.map(p => p[0]) : [];
+  const ring = rings.sort((a, b) => b.length - a.length)[0]; if (!ring || !ring.length) return null;
+  let x = 0, y = 0; for (const [lng, lat] of ring){ x += lng; y += lat; }
+  return { lat: y / ring.length, lng: x / ring.length };
+}
 function hgPaint(){
   if (!hgGlobe) return;
   const mine = hgTab === "mine";
-  hgGlobe.htmlElementsData(mine ? (hgHouses || []) : hgPins);
+  hgPushData();
   $("hgTg").classList.toggle("r", !mine);
   document.querySelectorAll("#heroGlobe .hg-tab").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === hgTab)));
   const n = (courses || []).length;
@@ -2605,12 +2623,53 @@ function hgInit(){
     .globeImageUrl(GLOBE_TEXTURE)
     .showAtmosphere(true).atmosphereColor("#FFE3D3").atmosphereAltitude(0.15)
     .htmlLat(x => x.lat).htmlLng(x => x.lng).htmlAltitude(0.015)
-    .htmlElement(x => x.kind === "house" ? hgHouseEl(x) : hgFaceEl(x));
+    .htmlElement(x => x.kind === "house" ? hgHouseEl(x) : x.kind === "hover" ? hgHoverEl(x) : hgFaceEl(x));
   const controls = hgGlobe.controls();
-  controls.enableZoom = false; controls.enablePan = false;   // 휠은 페이지 스크롤로 — 대문에 갇히지 않게(큰 지구본과 같은 이유)
+  controls.enableZoom = false; controls.enablePan = false;   // 확대는 아래에서 직접(OrbitControls 확대는 휠을 통째로 먹어 페이지가 안 내려간다)
   controls.autoRotate = true; controls.autoRotateSpeed = 0.28;
   box.addEventListener("pointerdown", () => { controls.autoRotate = false; }, { once: true });
-  hgGlobe.pointOfView({ lat: 30, lng: 40, altitude: 1.65 }, 0);   // 칸을 거의 채우게(2.1이면 구가 칸의 75%뿐이라 토글 아래가 비었다)
+  hgGlobe.pointOfView({ lat: 30, lng: 40, altitude: 1.65 }, 0);
+  /* 🆕 9/26 지시함 #046 ① (영아 「휠·핀치 확대가 안 되고 지구본 위에서 페이지가 스크롤된다」):
+     · 휠 = 지구본 확대/축소(preventDefault · passive:false) — 큰 지구본과 같은 규칙: 끝까지 당기거나 밀면 그때만 페이지로
+     · 폰 = 한 손가락은 페이지 스크롤(회전 ✗ · touch-action pan-y) · 두 손가락 = 핀치 확대/축소 · 데스크톱 회전은 드래그
+     · 범위 = plan #043 과 같다(가까이 0.03 · 멀리 2.2) */
+  const HG_ALT_MIN = 0.03, HG_ALT_MAX = 2.2;
+  let hgAlt = 1.65;
+  const hgZoomTo = (alt) => {
+    hgAlt = Math.min(HG_ALT_MAX, Math.max(HG_ALT_MIN, alt));
+    const pov = hgGlobe.pointOfView();
+    controls.autoRotate = false;
+    hgGlobe.pointOfView({ lat: pov.lat, lng: pov.lng, altitude: hgAlt }, 0);
+  };
+  box.addEventListener("wheel", (e) => {
+    const inward = e.deltaY < 0;
+    if (inward && hgAlt <= HG_ALT_MIN + 1e-3) return;
+    if (!inward && hgAlt >= HG_ALT_MAX - 1e-3) return;
+    e.preventDefault();
+    const step = Math.min(1.35, 1 + Math.abs(e.deltaY) / 400);
+    hgZoomTo(hgAlt * (inward ? 1 / step : step));
+  }, { passive: false });
+  try { controls.touches.ONE = null; } catch(e){}   // 한 손가락 = 페이지 스크롤(지구본이 먹지 않는다)
+  try { hgGlobe.renderer().domElement.style.touchAction = "pan-y"; } catch(e){}
+  let pinch = null;
+  box.addEventListener("touchstart", (e) => {
+    if (e.touches.length === 2){ const [a, b] = e.touches; pinch = { d: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY), alt: hgAlt }; }
+  }, { passive: true });
+  box.addEventListener("touchmove", (e) => {
+    if (!pinch || e.touches.length !== 2) return;
+    e.preventDefault();
+    const [a, b] = e.touches; const d = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+    if (d > 0) hgZoomTo(pinch.alt * (pinch.d / d));
+  }, { passive: false });
+  box.addEventListener("touchend", (e) => { if (e.touches.length < 2) pinch = null; });
+  /* 🆕 #046 ②: 커서를 올린 나라 이름 — 그 나라 위에 회색 작은 글씨(상자·툴팁 ✗ · 채움색 안 바뀜 · 손모양 ✗) · plan #043 과 같은 규칙 */
+  hgGlobe.onPolygonHover((f) => {
+    const a2 = f && f.properties ? String(f.properties.ISO_A2 || "") : "";
+    const name = A2_KO[a2] || "";
+    const c = name ? hgCenterOf(f) : null;
+    hgHover = c ? { kind: "hover", name, lat: c.lat, lng: c.lng } : null;
+    hgPushData();
+  });   // 칸을 거의 채우게(2.1이면 구가 칸의 75%뿐이라 토글 아래가 비었다)
   try {
     const sc = hgGlobe.scene();
     sc.children.filter(o => o.type === "AmbientLight").forEach(o => o.intensity = 2.2);
@@ -2626,7 +2685,7 @@ function hgInit(){
   $("hgStop").addEventListener("click", () => hgDocentStop(false));
 }
 
-/* 🎧 도슨트 미리보기 — 30초에서 1.5초 페이드아웃 · 다시 누르면 멈춤 · 재생 중엔 모드니 심볼이 동동 */
+/* 🎧 도슨트 미리듣기 — 🆕 #046 마카오 퀴즈 · 끝까지 · 다시 누르면 멈춤 · 재생 중엔 모드니 심볼이 동동 */
 let hgAudio = null, hgAudioTimer = null;
 function hgDocent(){
   if (hgAudio) { hgDocentStop(false); return; }
@@ -2638,27 +2697,15 @@ function hgDocent(){
   $("hgStop").hidden = false;
   play.hidden = false;
   hgAudio.play().catch(() => { hgDocentStop(false); });
-  hgAudioTimer = setTimeout(() => {
-    // 30초 — 1.5초에 걸쳐 줄이고 멈춘 뒤 「앱에서 전편 듣기」
-    const a = hgAudio; if (!a) return;
-    const t0 = Date.now();
-    const fade = setInterval(() => {
-      const k = Math.max(0, 1 - (Date.now() - t0) / 1500);
-      if (hgAudio === a) a.volume = k;
-      if (k === 0){ clearInterval(fade); hgDocentStop(true); }
-    }, 60);
-  }, 30000);
+  // 🆕 #046: 30초 컷 ✗ — 퀴즈 정답이 끝에 나온다 · 끝까지 재생(「그만 듣기」로 언제든 멈춤)
   hgAudio.addEventListener("ended", () => hgDocentStop(true), { once: true });
 }
 function hgDocentStop(done){
   if (hgAudioTimer){ clearTimeout(hgAudioTimer); hgAudioTimer = null; }
   if (hgAudio){ try { hgAudio.pause(); } catch(e){} hgAudio = null; }
   const play = $("hgPlay");
-  if (done){
-    $("hgPlayT").innerHTML = '전편은 앱에서 — <a href="' + WEB_APP_URL + '">앱에서 전편 듣기 ›</a>';
-    $("hgStop").hidden = true;
-    play.hidden = false;
-  } else play.hidden = true;
+  // 🆕 #046: 이제 전편을 다 들려주므로 끝나면 줄을 닫는다(「앱에서 전편」 ✗)
+  play.hidden = true;
 }
 
 async function renderHeroGlobe(){
