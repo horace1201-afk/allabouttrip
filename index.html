@@ -2133,7 +2133,7 @@ function renderDetail(c, seeds){
   });
   // 🆕 9/14 (영아): 자리표시(문구만) → 웹앱 코스 상세로 딥링크 — 거기서 담기 시트(이대로 / 박수·일정 고쳐서). 로그인은 웹앱이 안내
   $("btnTake").addEventListener("click", () => {
-    if (WEB_APP_URL && curCourseId){ location.href = WEB_APP_URL + "/course-detail?marketId=" + encodeURIComponent(curCourseId); return; }
+    if (WEB_APP_URL && curCourseId){ location.href = WEB_APP_URL + "/course-detail?marketId=" + encodeURIComponent(curCourseId) + "&take=1"; return; }   // 🆕 9/26 #053: 담기 패널부터(상세 두 번 ✗)
     $("takeNote").style.display = "block";
   });
   document.querySelectorAll(".guide-btn").forEach(b => b.addEventListener("click", () => toggleBucket(b)));
