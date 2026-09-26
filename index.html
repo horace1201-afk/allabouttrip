@@ -27,8 +27,6 @@
 <link rel="icon" href="assets/favicon.png">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/globe.gl@2.46.2/dist/globe.gl.min.js" defer></script>
 <style>
 :root{
@@ -372,7 +370,7 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .region .rt{position:absolute;left:12px;bottom:24px;color:#fff;font-size:14px;font-weight:800;text-shadow:0 1px 3px rgba(0,0,0,.4)}
 .region .rc{position:absolute;left:12px;bottom:8px;color:#fff;font-size:11px;opacity:.9}
 /* 🆕 9/17 지구본 탐색(R-0 마켓) — 옅은 주황 박스 하나에 지구본(좌) + 코스 패널(우 33%)을 얹는다.
-   기존 Leaflet #worldMap을 대체. Leaflet 라이브러리 자체는 코스 상세 일자 지도에서 계속 쓴다. */
+   기존 Leaflet #worldMap을 대체. (9/26 #051: 코스 상세 일자 지도도 구글 지도로 바뀌어 Leaflet 은 이제 안 쓴다.) */
 .explore{position:relative;border-radius:24px;overflow:hidden;border:1px solid #F7DECD;height:720px;z-index:0;isolation:isolate;
   background:radial-gradient(120% 130% at 38% 16%, #FFFBF8 0%, #FFF1E6 48%, #FBDFCF 100%)}
 /* 캔버스를 박스보다 34% 넓게 깔고 그만큼 왼쪽으로 민다 →
@@ -567,7 +565,7 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
 .day-wrap{display:grid;grid-template-columns:1fr 320px;gap:18px;align-items:start}
 @media(max-width:900px){.day-wrap{grid-template-columns:1fr}.day-map{order:-1}}
 .day-map{height:300px;border:1px solid var(--line);border-radius:14px;overflow:hidden;position:sticky;top:66px;z-index:0}
-.day-map .leaflet-control-attribution{font-size:8px;background:rgba(255,255,255,.7)}
+.day-map.map-off{display:none}   /* 🆕 9/26 #051: 구글 지도 로드·인증 실패 → 칸을 접는다(워터마크 타일 ✗) */
 .map-pin{width:24px;height:24px;border-radius:50%;background:var(--orange);color:#fff;
   font:700 12px 'Pretendard Variable',Pretendard,sans-serif;display:flex;align-items:center;justify-content:center;
   border:1.5px solid #fff;box-shadow:0 1px 4px rgba(29,27,25,.35)}
@@ -2175,37 +2173,98 @@ function parseTravel(s){
   return icon + dur;
 }
 
-/* ── Day별 미니 지도 ── */
+/* ── Day별 미니 지도 ──
+   🆕 9/26 지시함 #051 (영아 실기): Leaflet + CARTO 타일은 키가 없어 「API KEY REQUIRED」 워터마크만 떴다 →
+   앱·plan 일정표와 **같은 구글 지도**(웹 공개 키 · 앱 lib/utils/mapStyle.ts 「깨끗한 지도」 톤 · 번호 핀 · 점선 동선 · 이동 칩).
+   키는 HTTP 리퍼러 제한 전제(앱 웹과 같은 키). 로드·인증 실패면 지도 칸을 접는다(일정 목록은 그대로). */
+const GMAPS_WEB_KEY = "AIzaSyCFG0uUi-iSO-s5wnQX4VkSsD8ksa-2_x8";
+const MAP_STYLE = [   // = 앱 lib/utils/mapStyle.ts CLEAN_MAP_STYLE (지구본 A안 톤) — 바꿀 땐 두 곳 같이
+  { featureType:"poi.medical", stylers:[{ visibility:"off" }] },
+  { featureType:"poi.government", stylers:[{ visibility:"off" }] },
+  { featureType:"poi.school", stylers:[{ visibility:"off" }] },
+  { featureType:"road", elementType:"labels.icon", stylers:[{ visibility:"off" }] },
+  { featureType:"water", elementType:"geometry", stylers:[{ color:"#D6E4EC" }] },
+  { featureType:"landscape", elementType:"geometry", stylers:[{ color:"#FBF6F1" }] },
+  { featureType:"landscape.natural", elementType:"geometry", stylers:[{ color:"#F6EFE8" }] },
+  { featureType:"poi.park", elementType:"geometry", stylers:[{ color:"#E6EFE3" }] },
+  { featureType:"road", elementType:"geometry", stylers:[{ color:"#FFFFFF" }] },
+  { featureType:"road.highway", elementType:"geometry.stroke", stylers:[{ color:"#EFE3DA" }] },
+  { featureType:"administrative.country", elementType:"geometry.stroke", stylers:[{ color:"#E3C9BA" }] },
+  { featureType:"administrative", elementType:"labels.text.fill", stylers:[{ color:"#6B6570" }] },
+  { elementType:"labels.text.fill", stylers:[{ color:"#6B6570" }] },
+  { elementType:"labels.text.stroke", stylers:[{ color:"#FFFFFF" }] },
+];
+let _gmLoader = null;
+function loadGoogleMaps(){
+  if (window.google?.maps?.Map) return Promise.resolve(window.google);
+  if (_gmLoader) return _gmLoader;
+  _gmLoader = new Promise((resolve, reject) => {
+    // 키 거부(리퍼러·결제) — 구글이 부르는 전역 훅. 워터마크 지도 대신 칸을 접는다
+    window.gm_authFailure = () => document.querySelectorAll(".day-map").forEach(el => el.classList.add("map-off"));
+    const sc = document.createElement("script");
+    sc.src = "https://maps.googleapis.com/maps/api/js?key=" + encodeURIComponent(GMAPS_WEB_KEY) + "&v=weekly&language=ko&region=KR&libraries=places";
+    sc.async = true;
+    sc.onload = () => (window.google?.maps ? resolve(window.google) : reject(new Error("gmaps")));
+    sc.onerror = () => { _gmLoader = null; reject(new Error("gmaps load")); };
+    document.head.appendChild(sc);
+  });
+  return _gmLoader;
+}
+/** HTML 한 조각을 좌표 위에 — 번호 핀·이동 칩(앱 웹 심 Marker children 과 같은 OverlayView 방식) */
+function htmlOverlay(g, map, pos, html, z, title){
+  const O = function(){};
+  O.prototype = new g.maps.OverlayView();
+  O.prototype.onAdd = function(){
+    this.div = document.createElement("div");
+    this.div.style.cssText = "position:absolute;transform:translate(-50%,-50%);z-index:" + (z || 1);
+    this.div.innerHTML = html;
+    if (title) this.div.title = title;
+    this.getPanes().overlayMouseTarget.appendChild(this.div);
+  };
+  O.prototype.draw = function(){
+    const pt = this.getProjection()?.fromLatLngToDivPixel(new g.maps.LatLng(pos.lat, pos.lng));
+    if (pt && this.div){ this.div.style.left = pt.x + "px"; this.div.style.top = pt.y + "px"; }
+  };
+  O.prototype.onRemove = function(){ this.div?.remove(); this.div = null; };
+  const o = new O(); o.setMap(map); return o;
+}
 function initDayMaps(mapData){
-  if (typeof L === "undefined") return;
-  Object.entries(mapData).forEach(([i, pts]) => {
-    const el = document.getElementById("dmap-" + i);
-    if (!el) return;
-    const map = L.map(el, { scrollWheelZoom:false, zoomControl:true });
-    dayMaps.push(map);
-    map.on("click", () => map.scrollWheelZoom.enable());
-    el.addEventListener("mouseleave", () => map.scrollWheelZoom.disable());
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-      attribution: "© OpenStreetMap © CARTO", maxZoom: 19
-    }).addTo(map);
-    const latlngs = pts.map(p => [p.lat, p.lng]);
-    pts.forEach(p => {
-      L.marker([p.lat, p.lng], {
-        icon: L.divIcon({ className:"", html:`<div class="map-pin">${p.no}</div>`, iconSize:[24,24], iconAnchor:[12,12] })
-      }).addTo(map).bindTooltip(p.title, { direction:"top", offset:[0,-12] });
-    });
-    if (latlngs.length > 1){
-      L.polyline(latlngs, { color:"#F4581C", weight:2, dashArray:"6 6", opacity:.85 }).addTo(map);
-      for (let k = 0; k < pts.length - 1; k++){
-        const t = pts[k].travel;
-        if (!t) continue;
-        const mid = [(pts[k].lat + pts[k+1].lat)/2, (pts[k].lng + pts[k+1].lng)/2];
-        L.marker(mid, { interactive:false,
-          icon: L.divIcon({ className:"", html:`<span class="travel-chip">${t}</span>`, iconSize:[1,1] })
-        }).addTo(map);
+  const entries = Object.entries(mapData);
+  if (!entries.length) return;
+  loadGoogleMaps().then(g => {
+    entries.forEach(([i, pts]) => {
+      const el = document.getElementById("dmap-" + i);
+      if (!el) return;
+      const map = new g.maps.Map(el, {
+        styles: MAP_STYLE, disableDefaultUI: true, zoomControl: true, gestureHandling: "cooperative",
+        clickableIcons: false, center: { lat: pts[0].lat, lng: pts[0].lng }, zoom: 14,
+      });
+      const bounds = new g.maps.LatLngBounds();
+      pts.forEach(p => {
+        bounds.extend({ lat: p.lat, lng: p.lng });
+        htmlOverlay(g, map, p, `<div class="map-pin">${p.no}</div>`, 3, p.title);
+      });
+      if (pts.length > 1){
+        new g.maps.Polyline({ map, path: pts.map(p => ({ lat: p.lat, lng: p.lng })), strokeOpacity: 0,
+          icons: [{ icon: { path: "M 0,-1 0,1", strokeOpacity: .85, strokeColor: "#F4581C", strokeWeight: 2, scale: 3 }, offset: "0", repeat: "12px" }] });
+        for (let k = 0; k < pts.length - 1; k++){
+          const t = pts[k].travel;
+          if (!t) continue;
+          htmlOverlay(g, map, { lat: (pts[k].lat + pts[k+1].lat) / 2, lng: (pts[k].lng + pts[k+1].lng) / 2 }, `<span class="travel-chip" style="transform:none">${t}</span>`, 2);
+        }
       }
-    }
-    map.fitBounds(L.latLngBounds(latlngs), { padding:[26,26], maxZoom:15 });
+      const fit = () => {
+        if (pts.length > 1){
+          map.fitBounds(bounds, 26);
+          g.maps.event.addListenerOnce(map, "idle", () => { if (map.getZoom() > 15) map.setZoom(15); });
+        } else { map.setCenter({ lat: pts[0].lat, lng: pts[0].lng }); map.setZoom(15); }
+      };
+      fit();
+      // 「전체보기」로 숨은 날이 펼쳐질 때 — 크기 다시 재고 맞춘다(Leaflet invalidateSize 자리)
+      dayMaps.push({ remove(){ el.innerHTML = ""; }, invalidateSize(){ g.maps.event.trigger(map, "resize"); fit(); } });
+    });
+  }).catch(() => {
+    entries.forEach(([i]) => document.getElementById("dmap-" + i)?.classList.add("map-off"));
   });
 }
 
@@ -2224,10 +2283,12 @@ function toggleBucket(btn){
   const card = document.createElement("div");
   card.className = "bucket-card";
   const spots = (d.photoSpots || []).slice(0, 2);
+  const kind = seedKindOf(s);
+  const descKo = koreanOnly(d.desc);
   card.innerHTML = `
-    <h5>${esc(s.name_raw)}<span class="cat">${esc(TYPE_KO[s.category] || s.category || "")}</span></h5>
+    <h5>${esc(s.name_raw)}${KIND_KO[kind] ? `<span class="cat">${KIND_KO[kind]}</span>` : ""}</h5>
     <div class="photo-slot"></div>
-    ${d.desc?`<div class="desc">${esc(d.desc)}</div>`:""}
+    ${descKo?`<div class="desc">${esc(descKo)}</div>`:""}
     ${viRows?`<dl class="vinfo">${viRows}</dl>`:""}
     ${tips.length?`<div class="tips"><span class="tl">✦ 모드니 팁</span>${tips.map(t=>`<p>✦ ${esc(t)}</p>`).join("")}</div>`:""}
     ${spots.length?`<div class="pspots"><span class="tl">📷 사진 명소</span>${spots.map(p=>`<p>📍 <b>${esc(p.spot||"")}</b>${p.tip?` — ${esc(p.tip)}`:""}</p>`).join("")}</div>`:""}
@@ -2235,10 +2296,13 @@ function toggleBucket(btn){
   `;
   slotEl.after(card);
   const pslot = card.querySelector(".photo-slot");
-  if (s.image_url){
+  if (EAT_KINDS.has(kind)){
+    // 🆕 #052 ①: 식당·카페·바는 위키미디어 ✗(이름 검색이 인물·동명 문서를 물어 온다) — Places 사진(placeId · 런타임)만
+    loadPlacesPhoto(d.placeFacts?.placeId, s.name_raw, pslot);
+  } else if (s.image_url && fileTitleMatches(s.image_url, [s.name_raw, d.nameEn, d.nameLocal])){
     const img = document.createElement("img");
     img.className = "bucket-photo"; img.alt = s.name_raw; img.loading = "lazy";
-    img.onerror = () => { pslot.innerHTML = ""; loadPhoto(s.name_raw, pslot); };
+    img.onerror = () => { pslot.innerHTML = ""; loadPhoto(s.name_raw, pslot, d.placeFacts); };
     img.onload = () => {
       const cr = document.createElement("div");
       cr.className = "photo-credit"; cr.textContent = "사진: 위키미디어";
@@ -2247,33 +2311,87 @@ function toggleBucket(btn){
     img.src = s.image_url;
     pslot.appendChild(img);
   } else {
-    loadPhoto(s.name_raw, pslot);
+    loadPhoto(s.name_raw, pslot, d.placeFacts);
   }
   const ab = card.querySelector(".audio-btn");
   if (ab) ab.addEventListener("click", () => playAudio(ab));
 }
 
-async function loadPhoto(name, slotDiv){
+/* 🆕 9/26 지시함 #052 (영아 실기 — 식당 가이드에 배우 얼굴 사진 · 영어 설명 · 「eat」 태그) */
+const EAT_KINDS = new Set(["eat", "cafe", "bar"]);
+const KIND_KO = { eat:"식당", cafe:"카페", bar:"바", visit:"관광", do:"체험", activity:"체험", area:"거리·구역", daytrip:"근교", fullday:"하루 코스", shop:"쇼핑" };
+/** 시드 갈래 — placeCard.kind 가 있으면 그것 · 없으면 category */
+function seedKindOf(s){ return (s.detail?.placeCard?.kind) || s.category || ""; }
+/** 한국어 설명만 — 한글이 글자의 30% 미만이면(영어 원문) 줄을 안 그린다(새 번역 호출 ✗) */
+function koreanOnly(t){
+  const x = String(t || "").trim();
+  if (!x) return "";
+  const ko = (x.match(/[가-힣]/g) || []).length, lat = (x.match(/[A-Za-z]/g) || []).length;
+  return ko > 0 && ko / (ko + lat) >= 0.3 ? x : "";
+}
+const PERSON_RE = /(배우|가수|정치인|선수|작가|감독|모델|코미디언|방송인|아이돌|출생|년생|인물|왕$|황제|성인$|화가|음악가|작곡가)/;
+const normName = (t) => String(t || "").toLowerCase().replace(/\s*\(.*?\)\s*/g, "").replace(/[\s·\-_'’".,]/g, "");
+function kmBetween(a, b){
+  const R = 6371, r = (d) => d * Math.PI / 180;
+  const dLat = r(b.lat - a.lat), dLng = r(b.lng - a.lng);
+  return 2 * R * Math.asin(Math.sqrt(Math.sin(dLat/2)**2 + Math.cos(r(a.lat)) * Math.cos(r(b.lat)) * Math.sin(dLng/2)**2));
+}
+/** 저장된 위키 사진(백필 · 이름 검색)도 **파일 제목에 장소 이름**이 들어 있을 때만 — 인물 사진(So_Ji-sub.jpg) ✗ */
+// 이름 조각 중 흔한 말(궁전·박물관·성당…)만 맞는 건 일치로 치지 않는다
+const GENERIC_WORDS = new Set(["palais","palace","musee","musée","museum","museo","church","eglise","église","chiesa","cathedral","cathédrale","duomo","park","parc","parco","place","piazza","plaza","chateau","château","castle","castello","temple","pont","ponte","bridge","tower","tour","torre","garden","jardin","giardino","beach","plage","spiaggia","street","strada","market","marché","mercato","basilica","villa","saint","santa","santo","grand","grande","vieux","vieille"]);
+function fileTitleMatches(url, names){
+  let f = "";
+  try { f = normName(decodeURIComponent(String(url).split("?")[0].split("/").pop() || "").replace(/\.[a-z]+$/i, "")); } catch(e){ return false; }
+  if (!f) return false;
+  return names.filter(Boolean).some(n => {
+    const whole = normName(n);
+    if (whole.length >= 3 && f.includes(whole)) return true;
+    return String(n).split(/[\s·\-_,()]+/).map(normName).filter(w => w.length >= 4 && !GENERIC_WORDS.has(w)).some(w => f.includes(w));
+  });
+}
+function putPhoto(slotDiv, src, alt, credit){
+  const img = document.createElement("img");
+  img.className = "bucket-photo"; img.alt = alt; img.loading = "lazy";
+  img.onerror = () => { slotDiv.innerHTML = ""; };
+  img.onload = () => {
+    const cr = document.createElement("div");
+    cr.className = "photo-credit"; cr.textContent = credit;
+    slotDiv.appendChild(cr);
+  };
+  img.src = src;
+  slotDiv.appendChild(img);
+}
+/** 식당·카페·바 — 구글 Places 사진(누를 때 1회 · 저장 ✗ · 약관대로 출처 표기). placeId 없거나 실패하면 사진 칸 없음 */
+async function loadPlacesPhoto(placeId, name, slotDiv){
+  if (!placeId || !slotDiv) return;
+  try {
+    const g = await loadGoogleMaps();
+    const lib = g.maps.importLibrary ? await g.maps.importLibrary("places") : g.maps.places;
+    const place = new lib.Place({ id: placeId });
+    await place.fetchFields({ fields: ["photos"] });
+    const ph = place.photos?.[0];
+    if (!ph) return;
+    const who = (ph.authorAttributions || []).map(a => a.displayName).filter(Boolean)[0];
+    putPhoto(slotDiv, ph.getURI({ maxWidth: 640 }), name, "사진: Google" + (who ? " · " + who : ""));
+  } catch(e){ /* 없으면 사진 칸 없음 */ }
+}
+/** 관광지 — 위키백과 이름 검색 사진은 **검사를 통과할 때만**(애매하면 ✗):
+ *   ① 문서 제목 ≈ 장소 이름 ② 인물·초상 문서 ✗(설명에 배우·가수…) · 동음이의 ✗ ③ 좌표가 둘 다 있으면 3km 안 · 우리 좌표만 있고 문서 좌표가 없으면 ✗ */
+async function loadPhoto(name, slotDiv, facts){
   if (!name || !slotDiv) return;
   try {
     const res = await fetch("https://ko.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(name));
     if (!res.ok) return;
     const j = await res.json();
     const src = j?.thumbnail?.source;
-    if (!src) return;
-    const img = document.createElement("img");
-    img.className = "bucket-photo";
-    img.alt = name;
-    img.loading = "lazy";
-    img.onerror = () => { slotDiv.innerHTML = ""; };
-    img.onload = () => {
-      const cr = document.createElement("div");
-      cr.className = "photo-credit";
-      cr.textContent = "사진: 위키미디어";
-      slotDiv.appendChild(cr);
-    };
-    img.src = src;
-    slotDiv.appendChild(img);
+    if (!src || j.type === "disambiguation") return;
+    const a = normName(j.title), b = normName(name);
+    if (!a || !b || !(a === b || a.includes(b) || b.includes(a))) return;
+    if (PERSON_RE.test(String(j.description || ""))) return;
+    const ours = facts && Number.isFinite(+facts.lat) && Number.isFinite(+facts.lng) ? { lat: +facts.lat, lng: +facts.lng } : null;
+    const theirs = j.coordinates && Number.isFinite(+j.coordinates.lat) ? { lat: +j.coordinates.lat, lng: +j.coordinates.lon } : null;
+    if (ours && (!theirs || kmBetween(ours, theirs) > 3)) return;
+    putPhoto(slotDiv, src, name, "사진: 위키미디어");
   } catch(e){ /* 없으면 패스 */ }
 }
 
