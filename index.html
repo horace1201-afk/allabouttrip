@@ -1622,7 +1622,7 @@ let currentUser = null;
 async function loadMarket(){
   try {
     const { data, error } = await sb.from("market_courses")
-      .select("id, market_title, summary, region, nights, tags, hearts, download_count, is_sample, published_at, proof, first_city:itinerary_snapshot->days->0->>city")
+      .select("id, publisher_id, market_title, summary, region, nights, tags, hearts, download_count, is_sample, published_at, proof, first_city:itinerary_snapshot->days->0->>city")
       .eq("status", "published");
     if (error) throw error;
     courses = data || [];
@@ -2048,6 +2048,9 @@ function closeOverlay(){
 /* ── 코스 상세 ── */
 let curCourseId = null;   // 🆕 9/14: 상세 열린 코스 id — [이 여행 담아가기] 딥링크용
 async function selectCourse(id){
+  // 🔴 9/27 지시서69 §7 · 지시함 #081 (영아 확정): 문 하나로 — 대문 코스 화면(ovDetail) 은퇴 · 핀·목록·카드 전부 plan 코스 상세로 바로.
+  //   아래 대문 상세 코드는 남겨 둔다(파일은 둠 · 링크만 끊음). plan 은 `marketId` 파라미터를 읽는다(app/course-detail.tsx).
+  if (WEB_APP_URL && id){ location.href = WEB_APP_URL + "/course-detail?marketId=" + encodeURIComponent(id); return; }
   curCourseId = id;
   openOverlay("ovDetail");
   $("ovDetail").scrollTop = 0;
@@ -2621,6 +2624,8 @@ const HG_LABEL = { visited:"✓ 다녀옴", modni:"모드니 추천", planned:"�
 const HG_DOCENT = { city: "마카오", title: "마카오 퀴즈", lat: 22.1987, lng: 113.5439,
   url: "https://gecmrywieyntzzwthvlg.supabase.co/storage/v1/object/public/bucket-audio/docent/08dc0252-da4e-4091-97c3-152dae3e5e26.mp3" };
 const hgRing = c => (c.proof && c.proof.verified === true) ? "visited" : (c.is_sample ? "modni" : "planned");
+/** 🔴 9/27 지시서69 §7 · #081: 「여행 담기」 칸 = 모드니·공개 코스만 — 로그인한 내가 올린 **계획 중**(검증 안 된) 코스는 뺀다(「내 여행」 쪽) */
+const hgMarket = () => (courses || []).filter(c => !(currentUser && c.publisher_id && c.publisher_id === currentUser.id && hgRing(c) === "planned"));
 const hgPinCity = c => String(c.first_city || "").trim() || cityOfCourse(c);
 /** 지름 — hero 높이 80%(≤ 칸 폭) · ≤1023 은 폭 90% */
 function hgSize(){
@@ -2642,9 +2647,9 @@ async function hgCoords(names){
   } catch(e){ return {}; }
 }
 async function hgBuildPins(){
-  const at = await hgCoords((courses || []).map(hgPinCity));
+  const at = await hgCoords(hgMarket().map(hgPinCity));
   const by = {};
-  for (const c of (courses || [])){ const k = hgPinCity(c); if (!k || !at[k]) continue; (by[k] = by[k] || []).push(c); }
+  for (const c of hgMarket()){ const k = hgPinCity(c); if (!k || !at[k]) continue; (by[k] = by[k] || []).push(c); }
   hgPins = Object.keys(by).map(city => {
     const list = by[city].map((c, i) => ({ c, i })).sort((a, b) => (HG_RANK[hgRing(a.c)] - HG_RANK[hgRing(b.c)]) || (a.i - b.i)).map(x => x.c);
     return { kind: "face", city, lat: at[city].lat, lng: at[city].lng, courses: list, faces: list.slice(0, 2), extra: Math.max(0, list.length - 2), ring: hgRing(list[0]) };
@@ -2747,7 +2752,7 @@ function hgPaint(){
   // 🆕 #048 ③: 탭별 링크 — 내 여행 = 「나만의 여행 만들기 ›」(서베이 게이트) · 여행 담기 = 「여행 담기로 가기 ›」(웹앱 마켓)
   const cta = $("hgCta"); if (cta){ cta.textContent = mine ? "나만의 여행 만들기 ›" : "여행 담기로 가기 ›"; cta.onclick = mine ? goPlanEntry : goMarketEntry; }
   document.querySelectorAll("#heroGlobe .hg-tab").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === hgTab)));
-  const n = (courses || []).length;
+  const n = hgMarket().length;
   // 아래 — 로그인 + 「내 여행」 = 여행 두 줄(모드니 한 줄 ✗) · 그 밖 = 모드니 한 줄(앱 modniGreeting 과 같은 문구)
   const trips = $("hgTrips"), line = $("hgLine");
   const showTrips = !!currentUser && mine && (hgMine.upcoming || hgMine.planning || hgMine.rest);
@@ -2876,7 +2881,7 @@ function hgDocentStop(done){
 async function renderHeroGlobe(){
   const card = $("heroGlobe"), panel = document.querySelector(".hero-panel");
   if (!card) return;
-  const n = (courses || []).length;
+  const n = hgMarket().length;
   // 첫 칸 — 로그인 = 「내 여행」 · 비로그인 = 앱 firstCardRules.initialTab(0, n)과 같다. 사람이 누른 뒤엔 사람 뜻대로
   if (!hgTouched) hgTab = currentUser ? "mine" : (n ? "market" : "mine");
   if (panel) panel.hidden = true;
