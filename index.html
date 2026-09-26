@@ -1573,13 +1573,14 @@ async function loadMarket(){
       .eq("status", "published");
     if (error) throw error;
     courses = data || [];
-    renderHeroGlobe();   // 🆕 9/26 지시서53 §5 — 코스가 0개면 아무것도 안 바뀐다
+    renderHeroGlobe();   // 🆕 9/26 지시서53 §5 · #062 — 코스 0개여도 카드(「내 여행」 칸)
     renderSidePanel(); renderTop5(); renderRegions(); renderCards();
     // 도시 좌표는 확대했을 때만 쓰이므로 첫 렌더를 막지 않는다 (뒤따라 채운다)
     loadCountryPins().then(() => { if (globeDetail) paintGlobePills(); });
   } catch (e) {
     $("cards").innerHTML = '<div class="empty">코스를 불러오지 못했어요. 잠시 후 새로고침해 주세요.</div>';
     $("top5").innerHTML = '<div class="empty">코스를 불러오지 못했어요.</div>';
+    renderHeroGlobe();   // 🔴 #062: 마켓을 못 읽어도 첫 카드는 선다(빈 목록)
   }
 }
 function esc(s){ const d = document.createElement("div"); d.textContent = s ?? ""; return d.innerHTML; }
@@ -2433,11 +2434,11 @@ async function renderHeroTrips(){
 
 /* ── 🆕 9/26 지시서53 §5: 첫 카드(토글 지구본) ─────────────────────────────
    규칙은 앱 lib/globe/firstCardRules.ts · facePins.ts와 같다(대문은 바닐라라 옮겨 적는다):
-   · 여행 담기 0개 → 카드 없음(기능 패널 그대로) · 로그인 + 내 여행 카드가 섰으면 카드 없음
+   · 🔴 9/26 #062: 여행 담기 0개여도 카드를 그린다(「내 여행」 칸 + 「아직 올라온 여행이 없어요」) · 로그인 + 내 여행 카드가 섰으면 카드 없음
    · 기본 칸 = 여행 담기 + 모드니 인사 · 도시마다 얼굴 2 + "+N" · 테두리 다녀옴(초록 실선 ✓)/모드니(주황)/계획 중(점선)
    · 핀 → 목록(다녀옴 → 모드니 → 계획 중) → 한 줄 → 기존 코스 상세 오버레이(selectCourse) → [담아가기]는 plan으로
    ⚠️ KOR/ENG 토글(EN_TEXTS)은 이 카드를 옮기지 않는다 — 기능 패널 다섯 id는 그대로 두었다(패널은 숨었다 다시 설 수 있다). */
-let heroHasTrips = false, hgGlobe = null, hgTab = "market", hgPins = [];
+let heroHasTrips = false, hgGlobe = null, hgTab = "market", hgPins = [], hgTouched = false;
 const HG_RING = { visited:"#2E9E5B", modni:"#C6431F", planned:"#8A8494" };
 const HG_RANK = { visited:0, modni:1, planned:2 };
 const HG_LABEL = { visited:"✓ 다녀옴", modni:"모드니 추천", planned:"계획 중" };
@@ -2483,8 +2484,12 @@ function hgPaint(){
   hgGlobe.htmlElementsData(hgTab === "market" ? hgPins : []);
   document.querySelectorAll("#heroGlobe .hg-tab").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === hgTab)));
   const hi = $("hgHi");
-  if (hgTab === "market"){ hi.hidden = false; $("hgHiT").textContent = "처음 오셨네요! 다른 분들 여행부터 구경해 볼래요? 내 여행은 옆 칸 내 여행에 도장으로 쌓여요"; }
-  else { hi.hidden = false; $("hgHiT").textContent = currentUser ? "여행을 만들면 여기에 도장으로 쌓여요" : "로그인하면 내 여행이 여기에 도장으로 쌓여요"; }
+  // 🔴 9/26 #062: 코스 0개면 앱 firstCardRules.modniGreeting(0, 0)과 같은 문구
+  const empty = !(courses || []).length;
+  hi.hidden = false;
+  if (empty) $("hgHiT").textContent = "아직 올라온 여행이 없어요. 첫 여행을 만들면 여기 지구본에 도장으로 쌓여요";
+  else if (hgTab === "market") $("hgHiT").textContent = "처음 오셨네요! 다른 분들 여행부터 구경해 볼래요? 내 여행은 옆 칸 내 여행에 도장으로 쌓여요";
+  else $("hgHiT").textContent = currentUser ? "여행을 만들면 여기에 도장으로 쌓여요" : "로그인하면 내 여행이 여기에 도장으로 쌓여요";
   $("hgPop").hidden = true;
 }
 function hgInit(){
@@ -2514,17 +2519,21 @@ function hgInit(){
       .polygonStrokeColor(() => "#E3C9BA").polygonAltitude(0.005);
   }).catch(() => {});
   window.addEventListener("resize", () => { if (hgGlobe && !$("heroGlobe").hidden) hgGlobe.width(stage.clientWidth).height(stage.clientHeight); });
-  document.querySelectorAll("#heroGlobe .hg-tab").forEach(b => b.addEventListener("click", () => { hgTab = b.dataset.tab; hgPaint(); }));
+  document.querySelectorAll("#heroGlobe .hg-tab").forEach(b => b.addEventListener("click", () => { hgTouched = true; hgTab = b.dataset.tab; hgPaint(); }));
 }
 async function renderHeroGlobe(){
   const card = $("heroGlobe"), panel = document.querySelector(".hero-panel");
   if (!card) return;
   const n = (courses || []).length;
-  if (!n || heroHasTrips){ card.hidden = true; if (!heroHasTrips && panel) panel.hidden = false; return; }
-  if (!countryPins || !countryPins.length) await loadCountryPins();
+  // 🔴 9/26 #062 (영아 "그냥 열라고 했는데 의미가 없다"): 코스 0개여도 **카드를 그린다**. 물러나는 건 내 여행 카드가 섰을 때뿐.
+  if (heroHasTrips){ card.hidden = true; return; }
+  // 첫 칸 — 앱 firstCardRules.initialTab 과 같은 규칙(코스 0개면 「내 여행」). 사람이 누른 뒤엔 사람 뜻대로
+  if (!hgTouched) hgTab = n ? "market" : "mine";
+  if (n && (!countryPins || !countryPins.length)) await loadCountryPins();
   hgBuildPins();
   const visited = courses.filter(c => hgRing(c) === "visited").length;
-  $("hgFoot").textContent = ["지금 " + n + "개 여행", visited ? "✓다녀옴 " + visited : "", (n - visited) ? "계획 중 " + (n - visited) : ""].filter(Boolean).join(" · ");
+  // 0개면 줄 없음 — 앱 firstCardRules.marketCountLine 과 같다
+  $("hgFoot").textContent = !n ? "" : ["지금 " + n + "개 여행", visited ? "✓다녀옴 " + visited : "", (n - visited) ? "계획 중 " + (n - visited) : ""].filter(Boolean).join(" · ");
   if (panel) panel.hidden = true;
   card.hidden = false;
   hgInit();
