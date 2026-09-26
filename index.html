@@ -177,6 +177,11 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .hg-trips a{color:#C6431F;font-weight:600;text-decoration:none;flex-shrink:0;cursor:pointer;margin-left:4px}
 .hg-trips .all{color:var(--sub);font-size:12px;cursor:pointer}
 .hg-line{font-size:12.5px;color:var(--sub);margin-top:8px;text-align:center;line-height:1.5}
+/* 🆕 #048 ②: 탭을 바꿔도 지구본이 안 흔들리게 — 아래 칸(여행 줄·모드니 한 줄) 높이 고정 */
+.hg-below{height:92px;overflow:hidden;display:flex;flex-direction:column;align-items:center}
+/* 🆕 #048 ③: 지구본 오른쪽 아래 탭별 링크(코랄 글씨 · 알약 ✗) */
+.hg-cta{position:absolute;right:0;bottom:4px;border:0;background:none;font-family:inherit;font-size:13px;font-weight:700;color:#C6431F;cursor:pointer;padding:4px 0;white-space:nowrap;z-index:2}
+.hg-cta:hover{text-decoration:underline}
 .hg-pop{position:absolute;right:0;top:10px;width:260px;max-height:300px;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:10px 12px;z-index:3}
 .hg-pop h4{display:flex;justify-content:space-between;align-items:center;font-size:13.5px;font-weight:800;margin-bottom:4px}
 .hg-pop h4 button{border:0;background:none;font-family:inherit;font-size:12.5px;font-weight:700;color:var(--ink);cursor:pointer}
@@ -716,10 +721,13 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
        <button type="button" class="hg-doc" id="hgDoc">🎧 <b>도슨트 미리듣기</b> · 마카오 퀴즈 2분</button>
      </div>
      <div class="hg-stage" id="hgStage"><div id="hgBox"></div><div class="hg-pop" id="hgPop" hidden></div>
-       <div class="hg-play" id="hgPlay" hidden><img src="assets/modni_symbol.png" alt=""><span id="hgPlayT">니스 구시가지 · 모드니 도슨트</span><button type="button" id="hgStop">그만 듣기</button></div>
+       <button type="button" class="hg-cta" id="hgCta">여행 담기로 가기 ›</button>
+       <div class="hg-play" id="hgPlay" hidden><img src="assets/modni_symbol.png" alt=""><span id="hgPlayT">마카오 퀴즈 · 모드니 도슨트</span><button type="button" id="hgStop">그만 듣기</button></div>
      </div>
-     <div class="hg-trips" id="hgTrips" hidden></div>
-     <div class="hg-line" id="hgLine"></div>
+     <div class="hg-below" id="hgBelow">
+       <div class="hg-trips" id="hgTrips" hidden></div>
+       <div class="hg-line" id="hgLine"></div>
+     </div>
    </div>
    </div>
   <div class="scroll-hint">아래로 스크롤<br>⌄</div>
@@ -2636,6 +2644,12 @@ async function hgBuildHouses(){
   // 가까우면(대략 6도) 이름 생략 — 집은 남기고 글씨만 뺀다
   list.forEach((h, i) => { h.hideName = list.slice(0, i).some(o => Math.hypot(o.lat - h.lat, (o.lng - h.lng) * Math.cos(h.lat * Math.PI / 180)) < 6); });
   hgHouses = list;
+  // 🆕 #048 ④: 가까이 가면 **도시마다 집** + 도시 이름 회색 글씨(plan·마이페이지 밴드 규칙 — 멀리 = 나라 · 가까이 = 도시)
+  const byCity = {};
+  for (const c of cities){ const r = at[c]; if (!r || byCity[c]) continue; byCity[c] = { kind: "house", a2: String(r.country_code || "").toUpperCase(), lat: r.lat, lng: r.lng, name: c }; }
+  const cl = Object.values(byCity);
+  cl.forEach((h, i) => { h.hideName = cl.slice(0, i).some(o => Math.hypot(o.lat - h.lat, (o.lng - h.lng) * Math.cos(h.lat * Math.PI / 180)) < 0.35); });
+  hgHousesCity = cl;
 }
 function hgHouseEl(h){
   const w = document.createElement("div");
@@ -2689,9 +2703,10 @@ function hgTripsHtml(){
 }
 /* 🆕 #046: 지구본 위 요소 = 칸(집·얼굴) + 커서 나라 이름 한 개 */
 let hgHover = null;
+let hgHousesCity = null, hgNear = false;   // 🆕 #048 ④: 도시 집 · 지금 가까이(고도 < 0.85)인가
 function hgPushData(){
   if (!hgGlobe) return;
-  const base = hgTab === "mine" ? (hgHouses || []) : hgPins;
+  const base = hgTab === "mine" ? ((hgNear ? hgHousesCity : hgHouses) || []) : hgPins;
   hgGlobe.htmlElementsData(hgHover ? base.concat([hgHover]) : base);
 }
 function hgHoverEl(h){ const w = document.createElement("div"); w.className = "hg-hover"; w.textContent = h.name; return w; }
@@ -2708,6 +2723,8 @@ function hgPaint(){
   const mine = hgTab === "mine";
   hgPushData();
   $("hgTg").classList.toggle("r", !mine);
+  // 🆕 #048 ③: 탭별 링크 — 내 여행 = 「나만의 여행 만들기 ›」(서베이 게이트) · 여행 담기 = 「여행 담기로 가기 ›」(웹앱 마켓)
+  const cta = $("hgCta"); if (cta){ cta.textContent = mine ? "나만의 여행 만들기 ›" : "여행 담기로 가기 ›"; cta.onclick = mine ? goPlanEntry : goMarketEntry; }
   document.querySelectorAll("#heroGlobe .hg-tab").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === hgTab)));
   const n = (courses || []).length;
   // 아래 — 로그인 + 「내 여행」 = 여행 두 줄(모드니 한 줄 ✗) · 그 밖 = 모드니 한 줄(앱 modniGreeting 과 같은 문구)
@@ -2721,12 +2738,18 @@ function hgPaint(){
   else line.textContent = "로그인하면 내 여행이 여기에 집으로 쌓여요";
   $("hgPop").hidden = true;
 }
+/* 🆕 #048 ①: 토글 줄 = 지구본 폭 — 토글은 지구본 가운데, 도슨트는 지구본 오른쪽 끝선 · 아래 칸도 같은 폭 */
+function hgFitBar(d){
+  const bar = document.querySelector("#heroGlobe .hg-bar"); if (bar) bar.style.width = d + "px";
+  const below = $("hgBelow"); if (below) below.style.width = d + "px";
+}
 function hgResize(){
   if (!hgGlobe) return;
   const d = hgSize();
   const st = $("hgStage");
   st.style.width = d + "px"; st.style.height = d + "px";
   hgGlobe.width(d).height(d);
+  hgFitBar(d);
   if (!$("hgTrips").hidden) $("hgTrips").style.width = d + "px";
 }
 function hgInit(){
@@ -2735,6 +2758,7 @@ function hgInit(){
   if (typeof Globe !== "function"){ setTimeout(hgInit, 120); return; }   // defer 로드 대기(아래 큰 지구본과 같다)
   const d = hgSize();
   const st = $("hgStage"); st.style.width = d + "px"; st.style.height = d + "px";
+  hgFitBar(d);
   hgGlobe = Globe()(box)
     .width(d).height(d)
     .backgroundColor("rgba(0,0,0,0)")
@@ -2758,6 +2782,8 @@ function hgInit(){
     const pov = hgGlobe.pointOfView();
     controls.autoRotate = false;
     hgGlobe.pointOfView({ lat: pov.lat, lng: pov.lng, altitude: hgAlt }, 0);
+    const near = hgAlt < 0.85;   // plan ZOOM_DETAIL_ALTITUDE 와 같은 문턱
+    if (near !== hgNear){ hgNear = near; hgPushData(); }
   };
   box.addEventListener("wheel", (e) => {
     const inward = e.deltaY < 0;
