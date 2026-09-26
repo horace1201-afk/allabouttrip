@@ -2210,9 +2210,10 @@ function loadGoogleMaps(){
     // 키 거부(리퍼러·결제) — 구글이 부르는 전역 훅. 워터마크 지도 대신 칸을 접는다
     window.gm_authFailure = () => document.querySelectorAll(".day-map").forEach(el => el.classList.add("map-off"));
     const sc = document.createElement("script");
-    sc.src = "https://maps.googleapis.com/maps/api/js?key=" + encodeURIComponent(GMAPS_WEB_KEY) + "&v=weekly&language=ko&region=KR&libraries=places";
+    // 🆕 9/26 #058 ③: 구글 권장 로딩 — loading=async + 콜백(준비 신호는 콜백 하나 · 앱 mapShim 과 같은 방식)
+    window.__aatGmapsReady = () => (window.google?.maps?.Map ? resolve(window.google) : reject(new Error("gmaps")));
+    sc.src = "https://maps.googleapis.com/maps/api/js?key=" + encodeURIComponent(GMAPS_WEB_KEY) + "&v=weekly&language=ko&region=KR&libraries=places&loading=async&callback=__aatGmapsReady";
     sc.async = true;
-    sc.onload = () => (window.google?.maps ? resolve(window.google) : reject(new Error("gmaps")));
     sc.onerror = () => { _gmLoader = null; reject(new Error("gmaps load")); };
     document.head.appendChild(sc);
   });
