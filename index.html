@@ -152,12 +152,13 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .hero-globe{width:100%;min-width:0;display:flex;flex-direction:column;align-items:center}
 .hero-globe[hidden],.hg-play[hidden],.hg-trips[hidden],.hg-pop[hidden]{display:none}   /* display:flex 가 hidden 속성을 이기지 않게(9/26 실측: 재생 줄이 늘 떠 있었다) */
 .hg-bar{position:relative;display:flex;justify-content:center;align-items:center;width:100%;margin-bottom:4px}
-.hg-tg{display:inline-flex;background:#fff;border-radius:999px;padding:4px;box-shadow:0 2px 12px rgba(226,83,42,.12),inset 0 0 0 1px rgba(226,83,42,.08);position:relative}
+/* 🔴 #067 13:40: 흰 배경 ✗ — 주황 슬라이더만 두 글자 사이를 넘어간다(미선택은 회색 글자 · #6E655D 살구 바탕 대비 5.3) */
+.hg-tg{display:inline-flex;background:transparent;border-radius:999px;padding:4px;position:relative}
 .hg-tg:before{content:"";position:absolute;top:4px;bottom:4px;width:calc(50% - 4px);left:4px;border-radius:999px;background:linear-gradient(135deg,#ff7a4d,#e2532a);box-shadow:0 3px 10px rgba(226,83,42,.35);transition:left .25s}
 .hg-tg.r:before{left:50%}
-.hg-tab{border:0;background:none;padding:8px 22px;border-radius:999px;color:#7a6f66;font-family:inherit;font-size:13.5px;letter-spacing:-.2px;position:relative;z-index:1;transition:color .2s;cursor:pointer}
+.hg-tab{border:0;background:none;padding:8px 22px;border-radius:999px;color:#6E655D;font-family:inherit;font-size:13.5px;letter-spacing:-.2px;position:relative;z-index:1;transition:color .2s;cursor:pointer}
 .hg-tab[aria-selected="true"]{color:#fff;font-weight:700}
-.hg-doc{position:absolute;right:0;border:0;background:none;font-family:inherit;font-size:12px;color:var(--sub);cursor:pointer;padding:6px 0}
+.hg-doc{position:absolute;right:0;border:0;background:none;font-family:inherit;font-size:12px;color:var(--ink);cursor:pointer;padding:6px 0}
 .hg-doc b{color:#C6431F;font-weight:600}
 .hg-stage{position:relative}
 #hgBox{position:absolute;inset:0}   /* 캔버스가 칸 폭을 밀지 않게 — 지구본은 칸을 따라가고 칸은 부모를 따라간다 */
@@ -167,11 +168,15 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .hg-play a{color:#C6431F;font-weight:700;text-decoration:none}
 @keyframes hgBob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-7px) rotate(-4deg)}}
 @media (prefers-reduced-motion:reduce){.hg-play img{animation:none}}
-.hg-trips{text-align:left;font-size:13px;line-height:2;border-top:1px solid rgba(0,0,0,.06);padding-top:8px;margin-top:10px}
+/* 🔴 #067 13:40: 라벨 칸 폭 고정 · 콜론 · 왼쪽 정렬 · 구분선 ✗ */
+.hg-trips{text-align:left;font-size:13px;line-height:2;margin-top:10px}
+.hg-trips .k{flex:0 0 64px;color:var(--ink);font-weight:700}
+.hg-trips .k.dd{color:#C6431F}
+.hg-trips .v{overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
 .hg-trips div{display:flex;gap:6px;align-items:baseline;white-space:nowrap;overflow:hidden}
 .hg-trips .dd{color:#C6431F;font-weight:700}
 .hg-trips .s{color:var(--sub);overflow:hidden;text-overflow:ellipsis}
-.hg-trips a{margin-left:auto;color:#C6431F;font-weight:600;text-decoration:none;flex-shrink:0;cursor:pointer}
+.hg-trips a{color:#C6431F;font-weight:600;text-decoration:none;flex-shrink:0;cursor:pointer;margin-left:4px}
 .hg-trips .all{color:var(--sub);font-size:12px;cursor:pointer}
 .hg-line{font-size:12.5px;color:var(--sub);margin-top:8px;text-align:center;line-height:1.5}
 .hg-pop{position:absolute;right:0;top:10px;width:260px;max-height:300px;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:10px 12px;z-index:3}
@@ -187,7 +192,8 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .hg-face .ok{margin:-16px 0 0 -6px;width:14px;height:14px;border-radius:50%;background:#2E9E5B;color:#fff;font:800 9px system-ui;display:flex;align-items:center;justify-content:center}
 .hg-face .more{margin-left:4px;padding:1px 6px;border-radius:999px;background:rgba(255,255,255,.95);border:1px solid var(--line);font:700 10px Pretendard,system-ui,sans-serif;color:var(--ink)}
 /* 집 — 칩 없이 글씨만(창5 #037 규칙: 이름이 집을 가리지 않게 · 겹치면 이름 생략) */
-.hg-house{display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-80%);pointer-events:none}
+.hg-house{display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-80%);pointer-events:auto;cursor:pointer}
+#hgBox canvas{cursor:grab}#hgBox canvas:active{cursor:grabbing}   /* 9/25 규칙: 누를 수 있는 것은 손 · 지구본은 잡기 */
 .hg-house span{font-size:22px;line-height:1;filter:drop-shadow(0 2px 2px rgba(0,0,0,.25))}
 .hg-house small{font:600 10px Pretendard,system-ui,sans-serif;color:var(--ink);margin-top:1px;text-shadow:0 0 3px #fff,0 0 3px #fff}
 @media (max-width:1023px){.hero-in.has-globe{grid-template-columns:1fr}}
@@ -708,7 +714,7 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
          <button type="button" class="hg-tab" role="tab" data-tab="mine" aria-selected="false">내 여행</button>
          <button type="button" class="hg-tab" role="tab" data-tab="market" aria-selected="true">여행 담기</button>
        </div>
-       <button type="button" class="hg-doc" id="hgDoc">🎧 <b>도슨트 미리보기</b></button>
+       <button type="button" class="hg-doc" id="hgDoc">🎧 <b>도슨트 미리듣기</b></button>
      </div>
      <div class="hg-stage" id="hgStage"><div id="hgBox"></div><div class="hg-pop" id="hgPop" hidden></div>
        <div class="hg-play" id="hgPlay" hidden><img src="assets/modni_symbol.png" alt=""><span id="hgPlayT">니스 구시가지 · 모드니 도슨트</span><button type="button" id="hgStop">그만 듣기</button></div>
@@ -2515,6 +2521,8 @@ function hgHouseEl(h){
   const w = document.createElement("div");
   w.className = "hg-house";
   w.innerHTML = '<span>🏠</span>' + (h.hideName ? "" : '<small>' + esc(h.name) + '</small>');
+  w.setAttribute("role", "button"); w.setAttribute("aria-label", h.name + " 내 여행");
+  w.addEventListener("click", (e) => { e.stopPropagation(); openMyTripsApp(); });
   return w;
 }
 function hgFaceEl(pin){
@@ -2544,18 +2552,19 @@ function hgOpen(pin){
 }
 function hgShortDate(d){ const x = new Date(d + "T00:00:00"); return (x.getMonth() + 1) + "." + x.getDate() + "(" + ["일","월","화","수","목","금","토"][x.getDay()] + ")"; }
 function hgTripsHtml(){
+  // 🔴 #067 13:40: 「D-39 : …」「계획 중 : …」「저장 : 여행 N개 · 모두 보기 ›」 — 라벨 칸 고정 폭 + 콜론 · 링크는 글 바로 뒤
   const { upcoming: u, planning: p, rest } = hgMine;
   const out = [];
   if (u){
     const cl = checklistCount(u.checklist);
-    out.push('<div><span class="dd">' + esc(ddayOf(u.depart_date)) + '</span> ' + esc(u.title || u.region || "여행") + (u.nights ? " " + u.nights + "박" : "") +
-      '<span class="s"> · ' + esc(hgShortDate(u.depart_date)) + (cl ? " · 준비물 " + cl.done + "/" + cl.total : "") + '</span><a onclick="openTrip(\'' + esc(u.id) + '\')">일정 보기 ›</a></div>');
+    out.push('<div><span class="k dd">' + esc(ddayOf(u.depart_date)) + ' :</span><span class="v">' + esc(u.title || u.region || "여행") + (u.nights ? " " + u.nights + "박" : "") +
+      '<span class="s"> · ' + esc(hgShortDate(u.depart_date)) + (cl ? " · 준비물 " + cl.done + "/" + cl.total : "") + ' ·</span></span><a onclick="openTrip(\'' + esc(u.id) + '\')">일정 보기 ›</a></div>');
   }
   if (p){
-    out.push('<div><span class="s">계획 중</span> ' + esc(p.title || p.region || "새 여행") +
-      '<span class="s">' + (p.depart_date ? " · " + esc(hgShortDate(p.depart_date)) : "") + '</span><a onclick="openTrip(\'' + esc(p.id) + '\')">이어서 ›</a></div>');
+    out.push('<div><span class="k">계획 중 :</span><span class="v">' + esc(p.title || p.region || "새 여행") +
+      '<span class="s">' + (p.depart_date ? " · " + esc(hgShortDate(p.depart_date)) : "") + ' ·</span></span><a onclick="openTrip(\'' + esc(p.id) + '\')">이어서 ›</a></div>');
   }
-  if (rest) out.push('<div class="all" onclick="openMyTripsApp()">저장한 여행 ' + rest + '개 ›</div>');
+  if (rest) out.push('<div><span class="k">저장 :</span><span class="v">여행 ' + rest + '개 <span class="s">·</span></span><a onclick="openMyTripsApp()">모두 보기 ›</a></div>');
   return out.join("");
 }
 function hgPaint(){
