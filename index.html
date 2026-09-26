@@ -143,20 +143,38 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .hero-copy{min-width:0}
 .hero-panel{background:linear-gradient(180deg,#fff 0%,var(--orange-tint) 240%);border:1px solid var(--line);border-radius:26px;padding:22px 24px 26px;box-shadow:0 24px 60px rgba(244,88,28,.12)}
 .hp-head{display:flex;align-items:center;gap:12px;padding:0 0 18px;margin-bottom:6px;border-bottom:1px solid var(--hair)}
-/* 🆕 9/26 지시서53 §5 (앱 지시함 #054④): 첫 카드(토글 지구본). 여행 담기에 코스가 1개 이상일 때만 .hero-panel 자리를 대신한다.
-   코스가 0개면 이 카드는 숨고 기능 패널이 그대로 선다 — 빈 지구본 앞에 세우지 않는다(앱 FirstGlobeCard와 같은 규칙).
-   고른 칸 #C6431F = 흰 글자 대비 4.97(--orange #F4581C는 3.36 미달 · 앱 실측과 같다) */
-.hero-globe{background:#fff;border:1px solid var(--line);border-radius:26px;padding:14px 14px 10px;box-shadow:0 24px 60px rgba(244,88,28,.12);width:100%;min-width:0;max-width:100%}
+/* 🆕 9/26 지시서53 §5 → 🔴 지시함 #067 v2 (영아 실기 1920 · 목업 지시서66 = 정답): hero 오른쪽 = **박스·배경 없이 지구본만**.
+   지름 ≈ hero 높이 80%(1920에서 ~560) · ≤1023 은 폭 90%(hgSize()) · 토글 = 흰 알약 + 주황 그라데이션 슬라이더(목업 CSS 그대로)
+   · 같은 줄 오른쪽 끝 「🎧 도슨트 미리보기」 · 로그인 = 「내 여행」(집) + 지구본 폭 두 줄 · 비로그인 = 「여행 담기」(얼굴 핀) + 모드니 한 줄.
+   기능 패널(.hero-panel)·내 여행 카드(#heroTrips)는 지구본이 서면 숨는다(다섯 언어 id는 그대로 남아 있다). */
+.hero-in.has-globe{grid-template-columns:.95fr 1.05fr}
+.hero-in > .hero-right{min-width:0}   /* 1fr 칸은 내용만큼 늘어난다 — 캔버스가 칸을 밀던 것(9/26 실측 1280에서 1310px) */
+.hero-globe{width:100%;min-width:0;display:flex;flex-direction:column;align-items:center}
+.hero-globe[hidden],.hg-play[hidden],.hg-trips[hidden],.hg-pop[hidden]{display:none}   /* display:flex 가 hidden 속성을 이기지 않게(9/26 실측: 재생 줄이 늘 떠 있었다) */
+.hg-bar{position:relative;display:flex;justify-content:center;align-items:center;width:100%;margin-bottom:4px}
+.hg-tg{display:inline-flex;background:#fff;border-radius:999px;padding:4px;box-shadow:0 2px 12px rgba(226,83,42,.12),inset 0 0 0 1px rgba(226,83,42,.08);position:relative}
+.hg-tg:before{content:"";position:absolute;top:4px;bottom:4px;width:calc(50% - 4px);left:4px;border-radius:999px;background:linear-gradient(135deg,#ff7a4d,#e2532a);box-shadow:0 3px 10px rgba(226,83,42,.35);transition:left .25s}
+.hg-tg.r:before{left:50%}
+.hg-tab{border:0;background:none;padding:8px 22px;border-radius:999px;color:#7a6f66;font-family:inherit;font-size:13.5px;letter-spacing:-.2px;position:relative;z-index:1;transition:color .2s;cursor:pointer}
+.hg-tab[aria-selected="true"]{color:#fff;font-weight:700}
+.hg-doc{position:absolute;right:0;border:0;background:none;font-family:inherit;font-size:12px;color:var(--sub);cursor:pointer;padding:6px 0}
+.hg-doc b{color:#C6431F;font-weight:600}
+.hg-stage{position:relative}
 #hgBox{position:absolute;inset:0}   /* 캔버스가 칸 폭을 밀지 않게 — 지구본은 칸을 따라가고 칸은 부모를 따라간다 */
-.hero-in > .hero-right{min-width:0}   /* 1fr 칸은 내용만큼 늘어난다 — 지구본 캔버스가 칸을 밀던 것(9/26 실측 1280에서 1310px) */
-.hg-tabs{display:flex;gap:6px}
-.hg-tab{flex:1;border:1px solid var(--line);background:var(--warm);border-radius:12px;padding:9px 0;font-family:inherit;font-size:13px;font-weight:800;color:var(--ink);cursor:pointer}
-.hg-tab[aria-selected="true"]{background:#C6431F;border-color:#C6431F;color:#fff}
-.hg-hi{display:flex;align-items:center;gap:10px;padding:10px 4px 0;font-size:12.5px;line-height:1.45;color:var(--ink)}
-.hg-hi img{width:30px;height:30px;flex-shrink:0}
-.hg-stage{position:relative;height:360px;margin-top:8px;border-radius:18px;overflow:hidden;background:var(--warm)}
-.hg-foot{font-size:12px;font-weight:600;color:var(--ink);padding:8px 4px 2px;min-height:26px}
-.hg-pop{position:absolute;right:10px;top:10px;width:260px;max-height:300px;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:10px 12px}
+.hg-play{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink);background:rgba(255,255,255,.9);border-radius:999px;padding:6px 12px 6px 8px;box-shadow:0 2px 12px rgba(0,0,0,.06);white-space:nowrap}
+.hg-play img{width:24px;height:24px;animation:hgBob 2.8s ease-in-out infinite}
+.hg-play button{border:0;background:none;font-family:inherit;font-size:12px;color:#C6431F;font-weight:700;cursor:pointer;padding:0 0 0 4px}
+.hg-play a{color:#C6431F;font-weight:700;text-decoration:none}
+@keyframes hgBob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-7px) rotate(-4deg)}}
+@media (prefers-reduced-motion:reduce){.hg-play img{animation:none}}
+.hg-trips{text-align:left;font-size:13px;line-height:2;border-top:1px solid rgba(0,0,0,.06);padding-top:8px;margin-top:10px}
+.hg-trips div{display:flex;gap:6px;align-items:baseline;white-space:nowrap;overflow:hidden}
+.hg-trips .dd{color:#C6431F;font-weight:700}
+.hg-trips .s{color:var(--sub);overflow:hidden;text-overflow:ellipsis}
+.hg-trips a{margin-left:auto;color:#C6431F;font-weight:600;text-decoration:none;flex-shrink:0;cursor:pointer}
+.hg-trips .all{color:var(--sub);font-size:12px;cursor:pointer}
+.hg-line{font-size:12.5px;color:var(--sub);margin-top:8px;text-align:center;line-height:1.5}
+.hg-pop{position:absolute;right:0;top:10px;width:260px;max-height:300px;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:10px 12px;z-index:3}
 .hg-pop h4{display:flex;justify-content:space-between;align-items:center;font-size:13.5px;font-weight:800;margin-bottom:4px}
 .hg-pop h4 button{border:0;background:none;font-family:inherit;font-size:12.5px;font-weight:700;color:var(--ink);cursor:pointer}
 .hg-row{display:flex;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--hair);cursor:pointer;font-size:13px}
@@ -168,7 +186,13 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .hg-face i img{width:20px;height:20px}
 .hg-face .ok{margin:-16px 0 0 -6px;width:14px;height:14px;border-radius:50%;background:#2E9E5B;color:#fff;font:800 9px system-ui;display:flex;align-items:center;justify-content:center}
 .hg-face .more{margin-left:4px;padding:1px 6px;border-radius:999px;background:rgba(255,255,255,.95);border:1px solid var(--line);font:700 10px Pretendard,system-ui,sans-serif;color:var(--ink)}
-@media (max-width:900px){.hg-stage{height:330px}.hg-pop{left:10px;right:10px;width:auto;top:auto;bottom:10px;max-height:60%}}
+/* 집 — 칩 없이 글씨만(창5 #037 규칙: 이름이 집을 가리지 않게 · 겹치면 이름 생략) */
+.hg-house{display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-80%);pointer-events:none}
+.hg-house span{font-size:22px;line-height:1;filter:drop-shadow(0 2px 2px rgba(0,0,0,.25))}
+.hg-house small{font:600 10px Pretendard,system-ui,sans-serif;color:var(--ink);margin-top:1px;text-shadow:0 0 3px #fff,0 0 3px #fff}
+@media (max-width:1023px){.hero-in.has-globe{grid-template-columns:1fr}}
+@media (max-width:600px){.hg-bar{flex-wrap:wrap;gap:6px}.hg-doc{position:static}}   /* 폰: 링크가 토글을 덮지 않게 한 줄 아래로 */
+@media (max-width:900px){.hg-pop{left:10px;right:10px;width:auto;top:auto;bottom:10px;max-height:60%}}
 .hp-head .mface{width:44px;height:44px;background:var(--orange-soft);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .hp-head .mface img{width:30px;height:30px}
 .hp-head b{font-size:15.5px;font-weight:800;letter-spacing:-.3px}
@@ -677,15 +701,20 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
      </div>
      <div class="hp-tail" id="hpTail"><span>앱에서 짜다 PC로, PC에서 짜다 앱으로</span><span class="ar">↔</span><span class="m">같은 계정이면 그대로 이어져요</span></div>
    </div>
-   <!-- 🆕 9/26 지시서53 §5: 첫 카드(토글 지구본) — renderHeroGlobe()가 여행 담기 코스가 있을 때만 연다 -->
+   <!-- 🆕 지시서53 §5 → 🔴 #067 v2: 박스 없이 지구본만 — renderHeroGlobe()가 연다(마켓 0개여도 · 로그인이면 「내 여행」) -->
    <div class="hero-globe" id="heroGlobe" hidden>
-     <div class="hg-tabs" role="tablist">
-       <button type="button" class="hg-tab" role="tab" data-tab="mine" aria-selected="false">내 여행</button>
-       <button type="button" class="hg-tab" role="tab" data-tab="market" aria-selected="true">여행 담기</button>
+     <div class="hg-bar">
+       <div class="hg-tg" id="hgTg" role="tablist">
+         <button type="button" class="hg-tab" role="tab" data-tab="mine" aria-selected="false">내 여행</button>
+         <button type="button" class="hg-tab" role="tab" data-tab="market" aria-selected="true">여행 담기</button>
+       </div>
+       <button type="button" class="hg-doc" id="hgDoc">🎧 <b>도슨트 미리보기</b></button>
      </div>
-     <div class="hg-hi" id="hgHi"><img src="assets/modni_symbol.png" alt=""><span id="hgHiT"></span></div>
-     <div class="hg-stage"><div id="hgBox"></div><div class="hg-pop" id="hgPop" hidden></div></div>
-     <div class="hg-foot" id="hgFoot"></div>
+     <div class="hg-stage" id="hgStage"><div id="hgBox"></div><div class="hg-pop" id="hgPop" hidden></div>
+       <div class="hg-play" id="hgPlay" hidden><img src="assets/modni_symbol.png" alt=""><span id="hgPlayT">니스 구시가지 · 모드니 도슨트</span><button type="button" id="hgStop">그만 듣기</button></div>
+     </div>
+     <div class="hg-trips" id="hgTrips" hidden></div>
+     <div class="hg-line" id="hgLine"></div>
    </div>
    </div>
   <div class="scroll-hint">아래로 스크롤<br>⌄</div>
@@ -1569,7 +1598,7 @@ let currentUser = null;
 async function loadMarket(){
   try {
     const { data, error } = await sb.from("market_courses")
-      .select("id, market_title, summary, region, nights, tags, hearts, download_count, is_sample, published_at, proof")
+      .select("id, market_title, summary, region, nights, tags, hearts, download_count, is_sample, published_at, proof, first_city:itinerary_snapshot->days->0->>city")
       .eq("status", "published");
     if (error) throw error;
     courses = data || [];
@@ -2400,59 +2429,93 @@ function planningCardHtml(t){
 }
 
 async function renderHeroTrips(){
-  const box = $("heroTrips"), panel = document.querySelector(".hero-panel");
-  if (!box) return;
-  const hide = () => { box.hidden = true; box.innerHTML = ""; if (panel) panel.hidden = false; heroHasTrips = false; renderHeroGlobe(); };
-  if (!currentUser) return hide();
-  let rows = [];
-  try {
-    const { data, error } = await sb.from("trips")
-      .select("id, title, region, depart_date, nights, status, draft_step, updated_at, itinerary, checklist")
-      .order("updated_at", { ascending:false }).limit(40);
-    if (error) throw error;
-    rows = data || [];
-  } catch(e){ return hide(); }
-  if (!rows.length) return hide();
-
-  const today = todayStr();
-  const future = rows.filter(t => t.depart_date && t.depart_date >= today)
-                     .sort((a,b) => a.depart_date.localeCompare(b.depart_date));
-  const upcoming = future[0] || null;
-  const planning = rows.filter(t => t.id !== (upcoming && upcoming.id))
-                       .filter(t => !t.depart_date || t.depart_date >= today)[0] || null;
-  if (!upcoming && !planning) return hide();
-
-  const rest = rows.filter(t => !t.depart_date || t.depart_date >= today).length;
-  box.innerHTML =
-    (upcoming ? upcomingCardHtml(upcoming) : "") +
-    (planning ? planningCardHtml(planning) : "") +
-    (rest > 2 ? `<div class="upmore" onclick="openMyTripsApp()">저장한 여행 ${rest}개 모두 보기 ›</div>` : "");
-  box.hidden = false;
-  if (panel) panel.hidden = true;
-  heroHasTrips = true; renderHeroGlobe();   // 내 여행 카드가 서면 첫 카드는 물러난다
+  // 🔴 #067 v2: 로그인해도 **지구본이 첫 화면** — 옛 「여행 카드로 교체」(#heroTrips) 는 쓰지 않는다.
+  //   다가오는/계획 중 여행은 지구본 바로 아래 두 줄(hgTrips) · 「내 여행」 칸의 집은 트립 도시에서 나라로.
+  const box = $("heroTrips"); if (box){ box.hidden = true; box.innerHTML = ""; }
+  hgMine = { rows: [], upcoming: null, planning: null, rest: 0 };
+  if (currentUser) {
+    try {
+      const { data, error } = await sb.from("trips")
+        .select("id, title, region, depart_date, nights, status, draft_step, updated_at, itinerary, checklist")
+        .order("updated_at", { ascending:false }).limit(40);
+      if (error) throw error;
+      const rows = data || [];
+      const today = todayStr();
+      const future = rows.filter(t => t.depart_date && t.depart_date >= today).sort((a,b) => a.depart_date.localeCompare(b.depart_date));
+      const upcoming = future[0] || null;
+      const planning = rows.filter(t => t.id !== (upcoming && upcoming.id)).filter(t => !t.depart_date || t.depart_date >= today)[0] || null;
+      hgMine = { rows, upcoming, planning, rest: rows.length };
+    } catch(e){ /* 못 읽으면 줄 없이 지구본만 */ }
+  }
+  hgHouses = null;   // 트립이 바뀌었으니 집을 다시 셈
+  renderHeroGlobe();
 }
 
-/* ── 🆕 9/26 지시서53 §5: 첫 카드(토글 지구본) ─────────────────────────────
-   규칙은 앱 lib/globe/firstCardRules.ts · facePins.ts와 같다(대문은 바닐라라 옮겨 적는다):
-   · 🔴 9/26 #062: 여행 담기 0개여도 카드를 그린다(「내 여행」 칸 + 「아직 올라온 여행이 없어요」) · 로그인 + 내 여행 카드가 섰으면 카드 없음
-   · 기본 칸 = 여행 담기 + 모드니 인사 · 도시마다 얼굴 2 + "+N" · 테두리 다녀옴(초록 실선 ✓)/모드니(주황)/계획 중(점선)
-   · 핀 → 목록(다녀옴 → 모드니 → 계획 중) → 한 줄 → 기존 코스 상세 오버레이(selectCourse) → [담아가기]는 plan으로
-   ⚠️ KOR/ENG 토글(EN_TEXTS)은 이 카드를 옮기지 않는다 — 기능 패널 다섯 id는 그대로 두었다(패널은 숨었다 다시 설 수 있다). */
-let heroHasTrips = false, hgGlobe = null, hgTab = "market", hgPins = [], hgTouched = false;
+/* ── 🆕 지시서53 §5 → 🔴 지시함 #067 v2: 첫 화면 지구본(박스 없음) ─────────────────────────────
+   규칙은 앱 lib/globe/firstCardRules.ts · facePins.ts 와 같다(대문은 바닐라라 옮겨 적는다):
+   · 늘 선다(#062 · 마켓 0개여도) · 로그인 = 「내 여행」(집)으로 연다 · 비로그인 = 「여행 담기」(코스 있으면) / 「내 여행」(0개면)
+   · 얼굴 핀 도시 = 코스 **첫날 도시**(first_city) — region「남프랑스」는 좌표가 없어 핀 0이던 것(9/26 07:3x 실측)
+   · 집 = 트립 일정의 도시 → city_coords → 나라마다 하나 · 이름은 집 아래 **글씨만**(칩 ✗ · 가까우면 이름 생략)
+   · 🎧 도슨트 미리보기 = 지구본이 니스로 돌고 30초 재생 → 페이드아웃 + 「앱에서 전편 듣기」 (AI·TTS 0 · 있는 MP3만)
+   ⚠️ KOR/ENG 토글(EN_TEXTS)은 이 카드를 옮기지 않는다 — 기능 패널 다섯 id는 그대로 두었다. */
+let hgGlobe = null, hgTab = "market", hgPins = [], hgTouched = false, hgHouses = null;
+let hgMine = { rows: [], upcoming: null, planning: null, rest: 0 };
 const HG_RING = { visited:"#2E9E5B", modni:"#C6431F", planned:"#8A8494" };
 const HG_RANK = { visited:0, modni:1, planned:2 };
 const HG_LABEL = { visited:"✓ 다녀옴", modni:"모드니 추천", planned:"계획 중" };
+const HG_DOCENT = { city: "니스", title: "니스 구시가지", lat: 43.6966, lng: 7.2760,
+  url: "https://gecmrywieyntzzwthvlg.supabase.co/storage/v1/object/public/bucket-audio/bca9d0be-616d-4ca0-923e-f0e71d5d22cd_v2.mp3" };
 const hgRing = c => (c.proof && c.proof.verified === true) ? "visited" : (c.is_sample ? "modni" : "planned");
-function hgBuildPins(){
-  const at = {};
-  for (const p of (countryPins || [])) at[p.city] = p;
+const hgPinCity = c => String(c.first_city || "").trim() || cityOfCourse(c);
+/** 지름 — hero 높이 80%(≤ 칸 폭) · ≤1023 은 폭 90% */
+function hgSize(){
+  const col = $("heroGlobe").clientWidth || 480;
+  // 폰·태블릿: 화면 폭 90% — 단 칸(여백 안쪽)을 넘지 않게(넘으면 가로 스크롤이 생긴다)
+  if (window.innerWidth <= 1023) return Math.round(Math.min(col, window.innerWidth * 0.9));
+  const hero = document.querySelector(".hero");
+  const h = hero ? hero.clientHeight : window.innerHeight;
+  return Math.round(Math.max(320, Math.min(col, h * 0.8)));
+}
+async function hgCoords(names){
+  const want = [...new Set(names.filter(Boolean))];
+  if (!want.length) return {};
+  try {
+    const { data } = await sb.from("city_coords").select("city, lat, lng, country_code").in("city", want);
+    const out = {};
+    for (const r of (data || [])) if (Number.isFinite(r.lat) && Number.isFinite(r.lng)) out[r.city] = r;
+    return out;
+  } catch(e){ return {}; }
+}
+async function hgBuildPins(){
+  const at = await hgCoords((courses || []).map(hgPinCity));
   const by = {};
-  for (const c of courses){ const k = cityOfCourse(c); if (!k || !at[k]) continue; (by[k] = by[k] || []).push(c); }
+  for (const c of (courses || [])){ const k = hgPinCity(c); if (!k || !at[k]) continue; (by[k] = by[k] || []).push(c); }
   hgPins = Object.keys(by).map(city => {
-    const list = by[city].map((c, i) => ({ c, i }))
-      .sort((a, b) => (HG_RANK[hgRing(a.c)] - HG_RANK[hgRing(b.c)]) || (a.i - b.i)).map(x => x.c);
-    return { city, lat: at[city].lat, lng: at[city].lng, courses: list, faces: list.slice(0, 2), extra: Math.max(0, list.length - 2), ring: hgRing(list[0]) };
+    const list = by[city].map((c, i) => ({ c, i })).sort((a, b) => (HG_RANK[hgRing(a.c)] - HG_RANK[hgRing(b.c)]) || (a.i - b.i)).map(x => x.c);
+    return { kind: "face", city, lat: at[city].lat, lng: at[city].lng, courses: list, faces: list.slice(0, 2), extra: Math.max(0, list.length - 2), ring: hgRing(list[0]) };
   }).sort((a, b) => (b.courses.length - a.courses.length) || a.city.localeCompare(b.city));
+}
+/** 내 여행 집 — 트립 일정 도시(없으면 region) → 나라마다 첫 도시 좌표 하나 */
+async function hgBuildHouses(){
+  const cities = [];
+  for (const t of hgMine.rows){
+    const days = t.itinerary && Array.isArray(t.itinerary.days) ? t.itinerary.days : [];
+    const cs = days.map(d => String(d && d.city || "").trim()).filter(Boolean);
+    if (cs.length) cities.push(...cs); else if (t.region) cities.push(...String(t.region).replace(/,/g, "·").split("·").map(x => x.trim()));
+  }
+  const at = await hgCoords(cities);
+  const byCountry = {};
+  for (const c of cities){ const r = at[c]; if (!r) continue; const a2 = String(r.country_code || "").toUpperCase() || c; if (!byCountry[a2]) byCountry[a2] = { kind: "house", a2, lat: r.lat, lng: r.lng, name: A2_KO[a2] || c }; }
+  const list = Object.values(byCountry);
+  // 가까우면(대략 6도) 이름 생략 — 집은 남기고 글씨만 뺀다
+  list.forEach((h, i) => { h.hideName = list.slice(0, i).some(o => Math.hypot(o.lat - h.lat, (o.lng - h.lng) * Math.cos(h.lat * Math.PI / 180)) < 6); });
+  hgHouses = list;
+}
+function hgHouseEl(h){
+  const w = document.createElement("div");
+  w.className = "hg-house";
+  w.innerHTML = '<span>🏠</span>' + (h.hideName ? "" : '<small>' + esc(h.name) + '</small>');
+  return w;
 }
 function hgFaceEl(pin){
   const w = document.createElement("div");
@@ -2479,36 +2542,66 @@ function hgOpen(pin){
   pop.querySelectorAll(".hg-row").forEach(r => r.addEventListener("click", () => selectCourse(r.dataset.id)));
   pop.hidden = false;
 }
+function hgShortDate(d){ const x = new Date(d + "T00:00:00"); return (x.getMonth() + 1) + "." + x.getDate() + "(" + ["일","월","화","수","목","금","토"][x.getDay()] + ")"; }
+function hgTripsHtml(){
+  const { upcoming: u, planning: p, rest } = hgMine;
+  const out = [];
+  if (u){
+    const cl = checklistCount(u.checklist);
+    out.push('<div><span class="dd">' + esc(ddayOf(u.depart_date)) + '</span> ' + esc(u.title || u.region || "여행") + (u.nights ? " " + u.nights + "박" : "") +
+      '<span class="s"> · ' + esc(hgShortDate(u.depart_date)) + (cl ? " · 준비물 " + cl.done + "/" + cl.total : "") + '</span><a onclick="openTrip(\'' + esc(u.id) + '\')">일정 보기 ›</a></div>');
+  }
+  if (p){
+    out.push('<div><span class="s">계획 중</span> ' + esc(p.title || p.region || "새 여행") +
+      '<span class="s">' + (p.depart_date ? " · " + esc(hgShortDate(p.depart_date)) : "") + '</span><a onclick="openTrip(\'' + esc(p.id) + '\')">이어서 ›</a></div>');
+  }
+  if (rest) out.push('<div class="all" onclick="openMyTripsApp()">저장한 여행 ' + rest + '개 ›</div>');
+  return out.join("");
+}
 function hgPaint(){
   if (!hgGlobe) return;
-  hgGlobe.htmlElementsData(hgTab === "market" ? hgPins : []);
+  const mine = hgTab === "mine";
+  hgGlobe.htmlElementsData(mine ? (hgHouses || []) : hgPins);
+  $("hgTg").classList.toggle("r", !mine);
   document.querySelectorAll("#heroGlobe .hg-tab").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === hgTab)));
-  const hi = $("hgHi");
-  // 🔴 9/26 #062: 코스 0개면 앱 firstCardRules.modniGreeting(0, 0)과 같은 문구
-  const empty = !(courses || []).length;
-  hi.hidden = false;
-  if (empty) $("hgHiT").textContent = "아직 올라온 여행이 없어요. 첫 여행을 만들면 여기 지구본에 도장으로 쌓여요";
-  else if (hgTab === "market") $("hgHiT").textContent = "처음 오셨네요! 다른 분들 여행부터 구경해 볼래요? 내 여행은 옆 칸 내 여행에 도장으로 쌓여요";
-  else $("hgHiT").textContent = currentUser ? "여행을 만들면 여기에 도장으로 쌓여요" : "로그인하면 내 여행이 여기에 도장으로 쌓여요";
+  const n = (courses || []).length;
+  // 아래 — 로그인 + 「내 여행」 = 여행 두 줄(모드니 한 줄 ✗) · 그 밖 = 모드니 한 줄(앱 modniGreeting 과 같은 문구)
+  const trips = $("hgTrips"), line = $("hgLine");
+  const showTrips = !!currentUser && mine && (hgMine.upcoming || hgMine.planning || hgMine.rest);
+  trips.hidden = !showTrips;
+  if (showTrips){ trips.innerHTML = hgTripsHtml(); trips.style.width = hgSize() + "px"; }
+  if (currentUser && mine) line.textContent = showTrips ? "" : "여행을 만들면 여기에 집으로 쌓여요";
+  else if (!n) line.textContent = "아직 올라온 여행이 없어요. 첫 여행을 만들면 여기 지구본에 도장으로 쌓여요";
+  else if (!mine) line.textContent = "지금 " + n + "개 여행 · 처음 오셨네요! 다른 분들 여행부터 구경해 볼래요?";
+  else line.textContent = "로그인하면 내 여행이 여기에 집으로 쌓여요";
   $("hgPop").hidden = true;
+}
+function hgResize(){
+  if (!hgGlobe) return;
+  const d = hgSize();
+  const st = $("hgStage");
+  st.style.width = d + "px"; st.style.height = d + "px";
+  hgGlobe.width(d).height(d);
+  if (!$("hgTrips").hidden) $("hgTrips").style.width = d + "px";
 }
 function hgInit(){
   const box = $("hgBox");
   if (!box || hgGlobe) return;
   if (typeof Globe !== "function"){ setTimeout(hgInit, 120); return; }   // defer 로드 대기(아래 큰 지구본과 같다)
-  const stage = box.parentElement;
+  const d = hgSize();
+  const st = $("hgStage"); st.style.width = d + "px"; st.style.height = d + "px";
   hgGlobe = Globe()(box)
-    .width(stage.clientWidth).height(stage.clientHeight)
+    .width(d).height(d)
     .backgroundColor("rgba(0,0,0,0)")
     .globeImageUrl(GLOBE_TEXTURE)
     .showAtmosphere(true).atmosphereColor("#FFE3D3").atmosphereAltitude(0.15)
-    .htmlLat(d => d.lat).htmlLng(d => d.lng).htmlAltitude(0.015)
-    .htmlElement(hgFaceEl);
+    .htmlLat(x => x.lat).htmlLng(x => x.lng).htmlAltitude(0.015)
+    .htmlElement(x => x.kind === "house" ? hgHouseEl(x) : hgFaceEl(x));
   const controls = hgGlobe.controls();
   controls.enableZoom = false; controls.enablePan = false;   // 휠은 페이지 스크롤로 — 대문에 갇히지 않게(큰 지구본과 같은 이유)
   controls.autoRotate = true; controls.autoRotateSpeed = 0.28;
   box.addEventListener("pointerdown", () => { controls.autoRotate = false; }, { once: true });
-  hgGlobe.pointOfView({ lat: 30, lng: 90, altitude: 2.3 }, 0);
+  hgGlobe.pointOfView({ lat: 30, lng: 40, altitude: 1.65 }, 0);   // 칸을 거의 채우게(2.1이면 구가 칸의 75%뿐이라 토글 아래가 비었다)
   try {
     const sc = hgGlobe.scene();
     sc.children.filter(o => o.type === "AmbientLight").forEach(o => o.intensity = 2.2);
@@ -2518,25 +2611,62 @@ function hgInit(){
     hgGlobe.polygonsData(geo.features).polygonCapColor(() => "rgba(0,0,0,0)").polygonSideColor(() => "rgba(0,0,0,0)")
       .polygonStrokeColor(() => "#E3C9BA").polygonAltitude(0.005);
   }).catch(() => {});
-  window.addEventListener("resize", () => { if (hgGlobe && !$("heroGlobe").hidden) hgGlobe.width(stage.clientWidth).height(stage.clientHeight); });
+  window.addEventListener("resize", () => { if (!$("heroGlobe").hidden) hgResize(); });
   document.querySelectorAll("#heroGlobe .hg-tab").forEach(b => b.addEventListener("click", () => { hgTouched = true; hgTab = b.dataset.tab; hgPaint(); }));
+  $("hgDoc").addEventListener("click", hgDocent);
+  $("hgStop").addEventListener("click", () => hgDocentStop(false));
 }
+
+/* 🎧 도슨트 미리보기 — 30초에서 1.5초 페이드아웃 · 다시 누르면 멈춤 · 재생 중엔 모드니 심볼이 동동 */
+let hgAudio = null, hgAudioTimer = null;
+function hgDocent(){
+  if (hgAudio) { hgDocentStop(false); return; }
+  if (hgGlobe){ hgGlobe.controls().autoRotate = false; hgGlobe.pointOfView({ lat: HG_DOCENT.lat, lng: HG_DOCENT.lng, altitude: 1.1 }, 1400); }
+  hgAudio = new Audio(HG_DOCENT.url);
+  hgAudio.volume = 1;
+  const play = $("hgPlay");
+  $("hgPlayT").textContent = HG_DOCENT.title + " · 모드니 도슨트";
+  $("hgStop").hidden = false;
+  play.hidden = false;
+  hgAudio.play().catch(() => { hgDocentStop(false); });
+  hgAudioTimer = setTimeout(() => {
+    // 30초 — 1.5초에 걸쳐 줄이고 멈춘 뒤 「앱에서 전편 듣기」
+    const a = hgAudio; if (!a) return;
+    const t0 = Date.now();
+    const fade = setInterval(() => {
+      const k = Math.max(0, 1 - (Date.now() - t0) / 1500);
+      if (hgAudio === a) a.volume = k;
+      if (k === 0){ clearInterval(fade); hgDocentStop(true); }
+    }, 60);
+  }, 30000);
+  hgAudio.addEventListener("ended", () => hgDocentStop(true), { once: true });
+}
+function hgDocentStop(done){
+  if (hgAudioTimer){ clearTimeout(hgAudioTimer); hgAudioTimer = null; }
+  if (hgAudio){ try { hgAudio.pause(); } catch(e){} hgAudio = null; }
+  const play = $("hgPlay");
+  if (done){
+    $("hgPlayT").innerHTML = '전편은 앱에서 — <a href="' + WEB_APP_URL + '">앱에서 전편 듣기 ›</a>';
+    $("hgStop").hidden = true;
+    play.hidden = false;
+  } else play.hidden = true;
+}
+
 async function renderHeroGlobe(){
   const card = $("heroGlobe"), panel = document.querySelector(".hero-panel");
   if (!card) return;
   const n = (courses || []).length;
-  // 🔴 9/26 #062 (영아 "그냥 열라고 했는데 의미가 없다"): 코스 0개여도 **카드를 그린다**. 물러나는 건 내 여행 카드가 섰을 때뿐.
-  if (heroHasTrips){ card.hidden = true; return; }
-  // 첫 칸 — 앱 firstCardRules.initialTab 과 같은 규칙(코스 0개면 「내 여행」). 사람이 누른 뒤엔 사람 뜻대로
-  if (!hgTouched) hgTab = n ? "market" : "mine";
-  if (n && (!countryPins || !countryPins.length)) await loadCountryPins();
-  hgBuildPins();
-  const visited = courses.filter(c => hgRing(c) === "visited").length;
-  // 0개면 줄 없음 — 앱 firstCardRules.marketCountLine 과 같다
-  $("hgFoot").textContent = !n ? "" : ["지금 " + n + "개 여행", visited ? "✓다녀옴 " + visited : "", (n - visited) ? "계획 중 " + (n - visited) : ""].filter(Boolean).join(" · ");
+  // 첫 칸 — 로그인 = 「내 여행」 · 비로그인 = 앱 firstCardRules.initialTab(0, n)과 같다. 사람이 누른 뒤엔 사람 뜻대로
+  if (!hgTouched) hgTab = currentUser ? "mine" : (n ? "market" : "mine");
   if (panel) panel.hidden = true;
+  const trips = $("heroTrips"); if (trips) trips.hidden = true;
+  document.querySelector(".hero-in")?.classList.add("has-globe");
   card.hidden = false;
   hgInit();
+  if (n) await hgBuildPins(); else hgPins = [];
+  if (currentUser && hgHouses === null) await hgBuildHouses();
+  if (!currentUser) hgHouses = [];
+  hgResize();
   hgPaint();
 }
 
