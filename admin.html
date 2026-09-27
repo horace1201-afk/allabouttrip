@@ -285,6 +285,9 @@ td.plus{color:var(--green)} td.minus{color:var(--red)}
         <button class="sd-chip" data-sf="nohours">영업시간 없음</button>
         <button class="sd-chip" data-sf="closed">폐업</button>
         <button class="sd-chip" data-sf="excluded">후보 ✗</button>
+        <button class="sd-chip" data-sf="complete_unchecked">완성 · 검수 전</button>
+        <button class="sd-chip" data-sf="checked">검수 완료</button>
+        <button class="sd-chip" data-sf="incomplete">미완성</button>
       </div>
       <div class="sd-count" id="sdCount"></div>
       <div class="mk-list" id="sdList"><div class="empty">이름·도시로 찾아 보세요</div></div>
@@ -1120,7 +1123,7 @@ const sdClosed = (a) => Array.isArray(a) && a.length ? a.map(d => "일월화수�
 
 function sdRowHtml(r){
   const gf = r.gf || {};
-  const badges = [r.pilot ? `<span class="m-badge">새 시드</span>` : "", r.cand === "false" ? `<span class="pill warn">후보 ✗</span>` : "", /CLOSED/.test(gf.status || "") ? `<span class="pill warn">폐업</span>` : ""].join(" ");
+  const badges = [r.pilot ? `<span class="m-badge">새 시드</span>` : "", r.fill === "complete" ? `<span class="pill">완성</span>` : "", r.checked ? `<span class="pill ok">검수 완료</span>` : "", r.cand === "false" ? `<span class="pill warn">후보 ✗</span>` : "", /CLOSED/.test(gf.status || "") ? `<span class="pill warn">폐업</span>` : ""].join(" ");
   const img = r.photo_url ? `<img src="${esc(r.photo_url)}" alt="">` : `<div class="thumb-fallback">${esc((r.name_raw || "?").slice(0,1))}</div>`;
   const meta = [r.city, r.area, r.kind, sdStars(r.importance), gf.rating ? `평점 ${gf.rating}${gf.ratingN ? ` (${gf.ratingN})` : ""}` : "", r.updated_at ? `수정 ${fmtKst(r.updated_at)}` : ""].filter(Boolean).map(esc).join(" · ");
   return `<div class="sd-row${sdState.sel === r.id ? " sel" : ""}" data-id="${esc(r.id)}" role="button" tabindex="0">${img}<div class="m-body"><div class="m-t">${esc(r.name_raw)} ${badges}</div><div class="m-meta">${meta}</div></div></div>`;
@@ -1167,8 +1170,8 @@ function sdCardHtml(d){
   const excluded = det.candidate === false;
   const used = d.month ?? 0;
   return `
-    ${s.photo_url ? `<img class="sd-photo" src="${esc(s.photo_url)}" alt="">` : ""}
-    <h3>${esc(s.name_raw)} ${det.pilot || s.source === "manual" ? `<span class="m-badge">새 시드</span>` : `<span class="pill">기존</span>`} ${excluded ? `<span class="pill warn">후보 ✗</span>` : ""}</h3>
+    ${s.photo_url ? `<img class="sd-photo" src="${esc(s.photo_url)}" alt="">` : (det.photo_src === "google_live" && s.place_id ? `<div id="sdGPhoto"></div>` : "")}
+    <h3>${esc(s.name_raw)} ${det.pilot || s.source === "manual" ? `<span class="m-badge">새 시드</span>` : `<span class="pill">기존</span>`} ${pl.fill_status === "complete" ? `<span class="pill">완성</span>` : pl.fill_status ? `<span class="pill warn">미완성</span>` : ""} ${pl.checked_at ? `<span class="pill ok">검수 완료</span>` : ""} ${excluded ? `<span class="pill warn">후보 ✗</span>` : ""}</h3>
     <div class="sd-ro" style="margin-top:6px">
       <div><span class="k">도시·동네</span>${esc([s.city, s.area].filter(Boolean).join(" · "))}</div>
       <div><span class="k">kind·태그</span>${esc([s.kind, ...(pl.tags || [])].filter(Boolean).join(" · "))}</div>
@@ -1180,10 +1183,13 @@ function sdCardHtml(d){
       <div><span class="k">place_id</span>${s.place_id ? `<a href="${esc(sdMapUrl(s.place_id, pl.google_maps_uri))}" target="_blank" rel="noopener">${esc(s.place_id)} ↗</a>` : "—"}</div>
       <div><span class="k">별칭</span>${esc((d.aliases || []).map(a => a.alias_raw).join(", ") || "—")}</div>
       <div><span class="k">쓴 코스</span>${d.used}개 <span class="hint" data-tip="마켓 코스 스냅샷에 이 시드 id·place_id 가 들어간 수">i</span></div>
+      <div><span class="k">채움</span>${pl.fill_status ? esc(pl.fill_status === "complete" ? "완성" : "미완성") + (Array.isArray(pl.fill_missing) && pl.fill_missing.length ? ` · 빈칸 ${esc(pl.fill_missing.join(", "))}` : "") + (pl.filled_at ? ` · ${esc(fmtKst(pl.filled_at))}` : "") : "—"}${pl.place_type ? ` · ${esc(pl.place_type)}` : ""}</div>
+      <div><span class="k">검수</span>${pl.checked_at ? `${esc(fmtKst(pl.checked_at))} · ${esc(pl.checked_by || "")}` : "—"} <span class="hint" data-tip="사람이 확인한 표시 · 사실·글·사진이 바뀌면 자동으로 풀려요">i</span></div>
     </div>
     <div class="sd-f">${SD_EDIT.map(field).join("")}</div>
     <div class="mk-actions">
       <button class="btn primary" id="sdSave">저장</button>
+      ${s.place_id && pl.place_id ? `<button class="btn" id="sdCheck">${pl.checked_at ? "검수 되돌리기" : "검수 완료"}</button>` : ""}
       ${prevKeys.length ? `<button class="btn" id="sdRevert">되돌리기</button>` : ""}
       <button class="btn ${excluded ? "" : "danger"}" id="sdCand">${excluded ? "후보로 되살리기" : "후보에서 빼기"}</button>
       <button class="btn" id="sdRefetch"${used >= SD_CAP || !s.place_id ? " disabled" : ""}>구글에서 다시 받기 <span style="color:var(--sub);font-weight:600">${used}/${SD_CAP}</span></button>
@@ -1214,8 +1220,14 @@ async function sdOpen(id){
       act({ action: "update", id, patch }, r => r.changed ? `${r.changed}칸 저장했어요` : "바뀐 칸이 없어요");
     });
     $("sdRevert")?.addEventListener("click", () => { if (confirm("이전 값으로 되돌릴까요? (지금 값은 이력으로 남아요)")) act({ action: "revert", id }, r => `${r.reverted}칸 되돌렸어요`); });
+    $("sdCheck")?.addEventListener("click", () => act({ action: "check", id, on: !d.place?.checked_at }, r => r.checked ? "검수 완료로 표시했어요" : "검수 표시를 되돌렸어요"));
+    // 🆕 #063 추가: 사진 저장본이 없고 photo_src='google_live' 면 구글 사진을 그때 받아 보여 준다(저장 ✗ · 구글 표기)
+    if ($("sdGPhoto")) sb.functions.invoke("place-photo", { body: { placeId: d.seed.place_id, maxWidth: 900 } }).then(({ data }) => {
+      const el = $("sdGPhoto"); if (!el || !data?.photoUri) return;
+      el.innerHTML = `<div style="position:relative"><img class="sd-photo" src="${esc(data.photoUri)}" alt=""><span style="position:absolute;right:10px;bottom:18px;font-size:11px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6)">사진: Google${data.attribution ? " · " + esc(data.attribution) : ""}</span></div>`;
+    }).catch(() => {});
     $("sdCand").addEventListener("click", () => act({ action: "candidate", id, on: d.seed.detail?.candidate === false }, r => r.candidate ? "후보로 되살렸어요" : "후보에서 뺐어요(행은 그대로)"));
-    $("sdRefetch").addEventListener("click", () => { if (confirm(`구글 Enterprise 1회를 써요 (이번 달 ${sdState.month}/${SD_CAP})`)) act({ action: "refetch", id }, r => r.blocked ? `이번 달 한도(${SD_CAP})를 넘었어요` : `받았어요 · 이번 달 ${r.month}/${SD_CAP}${r.status && r.status !== "OPERATIONAL" ? ` · ${r.status}` : ""}`); });
+    $("sdRefetch").addEventListener("click", () => { if (confirm(`구글 Enterprise 1회를 써요 (이번 달 ${sdState.month}/${SD_CAP})`)) act({ action: "refetch", id }, r => r.blocked ? `이번 달 한도(${SD_CAP})를 넘었어요` : r.pending ? "seed-fill 배포 전이라 아직 못 받아요(바뀐 것 없음)" : `seed-fill 로 받았어요 · ${r.status === "complete" ? "완성" : r.status === "partial" ? "미완성" + (r.missing?.length ? " (" + r.missing.join(", ") + ")" : "") : r.status || ""} · 이번 달 ${r.month}/${SD_CAP}`); });
   } catch(e) { $("sdCard").innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
 }
 async function sdSearchOne(id, idx){
@@ -1252,7 +1264,7 @@ async function sdAddGoogle(q, city){
       const pr = await sb.functions.invoke("hotel-price-proxy", { body: { action: "place", placeId: el.dataset.pid, params: { language: "ko" } } });
       const loc = pr.data?.data?.location || {};
       const r = await sdCall({ action: "add", placeId: el.dataset.pid, name: el.dataset.nm, city, kind: $("sdAddKind").value, lat: loc.latitude, lng: loc.longitude });
-      msg.textContent = r.existingId ? "같은 place_id 시드가 있어 그 카드를 열었어요" : "새 시드를 만들었어요 · [구글에서 다시 받기]로 사실을 채우세요";
+      msg.textContent = r.existingId ? "같은 place_id 시드가 있어 그 카드를 열었어요" : "새 시드를 만들었어요 · seed-fill 이 뒤에서 채워요(잠시 뒤 카드 다시 열기)";
       await sdOpen(r.existingId || r.id);
     } catch(e) { msg.textContent = "못 만들었어요 · " + e.message; msg.classList.add("err"); }
   }));
