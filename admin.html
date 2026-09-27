@@ -262,6 +262,8 @@ td.plus{color:var(--green)} td.minus{color:var(--red)}
     <section id="seedSec">
       <div class="sec-title"><span class="no">00c</span><h2>시드 <span class="hint" data-tip="코스·보드가 쓰는 장소 원본 — 고치면 이전 값은 카드에 남아요">i</span></h2>
         <button class="btn" id="sdAddBtn" style="margin-left:auto">장소 추가</button></div>
+      <!-- 🔴 9/27 지시함 #084 ④: 숫자 두 개 — 미완성(partial) · 발행 코스 시드 중 구글 사실 90일 넘음·없음 (EF admin-seed quota → DB admin_seed_stats) -->
+      <div class="sd-count" id="sdStats"></div>
       <div class="sd-add" id="sdAdd">
         <div class="sd-bar">
           <input class="q" id="sdAddQ" placeholder="장소 이름">
@@ -1114,7 +1116,10 @@ async function sdCall(body){
   if (!data?.ok) throw new Error(data?.error || "실패");
   return data;
 }
-async function sdQuota(){ try { const d = await sdCall({ action: "quota" }); sdState.month = d.month; } catch(e){ /* 관리자 아님 등 — 찾기 때 보인다 */ } }
+async function sdQuota(){ try { const d = await sdCall({ action: "quota" }); sdState.month = d.month;
+  // 🔴 #084 ④: 미완성 수 · 발행 코스 시드 중 구글 사실이 90일 넘었거나 없는 수
+  const st = d.stats; if (st) $("sdStats").textContent = `미완성(partial) ${Number(st.partial || 0).toLocaleString()}곳 · 발행 코스 시드 중 구글 사실 90일 넘음·없음 ${Number(st.stale90 || 0).toLocaleString()}곳 (코스 시드 ${Number(st.courseSeeds || 0).toLocaleString()} · 장소 연결 ${Number(st.courseSeedsWithPlace || 0).toLocaleString()})`;
+} catch(e){ /* 관리자 아님 등 — 찾기 때 보인다 */ } }
 const sdStars = (n) => n == null ? "" : "★".repeat(Math.max(0, Math.min(5, Number(n) || 0)));
 const sdMapUrl = (pid, uri) => uri || (pid ? `https://www.google.com/maps/place/?q=place_id:${encodeURIComponent(pid)}` : "");
 const sdDayKo = { mon:"월", tue:"화", wed:"수", thu:"목", fri:"금", sat:"토", sun:"일" };
