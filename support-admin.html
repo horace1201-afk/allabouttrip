@@ -141,6 +141,10 @@ td.plus{color:var(--green)} td.minus{color:var(--red)}
 .pill.red{background:#FDE4DC;color:var(--red);border-color:transparent}
 .pill.blue{background:#E6F0FB;color:#2A63B3;border-color:transparent}
 .kpis{margin-bottom:18px}
+
+/* 🆕 9/27 지시함 #080: 안내 줄 = 앱 InfoLine 과 같은 서식 — 13px · 400 · #8E879B · 앞에 i(13px 같은 회색 선) · 박스 ✗ · 목록 아래 */
+p.note{font-size:13px;font-weight:400;color:#8E879B;line-height:1.6;position:relative;padding-left:19px}
+p.note::before{content:"i";position:absolute;left:0;top:.22em;width:13px;height:13px;box-sizing:border-box;border:1.4px solid #8E879B;border-radius:50%;font:700 9px/10.5px system-ui,sans-serif;text-align:center;color:#8E879B}
 </style>
 </head>
 <body>
