@@ -642,13 +642,18 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
 .trip-row1 .dday{margin-left:auto;font-size:15px;font-weight:800;color:var(--orange)}
 .trip-card h4{font-size:16px;font-weight:800;margin-top:9px;letter-spacing:-.3px}
 .trip-card .tm{font-size:12.5px;color:var(--sub);margin-top:3px}
+/* 🆕 9/27 지시함 #077: 버블2 = 버튼 이름표(앱 components/ui/Bubble2 와 같은 규격) — 글자만 11px·500·#8E879B·자간 -0.2 · 버튼 위 3px(위 자리 없으면 아래) · 커서 닿으면 0.15초 */
+[data-hint]{position:relative}
+[data-hint]:hover::after{content:attr(data-hint);position:absolute;left:50%;bottom:100%;margin-bottom:3px;transform:translateX(-50%);font-size:11px;font-weight:500;line-height:1.2;color:#8E879B;letter-spacing:-.2px;white-space:nowrap;pointer-events:none;background:none;animation:hint2 .15s ease;z-index:60}
+[data-hint][data-hint-pos="below"]:hover::after{bottom:auto;top:100%;margin-bottom:0;margin-top:3px}
+@keyframes hint2{from{opacity:0}to{opacity:1}}
 </style>
 </head>
 <body>
 
 <!-- ═══ 상단바 ═══ -->
 <header class="topbar" id="topbar">
-  <button class="tb-burger" onclick="toggleMenu()" aria-label="메뉴"><span></span><span></span><span></span></button>
+  <button class="tb-burger" onclick="toggleMenu()" aria-label="메뉴" data-hint="메뉴" data-hint-pos="below"><span></span><span></span><span></span></button>
   <a class="tb-logo" href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">MODNI</a>
   <nav class="tb-nav" aria-label="주 메뉴">
     <button id="navPlan" onclick="goPlanEntry()">여행 만들기</button>
@@ -666,7 +671,7 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
 <div class="scrim" onclick="toggleMenu()"></div>
 <nav class="drawer" id="drawer">
   <div class="dw-main">
-    <div class="dw-head"><button class="dw-close" onclick="toggleMenu()" aria-label="닫기">✕</button></div>
+    <div class="dw-head"><button class="dw-close" onclick="toggleMenu()" aria-label="닫기" data-hint="닫기" data-hint-pos="below">✕</button></div>
     <div class="dw-auth" id="dwAuth">
       <div class="big"><u onclick="login()">로그인/회원가입</u></div>
     </div>
@@ -1089,8 +1094,8 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
     <div class="explore">
       <div class="ghint" id="contHint">지구본을 돌려 대륙을 눌러보세요</div>
       <div class="gzoom">
-        <button type="button" onclick="globeZoom(1)" aria-label="지구본 확대">+</button>
-        <button type="button" onclick="globeZoom(-1)" aria-label="지구본 축소">−</button>
+        <button type="button" onclick="globeZoom(1)" aria-label="지구본 확대" data-hint="확대">+</button>
+        <button type="button" onclick="globeZoom(-1)" aria-label="지구본 축소" data-hint="축소">−</button>
       </div>
       <div id="globeBox"></div>
       <div class="gside" id="gside">
@@ -2324,7 +2329,7 @@ function toggleBucket(btn){
     ${viRows?`<dl class="vinfo">${viRows}</dl>`:""}
     ${tips.length?`<div class="tips"><span class="tl">✦ 모드니 팁</span>${tips.map(t=>`<p>✦ ${esc(t)}</p>`).join("")}</div>`:""}
     ${spots.length?`<div class="pspots"><span class="tl">📷 사진 명소</span>${spots.map(p=>`<p>📍 <b>${esc(p.spot||"")}</b>${p.tip?` — ${esc(p.tip)}`:""}</p>`).join("")}</div>`:""}
-    ${s.audio_url?`<div class="audio-row"><button class="audio-btn" data-url="${esc(s.audio_url)}" aria-label="음성 가이드 재생">▶</button><span class="al">음성 가이드 듣기 — 모드니가 읽어 드려요</span></div>`:""}
+    ${s.audio_url?`<div class="audio-row"><button class="audio-btn" data-url="${esc(s.audio_url)}" aria-label="음성 가이드 재생" data-hint="듣기">▶</button><span class="al">음성 가이드 듣기 — 모드니가 읽어 드려요</span></div>`:""}
   `;
   slotEl.after(card);
   const pslot = card.querySelector(".photo-slot");
