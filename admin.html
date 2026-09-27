@@ -151,6 +151,37 @@ td.plus{color:var(--green)} td.minus{color:var(--red)}
 .mk-msg{font-size:12.5px;color:var(--sub);margin-top:8px}
 .mk-msg.err{color:var(--red)}
 
+/* ── 00c 시드 (지시함 #063 · 9/27) — 찾기 · 카드(오른쪽 패널) · 고치기 · 장소 추가 ── */
+.sd-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.sd-bar input,.sd-bar select,.sd-f input,.sd-f select,.sd-f textarea{border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13px;font-family:inherit;color:var(--ink);background:#fff;min-width:0}
+.sd-bar input.q{flex:1 1 220px}
+.sd-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.sd-chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 11px;font-size:12px;font-weight:700;color:var(--sub);cursor:pointer;font-family:inherit}
+.sd-chip.on{background:var(--orange-soft);border-color:var(--orange);color:var(--orange-deep)}
+.sd-row{display:flex;gap:11px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:14px;padding:9px 11px;cursor:pointer}
+.sd-row:hover{border-color:var(--orange)}
+.sd-row.sel{border-color:var(--orange);box-shadow:0 0 0 2px var(--orange-soft)}
+.sd-row img,.sd-row .thumb-fallback{width:46px;height:46px;flex:0 0 46px;border-radius:11px;object-fit:cover;font-size:16px}
+.sd-row .m-t{font-size:13.5px}
+.sd-count{font-size:12px;color:var(--sub);margin:0 2px 8px}
+.sd-panel{position:fixed;top:0;right:0;bottom:0;width:min(460px,100%);background:#fff;border-left:1px solid var(--line);box-shadow:-6px 0 24px rgba(33,27,49,.12);z-index:50;overflow-y:auto;padding:18px 18px 28px;transform:translateX(100%);transition:transform .18s ease-out}
+.sd-panel.open{transform:none}
+.sd-panel h3{font-size:18px;margin:0;line-height:1.35}
+.sd-panel .x{position:absolute;top:12px;right:12px;border:0;background:none;font-size:20px;cursor:pointer;color:var(--ink)}
+.sd-photo{width:100%;height:190px;object-fit:cover;border-radius:14px;background:var(--hair);margin-bottom:12px}
+.sd-f{display:grid;grid-template-columns:92px 1fr;gap:6px 10px;align-items:center;font-size:12.5px;margin-top:12px}
+.sd-f label{color:var(--sub);font-weight:700}
+.sd-f textarea{min-height:52px;resize:vertical}
+.sd-ro{font-size:12.5px;color:var(--ink);line-height:1.7}
+.sd-ro .k{color:var(--sub);font-weight:700;display:inline-block;min-width:88px}
+.sd-hist{font-size:11.5px;color:var(--sub);background:var(--warm);border-radius:10px;padding:8px 10px;margin-top:10px;line-height:1.7;word-break:break-all}
+.hint{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;border:1px solid var(--line);font-size:10px;font-weight:800;color:var(--sub);cursor:help;position:relative;vertical-align:1px;margin-left:4px;background:#fff}
+.hint:hover::after{content:attr(data-tip);position:absolute;left:50%;top:22px;transform:translateX(-50%);white-space:nowrap;background:rgba(250,248,245,.96);border:1px solid var(--line);color:var(--ink);font-weight:600;font-size:12px;padding:6px 10px;border-radius:10px;box-shadow:var(--shadow);z-index:60}
+.sd-add{display:none;margin:0 0 12px;padding:12px;border:1px solid var(--line);border-radius:14px;background:#fff}
+.sd-add.open{display:block}
+.sd-add .r{display:flex;gap:10px;align-items:center;padding:7px 4px;border-bottom:1px solid var(--hair);cursor:pointer;font-size:13px}
+.sd-add .r:hover{background:var(--warm)}
+
 @media(max-width:760px){
   .grid2{grid-template-columns:1fr}
   .wrap{padding:0 14px 60px}
@@ -225,6 +256,40 @@ td.plus{color:var(--green)} td.minus{color:var(--red)}
       </div>
       <div class="mk-list" id="dcList"><div class="empty">불러오는 중…</div></div>
       <p class="note"><b>앱에는 원고 아래에 고지가 함께 나가요</b> — “모드니가 들려주는 이야기예요 · AI가 쓴 글이라 사실과 다를 수 있어요”(문구는 앱 코드 <code>SCRIPT_DISCLAIMER</code> 한 곳에서 관리해요). 원고는 <b>저장본</b>이에요 - 한 번 만들고 모두에게 같은 것을 들려줘요. <b>[승인]을 누른 것만 앱에 나가요.</b> 검수 표의 빨간 줄은 <b>다른 모델이 미심쩍다고 한 것</b>일 뿐 최종 판정이 아니에요(검수가 0건이어도 사람이 틀린 걸 찾은 적이 있어요). [고치기]로 고친 글은 <b>원본을 덮지 않고</b> 따로 저장돼 앱이 그걸 먼저 읽어요.</p>
+    </section>
+
+    <!-- 🆕 00c 시드 (지시함 #063 · 9/27 영아) — 찾기 · 카드 보기·고치기 · 장소 추가. 쓰기는 EF admin-seed(admin_emails 서버 검증) -->
+    <section id="seedSec">
+      <div class="sec-title"><span class="no">00c</span><h2>시드 <span class="hint" data-tip="코스·보드가 쓰는 장소 원본 — 고치면 이전 값은 카드에 남아요">i</span></h2>
+        <button class="btn" id="sdAddBtn" style="margin-left:auto">장소 추가</button></div>
+      <div class="sd-add" id="sdAdd">
+        <div class="sd-bar">
+          <input class="q" id="sdAddQ" placeholder="장소 이름">
+          <input id="sdAddCity" placeholder="도시(예: 오사카)" style="width:140px">
+          <select id="sdAddKind"><option value="visit">visit</option><option value="eat">eat</option><option value="cafe">cafe</option><option value="dessert">dessert</option><option value="bar">bar</option><option value="shop">shop</option><option value="activity">activity</option><option value="area">area</option><option value="daytrip">daytrip</option><option value="golf">golf</option></select>
+          <button class="btn primary" id="sdAddGo">찾기</button>
+        </div>
+        <div id="sdAddList"></div>
+        <div class="mk-msg" id="sdAddMsg"></div>
+      </div>
+      <div class="sd-bar">
+        <input class="q" id="sdQ" placeholder="이름 (한글·현지어·별칭)">
+        <input id="sdCity" placeholder="도시" style="width:120px">
+        <select id="sdKind"><option value="">kind 전체</option><option>visit</option><option>eat</option><option>cafe</option><option>dessert</option><option>bar</option><option>shop</option><option>activity</option><option>area</option><option>daytrip</option><option>fullday</option><option>golf</option></select>
+        <input id="sdTag" placeholder="태그" style="width:110px">
+        <button class="btn primary" id="sdGo">찾기</button>
+      </div>
+      <div class="sd-chips" id="sdChips">
+        <button class="sd-chip" data-sf="pilot">새 시드(pilot)</button>
+        <button class="sd-chip" data-sf="empty">빈 칸 있음</button>
+        <button class="sd-chip" data-sf="nohours">영업시간 없음</button>
+        <button class="sd-chip" data-sf="closed">폐업</button>
+        <button class="sd-chip" data-sf="excluded">후보 ✗</button>
+      </div>
+      <div class="sd-count" id="sdCount"></div>
+      <div class="mk-list" id="sdList"><div class="empty">이름·도시로 찾아 보세요</div></div>
+      <div style="text-align:center;margin-top:10px"><button class="btn hidden" id="sdMore">20개 더 보기</button></div>
+      <aside class="sd-panel" id="sdPanel" aria-label="시드 카드"><button class="x" id="sdX" aria-label="닫기">×</button><div id="sdCard"></div></aside>
     </section>
 
     <div class="controls">
@@ -395,7 +460,7 @@ $("btnLogin").addEventListener("click", async () => {
   });
 });
 $("btnLogout").addEventListener("click", () => sb.auth.signOut());
-$("btnRefresh").addEventListener("click", () => { load(); loadMarket(); loadDocent(); });
+$("btnRefresh").addEventListener("click", () => { load(); loadMarket(); loadDocent(); sdQuota(); });
 
 function toggleTopBtns(on){
   $("btnRefresh").classList.toggle("hidden", !on);
@@ -408,6 +473,7 @@ function afterLogin(session){
   load();
   loadMarket();
   loadDocent();
+  sdQuota();   // 🆕 #063 시드 — 목록은 찾기를 눌렀을 때만(1.5만 줄)
 }
 
 /* ── 기간/월별 토글 ── */
@@ -1032,6 +1098,165 @@ document.getElementById("dcList")?.addEventListener("click", async (ev) => {
     if (msg) msg.textContent = e.message || String(e);
   }
 });
+
+/* ── 🆕 00c 시드 (지시함 #063 · 9/27) ─────────────────────────────────────────
+   쓰기·읽기 모두 EF admin-seed(유저 JWT 이메일 → app_config.admin_emails). 서비스 키는 브라우저에 없다.
+   저장 뒤엔 서버에서 다시 읽어 그린다(교훈 120 — 보낸 값이 아니라 저장된 값). 삭제 버튼은 없다(후보에서 빼기만). */
+const SD_CAP = 950;
+let sdState = { offset: 0, total: 0, rows: [], sel: null, month: 0 };
+const sdFilters = new Set();
+async function sdCall(body){
+  const { data, error } = await sb.functions.invoke("admin-seed", { body });
+  if (error) { let msg = error.message; try { const j = await error.context?.json?.(); if (j?.error) msg = j.error + (j.reason ? ` (${j.reason})` : ""); } catch(e){} throw new Error(msg); }
+  if (!data?.ok) throw new Error(data?.error || "실패");
+  return data;
+}
+async function sdQuota(){ try { const d = await sdCall({ action: "quota" }); sdState.month = d.month; } catch(e){ /* 관리자 아님 등 — 찾기 때 보인다 */ } }
+const sdStars = (n) => n == null ? "" : "★".repeat(Math.max(0, Math.min(5, Number(n) || 0)));
+const sdMapUrl = (pid, uri) => uri || (pid ? `https://www.google.com/maps/place/?q=place_id:${encodeURIComponent(pid)}` : "");
+const sdDayKo = { mon:"월", tue:"화", wed:"수", thu:"목", fri:"금", sat:"토", sun:"일" };
+const sdHours = (h) => { if (!h || typeof h !== "object") return ""; return ["mon","tue","wed","thu","fri","sat","sun"].map(k => Array.isArray(h[k]) && h[k].length ? `${sdDayKo[k]} ${h[k].map(x => x.join("~")).join(", ")}` : null).filter(Boolean).join(" · "); };
+const sdClosed = (a) => Array.isArray(a) && a.length ? a.map(d => "일월화수목금토"[d] ?? d).join("·") : "";
+
+function sdRowHtml(r){
+  const gf = r.gf || {};
+  const badges = [r.pilot ? `<span class="m-badge">새 시드</span>` : "", r.cand === "false" ? `<span class="pill warn">후보 ✗</span>` : "", /CLOSED/.test(gf.status || "") ? `<span class="pill warn">폐업</span>` : ""].join(" ");
+  const img = r.photo_url ? `<img src="${esc(r.photo_url)}" alt="">` : `<div class="thumb-fallback">${esc((r.name_raw || "?").slice(0,1))}</div>`;
+  const meta = [r.city, r.area, r.kind, sdStars(r.importance), gf.rating ? `평점 ${gf.rating}${gf.ratingN ? ` (${gf.ratingN})` : ""}` : "", r.updated_at ? `수정 ${fmtKst(r.updated_at)}` : ""].filter(Boolean).map(esc).join(" · ");
+  return `<div class="sd-row${sdState.sel === r.id ? " sel" : ""}" data-id="${esc(r.id)}" role="button" tabindex="0">${img}<div class="m-body"><div class="m-t">${esc(r.name_raw)} ${badges}</div><div class="m-meta">${meta}</div></div></div>`;
+}
+function sdRenderList(){
+  $("sdCount").textContent = sdState.total ? `${sdState.total.toLocaleString()}곳 중 ${sdState.rows.length}곳` : "";
+  $("sdList").innerHTML = sdState.rows.length ? sdState.rows.map(sdRowHtml).join("") : `<div class="empty">찾은 시드가 없어요</div>`;
+  $("sdMore").classList.toggle("hidden", sdState.rows.length >= sdState.total);
+  document.querySelectorAll("#sdList .sd-row").forEach(el => el.addEventListener("click", () => sdOpen(el.dataset.id)));
+}
+async function sdSearch(more){
+  if (!more) { sdState.offset = 0; sdState.rows = []; $("sdList").innerHTML = `<div class="empty">찾는 중…</div>`; }
+  try {
+    const d = await sdCall({ action: "search", q: $("sdQ").value, city: $("sdCity").value.trim() || null, kind: $("sdKind").value || null, tag: $("sdTag").value.trim() || null, filters: [...sdFilters], offset: sdState.offset, limit: 20 });
+    sdState.rows = more ? sdState.rows.concat(d.rows) : d.rows; sdState.total = d.total; sdState.offset = sdState.rows.length;
+    sdRenderList();
+  } catch(e) { $("sdList").innerHTML = `<div class="empty">${esc(/ADMIN_ONLY/.test(e.message) ? "관리자 계정만 볼 수 있어요" : "못 불러왔어요 · " + e.message)}</div>`; }
+}
+$("sdGo").addEventListener("click", () => sdSearch(false));
+$("sdQ").addEventListener("keydown", (e) => { if (e.key === "Enter") sdSearch(false); });
+$("sdMore").addEventListener("click", () => sdSearch(true));
+document.querySelectorAll("#sdChips .sd-chip").forEach(b => b.addEventListener("click", () => { const f = b.dataset.sf; if (sdFilters.has(f)) sdFilters.delete(f); else sdFilters.add(f); b.classList.toggle("on", sdFilters.has(f)); sdSearch(false); }));
+$("sdX").addEventListener("click", () => { $("sdPanel").classList.remove("open"); sdState.sel = null; document.querySelectorAll("#sdList .sd-row").forEach(x => x.classList.remove("sel")); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && $("sdPanel").classList.contains("open")) $("sdX").click(); });
+
+const SD_EDIT = [
+  ["name_raw","이름","input"],["nameLocal","현지어 이름","input"],["city","도시","input"],["area","동네(area)","input"],
+  ["kind","kind","kind"],["importance","★(0~5)","num"],["desc_short","한 줄 설명","textarea"],["why","모드니 한마디","textarea"],
+  ["hours_note","영업시간(글)","input"],["closed_days","휴무(0=일 … 6=토)","days"],["photo_url","사진 주소","input"],["photo_credit","사진 출처","input"],["place_id","place_id","input"],
+];
+function sdCardHtml(d){
+  const s = d.seed, det = s.detail || {}, pl = d.place || {}, gf = det.googleFacts || {};
+  const val = (k) => k === "why" ? (det.why ?? (Array.isArray(det.modniTips) ? det.modniTips[0] : "") ?? "") : k === "nameLocal" ? (det.nameLocal ?? det.nameEn ?? "") : k === "closed_days" ? (Array.isArray(s.closed_days) ? s.closed_days.join(",") : "") : (s[k] ?? "");
+  const field = ([k, lb, t]) => {
+    const v = esc(val(k));
+    const ctl = t === "textarea" ? `<textarea data-k="${k}">${v}</textarea>`
+      : t === "kind" ? `<select data-k="kind">${["", "visit","eat","cafe","dessert","bar","shop","activity","area","daytrip","fullday","golf"].map(o => `<option${o === (s.kind ?? "") ? " selected" : ""}>${o}</option>`).join("")}</select>`
+      : `<input data-k="${k}" value="${v}"${t === "num" ? ' type="number" min="0" max="5"' : ""}>`;
+    return `<label>${esc(lb)}</label>${ctl}`;
+  };
+  const status = gf.status || pl.business_status || "";
+  const prevKeys = Object.keys(det.prev || {});
+  const rating = gf.rating ?? pl.rating, ratingN = gf.ratingN ?? pl.rating_n, price = gf.priceLevel ?? pl.price_level;
+  const excluded = det.candidate === false;
+  const used = d.month ?? 0;
+  return `
+    ${s.photo_url ? `<img class="sd-photo" src="${esc(s.photo_url)}" alt="">` : ""}
+    <h3>${esc(s.name_raw)} ${det.pilot || s.source === "manual" ? `<span class="m-badge">새 시드</span>` : `<span class="pill">기존</span>`} ${excluded ? `<span class="pill warn">후보 ✗</span>` : ""}</h3>
+    <div class="sd-ro" style="margin-top:6px">
+      <div><span class="k">도시·동네</span>${esc([s.city, s.area].filter(Boolean).join(" · "))}</div>
+      <div><span class="k">kind·태그</span>${esc([s.kind, ...(pl.tags || [])].filter(Boolean).join(" · "))}</div>
+      <div><span class="k">★ 중요도</span>${sdStars(s.importance) || "—"}</div>
+      <div><span class="k">평점·가격대</span>${rating != null ? `${esc(rating)}${ratingN ? ` · 리뷰 ${Number(ratingN).toLocaleString()}` : ""}` : "—"}${price != null ? ` · 가격대 ${esc(price)}` : ""}</div>
+      <div><span class="k">영업시간</span>${esc(sdHours(s.hours) || s.hours_note || "—")}</div>
+      <div><span class="k">휴무</span>${esc(sdClosed(s.closed_days) || "—")}</div>
+      <div><span class="k">영업 상태</span>${status ? (/CLOSED/.test(status) ? `<b style="color:var(--red)">폐업(${esc(status)})</b>` : esc(status)) : "—"}</div>
+      <div><span class="k">place_id</span>${s.place_id ? `<a href="${esc(sdMapUrl(s.place_id, pl.google_maps_uri))}" target="_blank" rel="noopener">${esc(s.place_id)} ↗</a>` : "—"}</div>
+      <div><span class="k">별칭</span>${esc((d.aliases || []).map(a => a.alias_raw).join(", ") || "—")}</div>
+      <div><span class="k">쓴 코스</span>${d.used}개 <span class="hint" data-tip="마켓 코스 스냅샷에 이 시드 id·place_id 가 들어간 수">i</span></div>
+    </div>
+    <div class="sd-f">${SD_EDIT.map(field).join("")}</div>
+    <div class="mk-actions">
+      <button class="btn primary" id="sdSave">저장</button>
+      ${prevKeys.length ? `<button class="btn" id="sdRevert">되돌리기</button>` : ""}
+      <button class="btn ${excluded ? "" : "danger"}" id="sdCand">${excluded ? "후보로 되살리기" : "후보에서 빼기"}</button>
+      <button class="btn" id="sdRefetch"${used >= SD_CAP || !s.place_id ? " disabled" : ""}>구글에서 다시 받기 <span style="color:var(--sub);font-weight:600">${used}/${SD_CAP}</span></button>
+    </div>
+    <div class="mk-msg" id="sdMsg"></div>
+    ${prevKeys.length ? `<div class="sd-hist"><b>고친 칸 이력</b>${det.prevAt ? ` · ${esc(fmtKst(det.prevAt))}` : ""}${det.prevBy ? ` · ${esc(det.prevBy)}` : ""}<br>${prevKeys.map(k => `${esc(k)}: ${esc(JSON.stringify(det.prev[k]))}`).join("<br>")}</div>` : ""}
+  `;
+}
+async function sdOpen(id){
+  sdState.sel = id;
+  document.querySelectorAll("#sdList .sd-row").forEach(x => x.classList.toggle("sel", x.dataset.id === id));
+  $("sdPanel").classList.add("open");
+  $("sdCard").innerHTML = `<div class="empty">불러오는 중…</div>`;
+  try {
+    const d = await sdCall({ action: "get", id });
+    sdState.month = d.month;
+    $("sdCard").innerHTML = sdCardHtml(d);
+    const msg = (t, err) => { $("sdMsg").textContent = t; $("sdMsg").classList.toggle("err", !!err); };
+    const act = async (body, okText) => { try { const r = await sdCall(body); await sdOpen(id); $("sdMsg").textContent = okText(r); const row = sdState.rows.findIndex(x => x.id === id); if (row >= 0) sdSearchOne(id, row); } catch(e) { msg("못 했어요 · " + e.message, true); } };
+    $("sdSave").addEventListener("click", () => {
+      const patch = {};
+      document.querySelectorAll("#sdCard [data-k]").forEach(el => {
+        const k = el.dataset.k; let v = el.value;
+        if (k === "importance") v = v === "" ? null : Math.max(0, Math.min(5, Number(v)));
+        else if (k === "closed_days") v = v.trim() === "" ? null : v.split(/[,\s]+/).map(Number).filter(n => Number.isInteger(n) && n >= 0 && n <= 6);
+        patch[k] = v;
+      });
+      act({ action: "update", id, patch }, r => r.changed ? `${r.changed}칸 저장했어요` : "바뀐 칸이 없어요");
+    });
+    $("sdRevert")?.addEventListener("click", () => { if (confirm("이전 값으로 되돌릴까요? (지금 값은 이력으로 남아요)")) act({ action: "revert", id }, r => `${r.reverted}칸 되돌렸어요`); });
+    $("sdCand").addEventListener("click", () => act({ action: "candidate", id, on: d.seed.detail?.candidate === false }, r => r.candidate ? "후보로 되살렸어요" : "후보에서 뺐어요(행은 그대로)"));
+    $("sdRefetch").addEventListener("click", () => { if (confirm(`구글 Enterprise 1회를 써요 (이번 달 ${sdState.month}/${SD_CAP})`)) act({ action: "refetch", id }, r => r.blocked ? `이번 달 한도(${SD_CAP})를 넘었어요` : `받았어요 · 이번 달 ${r.month}/${SD_CAP}${r.status && r.status !== "OPERATIONAL" ? ` · ${r.status}` : ""}`); });
+  } catch(e) { $("sdCard").innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
+}
+async function sdSearchOne(id, idx){
+  try { const d = await sdCall({ action: "get", id }); const s = d.seed; sdState.rows[idx] = { ...sdState.rows[idx], ...s, gf: s.detail?.googleFacts, pilot: s.detail?.pilot, cand: s.detail?.candidate === false ? "false" : null }; sdRenderList(); } catch(e){}
+}
+
+/* [장소 추가] — 앱 #061 이름 검색과 같은 흐름: 기존 시드 먼저 → 없으면 구글(기존 프록시 places) → 고르면 새 시드 */
+$("sdAddBtn").addEventListener("click", () => { $("sdAdd").classList.toggle("open"); $("sdAddQ").focus(); });
+$("sdAddGo").addEventListener("click", sdAddFind);
+$("sdAddQ").addEventListener("keydown", (e) => { if (e.key === "Enter") sdAddFind(); });
+async function sdAddFind(){
+  const q = $("sdAddQ").value.trim(), city = $("sdAddCity").value.trim();
+  const box = $("sdAddList"), msg = $("sdAddMsg"); msg.textContent = ""; msg.classList.remove("err");
+  if (q.length < 2 || !city) { msg.textContent = "이름(2글자 이상)과 도시를 넣어 주세요"; msg.classList.add("err"); return; }
+  box.innerHTML = `<div class="empty">찾는 중…</div>`;
+  try {
+    const d = await sdCall({ action: "search", q, city, limit: 8 });
+    const mine = d.rows.map(r => `<div class="r" data-seed="${esc(r.id)}"><span class="pill ok">있는 시드</span> ${esc(r.name_raw)} <span style="color:var(--sub)">${esc(r.city)} · ${esc(r.kind || "")}</span></div>`).join("");
+    box.innerHTML = (mine || `<div class="empty">있는 시드가 없어요</div>`) + `<div style="margin-top:8px"><button class="btn" id="sdAddGoogle">구글에서 찾기</button></div>`;
+    box.querySelectorAll("[data-seed]").forEach(el => el.addEventListener("click", () => sdOpen(el.dataset.seed)));
+    $("sdAddGoogle").addEventListener("click", () => sdAddGoogle(q, city));
+  } catch(e) { box.innerHTML = ""; msg.textContent = "못 찾았어요 · " + e.message; msg.classList.add("err"); }
+}
+async function sdAddGoogle(q, city){
+  const box = $("sdAddList"), msg = $("sdAddMsg");
+  box.innerHTML = `<div class="empty">구글에서 찾는 중…</div>`;
+  const { data, error } = await sb.functions.invoke("hotel-price-proxy", { body: { action: "places", params: { textQuery: `${q} ${city}`, type: "point_of_interest", language: "ko" } } });
+  const list = Array.isArray(data?.data) ? data.data.filter(p => p?.placeId && p?.displayName).slice(0, 8) : [];
+  if (error || !list.length) { box.innerHTML = `<div class="empty">구글에서도 못 찾았어요</div>`; return; }
+  box.innerHTML = list.map(p => `<div class="r" data-pid="${esc(p.placeId)}" data-nm="${esc(p.displayName)}"><span class="pill">구글</span> ${esc(p.displayName)} <span style="color:var(--sub)">${esc(p.formattedAddress || "")}</span></div>`).join("");
+  box.querySelectorAll("[data-pid]").forEach(el => el.addEventListener("click", async () => {
+    msg.textContent = "만드는 중…"; msg.classList.remove("err");
+    try {
+      const pr = await sb.functions.invoke("hotel-price-proxy", { body: { action: "place", placeId: el.dataset.pid, params: { language: "ko" } } });
+      const loc = pr.data?.data?.location || {};
+      const r = await sdCall({ action: "add", placeId: el.dataset.pid, name: el.dataset.nm, city, kind: $("sdAddKind").value, lat: loc.latitude, lng: loc.longitude });
+      msg.textContent = r.existingId ? "같은 place_id 시드가 있어 그 카드를 열었어요" : "새 시드를 만들었어요 · [구글에서 다시 받기]로 사실을 채우세요";
+      await sdOpen(r.existingId || r.id);
+    } catch(e) { msg.textContent = "못 만들었어요 · " + e.message; msg.classList.add("err"); }
+  }));
+}
 
 boot();
 </script>
