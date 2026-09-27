@@ -2599,6 +2599,9 @@ async function renderHeroTrips(){
     try {
       const { data, error } = await sb.from("trips")
         .select("id, title, region, depart_date, nights, status, draft_step, updated_at, itinerary, checklist")
+        // 🆕 9/28 #105: 내 여행 = 완성 코스만 — 도시 블록(pref.modniCourse.stay · .block)은 숨김 · listed 값이 있으면 그 값(앱 lib/trip/listed.ts 와 같은 조건)
+        .or("pref->modniCourse->>listed.eq.true,and(pref->modniCourse->>listed.is.null,pref->modniCourse->>stay.is.null,pref->modniCourse->>block.is.null)")
+        .is("deleted_at", null)
         .order("updated_at", { ascending:false }).limit(40);
       if (error) throw error;
       const rows = data || [];
