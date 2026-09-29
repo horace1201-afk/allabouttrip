@@ -2892,6 +2892,8 @@ async function renderHeroGlobe(){
   const card = $("heroGlobe"), panel = document.querySelector(".hero-panel");
   if (!card) return;
   const n = hgMarket().length;
+  // 🆕 9/29 창1(클로디 13:51 · 지시서53): 비로그인 + 여행 담기 0곳 = 첫 카드 자리 숨김(기능 소개 패널 그대로) · 로그인은 「내 여행」 칸이라 그대로
+  if (!n && !currentUser) { card.hidden = true; if (panel) panel.hidden = false; return; }
   // 첫 칸 — 로그인 = 「내 여행」 · 비로그인 = 앱 firstCardRules.initialTab(0, n)과 같다. 사람이 누른 뒤엔 사람 뜻대로
   if (!hgTouched) hgTab = currentUser ? "mine" : (n ? "market" : "mine");
   if (panel) panel.hidden = true;
