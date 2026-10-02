@@ -25,7 +25,7 @@
 })();
 </script>
 <link rel="icon" href="assets/favicon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap"><style>html,body,button,input,textarea,select{font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;letter-spacing:normal}html{font-synthesis:none;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}b,strong{font-weight:700}</style><!-- 🆕 9/27 지시함 #100: Pretendard → Noto Sans KR(영아 확정 C안) -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap"><style>html,body,button,input,textarea,select{font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;letter-spacing:normal}html{font-synthesis:none;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}b,strong{font-weight:700}body{line-height:1.5}h1,h2,h3{line-height:1.3}</style><!-- 🆕 9/27 지시함 #100: Pretendard → Noto Sans KR(영아 확정 C안) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/globe.gl@2.46.2/dist/globe.gl.min.js" defer></script>
 <style>
@@ -38,7 +38,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 html,body{background:var(--bg)}
-body{font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+body{font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
 a:hover{color:var(--orange-deep)}
 button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
@@ -128,7 +128,7 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .dw-subitem{display:block;width:100%;padding:12px 24px 12px 36px;font-size:13.5px;font-weight:500;
   color:var(--sub);text-align:left;border-bottom:1px solid var(--hair)}
 .dw-subitem:hover{color:var(--orange)}
-.dw-foot{padding:18px 24px;border-top:1px solid var(--hair);font-size:11px;color:var(--sub);line-height:1.8}
+.dw-foot{padding:18px 24px;border-top:1px solid var(--hair);font-size:11px;color:var(--sub);line-height:1.5}
 
 /* ═══ 히어로 (사진 없이 · 브랜드 아이덴티티) ═══ */
 .hero{position:relative;min-height:100svh;display:flex;align-items:center;overflow:hidden;
@@ -181,7 +181,7 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 @keyframes hgBob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-7px) rotate(-4deg)}}
 @media (prefers-reduced-motion:reduce){.hg-play img{animation:none}}
 /* 🔴 #067 13:40: 라벨 칸 폭 고정 · 콜론 · 왼쪽 정렬 · 구분선 ✗ */
-.hg-trips{text-align:left;font-size:13px;line-height:2;margin-top:10px}
+.hg-trips{text-align:left;font-size:13px;line-height:1.5;margin-top:10px}
 .hg-trips .k{flex:0 0 64px;color:var(--ink);font-weight:700}
 .hg-trips .k.dd{color:#C6431F}
 .hg-trips .v{overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
@@ -246,7 +246,7 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .hero .eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:clamp(12px,1.3vw,13.5px);color:var(--orange-deep);font-weight:700;
   background:#fff;border:1px solid #f7ddc9;border-radius:999px;padding:7px 15px;box-shadow:0 4px 14px rgba(244,88,28,.1)}
 .hero .eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--orange)}
-.hero h1{font-size:clamp(36px,5.6vw,64px);line-height:1.14;color:var(--ink);font-weight:700;margin-top:16px;text-wrap:balance}
+.hero h1{font-size:clamp(36px,5.6vw,64px);line-height:1.3;color:var(--ink);font-weight:700;margin-top:16px;text-wrap:balance}
 .hero h1 .hl{color:var(--orange)}
 .hero-intro{display:flex;align-items:center;gap:12px;margin-bottom:26px}
 .hero-right{display:flex;flex-direction:column;gap:14px}
@@ -258,7 +258,7 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
   background:#fff;border:1px solid var(--line);border-radius:16px 16px 16px 4px;padding:11px 15px;box-shadow:var(--shadow)}
 .hero-intro-t::before{content:"";position:absolute;left:-7px;bottom:9px;width:12px;height:12px;background:#fff;
   border-left:1px solid var(--line);border-bottom:1px solid var(--line);transform:rotate(45deg);border-radius:0 0 0 3px}
-.hero .hero-sub{font-size:clamp(13.5px,1.5vw,16px);color:var(--sub);margin-top:16px;line-height:1.8;max-width:460px}
+.hero .hero-sub{font-size:clamp(13.5px,1.5vw,16px);color:var(--sub);margin-top:16px;line-height:1.5;max-width:460px}
 .mface{display:flex;align-items:center;justify-content:center;background:#fff;border-radius:50%;flex-shrink:0}
 .hero .modni-line .mface{width:56px;height:56px;background:var(--orange-soft)}
 .hero .modni-line .mface img{width:40px;height:40px}
@@ -292,8 +292,8 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 /* ═══ 스크롤 섹션 공통 ═══ */
 .sect{max-width:1080px;margin:0 auto;padding:120px 30px 30px}
 .sect .eyebrow{font-size:13px;font-weight:700;color:var(--orange);text-transform:uppercase}
-.sect h2{font-size:clamp(27px,3.7vw,44px);font-weight:700;line-height:1.28;margin-top:12px;text-wrap:balance}
-.sect .lead{font-size:clamp(14px,1.55vw,17px);color:var(--sub);margin-top:16px;max-width:580px;line-height:1.8}
+.sect h2{font-size:clamp(27px,3.7vw,44px);font-weight:700;line-height:1.3;margin-top:12px;text-wrap:balance}
+.sect .lead{font-size:clamp(14px,1.55vw,17px);color:var(--sub);margin-top:16px;max-width:580px;line-height:1.5}
 .reveal{opacity:0;transform:translateY(28px);transition:opacity .7s cubic-bezier(.22,1,.36,1), transform .7s cubic-bezier(.22,1,.36,1)}
 .reveal.in{opacity:1;transform:none}
 .duo{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:stretch;margin-top:40px}
@@ -553,7 +553,7 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
 .foot-in{max-width:1080px;margin:0 auto}
 .foot-top{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:flex-start}
-.foot-co{font-size:13px;color:var(--sub);line-height:2}
+.foot-co{font-size:13px;color:var(--sub);line-height:1.5}
 .foot-co b{color:var(--ink);font-size:14px}
 .foot-links{font-size:13px;color:var(--sub);display:flex;gap:16px;flex-wrap:wrap;margin-top:20px}
 .foot-links a{text-decoration:underline;text-underline-offset:3px}
