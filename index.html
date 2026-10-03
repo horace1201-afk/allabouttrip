@@ -59,8 +59,8 @@ img{max-width:100%}
 .tb-login:hover{background:var(--warm)}
 .topbar.solid .tb-login{color:var(--ink)}
 .topbar.solid .tb-login:hover{background:var(--warm)}
-#langBtn{font-size:12.5px;border:1px solid var(--line)}
-.tb-hotel{font-size:13px;font-weight:700;color:#fff;background:var(--orange);padding:8px 16px;border-radius:999px;
+#langBtn{font-size:12.5px;font-weight:500;border:1px solid var(--line)}
+.tb-hotel{font-size:13px;font-weight:500;color:#fff;background:var(--orange);padding:8px 16px;border-radius:999px;
   transition:.18s;box-shadow:0 6px 16px rgba(244,88,28,.24)}
 .tb-hotel:hover{background:var(--orange-deep)}
 /* 🆕 상단 가로 메뉴 — 헤더 개편 ④ (2026-08-30, 데스크톱 ≥1024px 전용) */
@@ -98,7 +98,7 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .ds-btn{display:block;width:100%;text-align:left;padding:13px 15px;border-radius:13px;background:#fff;border:1px solid var(--line);
   font-size:13.5px;font-weight:700;margin-top:9px;transition:.15s}
 .ds-btn:hover{background:var(--orange-soft);border-color:#f7ddc9;color:var(--orange-deep)}
-.ds-group{font-size:11.5px;font-weight:700;color:var(--orange-deep);margin:20px 0 4px;text-transform:uppercase}
+.ds-group{font-size:11.5px;font-weight:400;color:var(--orange-deep);margin:20px 0 4px;text-transform:uppercase}
 .ds-group:first-of-type{margin-top:8px}
 .ds-link{display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left;
   padding:11px 6px;font-size:14px;font-weight:700;color:var(--ink);border-bottom:1px solid var(--hair);transition:.14s}
@@ -112,7 +112,7 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .dw-auth .big{font-size:19px;font-weight:700;}
 .dw-auth .big u{text-underline-offset:4px;cursor:pointer;text-decoration-color:var(--orange)}
 .dw-auth .who{font-size:13px;color:var(--sub);margin-top:4px}
-.dw-auth .cook{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:700;color:var(--orange-deep);
+.dw-auth .cook{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:500;color:var(--orange-deep);
   background:var(--orange-soft);border-radius:999px;padding:5px 13px;margin-top:10px}
 .dw-auth .outbtn{display:inline-block;font-size:12px;color:var(--sub);margin-top:10px;text-decoration:underline;text-underline-offset:3px}
 .dw-nav{flex:1;padding:8px 0 20px}
@@ -120,8 +120,8 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
   text-align:left;border-bottom:1px solid var(--hair);transition:.15s}
 .dw-item:hover{background:var(--orange-tint)}
 .dw-item.on{background:var(--orange-soft);color:var(--orange-deep)}
-.dw-item .tag{font-size:10.5px;font-weight:700;color:#fff;background:var(--orange);border-radius:999px;padding:3px 10px}
-.dw-item .chev{margin-left:auto;font-size:13px;color:var(--faint);transition:transform .2s}
+.dw-item .tag{font-size:10.5px;font-weight:500;color:#fff;background:var(--orange);border-radius:999px;padding:3px 10px}
+.dw-item .chev{margin-left:auto;font-size:13px;font-weight:400;color:var(--faint);transition:transform .2s}
 .dw-group.open .dw-item .chev{transform:rotate(180deg)}
 .dw-sub{max-height:0;overflow:hidden;transition:max-height .25s ease;background:var(--warm)}
 .dw-group.open .dw-sub{max-height:600px}
@@ -149,7 +149,7 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
    기능 패널(.hero-panel)·내 여행 카드(#heroTrips)는 지구본이 서면 숨는다(다섯 언어 id는 그대로 남아 있다). */
 .hero-in.has-globe{grid-template-columns:.95fr 1.05fr}
 .hero-in > .hero-right{min-width:0}   /* 1fr 칸은 내용만큼 늘어난다 — 캔버스가 칸을 밀던 것(9/26 실측 1280에서 1310px) */
-.hero-globe{width:100%;min-width:0;display:flex;flex-direction:column;align-items:center}
+.hero-globe{position:relative;width:100%;min-width:0;display:flex;flex-direction:column;align-items:center}
 .hero-globe[hidden],.hg-play[hidden],.hg-trips[hidden],.hg-pop[hidden]{display:none}   /* display:flex 가 hidden 속성을 이기지 않게(9/26 실측: 재생 줄이 늘 떠 있었다) */
 .hg-bar{position:relative;display:flex;justify-content:center;align-items:center;width:100%;margin-bottom:4px}
 /* 🔴 #067 13:40: 흰 배경 ✗ — 주황 슬라이더만 두 글자 사이를 넘어간다(미선택은 회색 글자 · #6E655D 살구 바탕 대비 5.3) */
@@ -157,26 +157,31 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .hg-tg:before{content:"";position:absolute;top:4px;bottom:4px;width:calc(33.333% - 2.7px);left:4px;border-radius:999px;background:linear-gradient(135deg,#ff7a4d,#e2532a);box-shadow:0 3px 10px rgba(226,83,42,.35);transition:left .25s}
 .hg-tg.t2:before{left:calc(33.333% + 1.3px)}
 .hg-tg.t3:before{left:calc(66.666% - 1.3px)}
-/* 🆕 9/30 영아: 세 칸 안내 = ⓘ 하나(앱 GlobeTabInfo 와 같은 자리·같은 판) · 말풍선·자동 코치마크 ✗ */
-.hg-info{border:0;background:none;width:28px;height:28px;border-radius:14px;margin-left:6px;cursor:pointer;color:#8A8494;font-size:18px;line-height:1;display:inline-flex;align-items:center;justify-content:center}
+/* 🆕 9/30 영아: 세 칸 안내 = ⓘ 하나 → 🆕 10/3 영아 목업(앱 S5 ③): 흰 카드가 지구본을 가리던 것 ✗
+   · 옆자리(지구본 오른쪽 여백 ≥ 230px · hgHelpPlace · 화면 폭 ≈ 1620px 이상)가 있으면 ⓘ = 원 바깥 오른쪽 위(14px 띄움) · 없으면(좁은 화면·폰) 지구본 아래
+   · 글 = ⓘ 바로 밑 · 배경·테두리·그림자·✕ 없이 글씨만 · 줄마다 한 줄(넘치면 …) · 제목 13px 700 · 줄 12.5px 400 */
+.hg-help{display:flex;flex-direction:column;align-items:flex-start;gap:2px;margin-top:6px;max-width:100%}
+.hero-globe.hg-side .hg-help{position:absolute;margin:0;z-index:4}
+.hg-info{border:0;background:none;width:28px;height:28px;border-radius:14px;cursor:pointer;color:#8A8494;font-size:18px;line-height:1;display:inline-flex;align-items:center;justify-content:center;flex:none}
 .hg-info[aria-expanded="true"]{background:#FFF2EA;color:#C6431F}
-.hg-infopanel{position:absolute;left:50%;top:8px;transform:translateX(-50%);width:min(320px,calc(100% - 16px));background:rgba(255,255,255,.97);border:1px solid var(--line);border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.12);padding:10px 12px;z-index:4;text-align:left}
+.hg-infopanel{width:100%;padding:0 0 0 4px;text-align:left;overflow:hidden}
 .hg-infopanel[hidden]{display:none}
-.hg-infopanel .k{font-size:11px;font-weight:700;color:#C6431F;margin-bottom:2px}
-.hg-infopanel h5{margin:0 0 6px;font-size:14px;line-height:1.35;color:var(--ink)}
-.hg-infopanel p{margin:2px 0;font-size:13px;line-height:1.4;color:var(--ink)}
-.hg-infopanel .x{position:absolute;right:8px;top:8px;border:0;background:none;cursor:pointer;font-size:16px;color:#8A8494}
+.hg-infopanel h5{margin:0 0 2px;font-size:13px;font-weight:500;line-height:1.5;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hg-infopanel p{margin:0;font-size:12.5px;font-weight:400;line-height:1.5;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hg-infopanel p .ic{display:inline-block;width:20px;font-style:normal}
+/* 🆕 10/3: globe.gl 자체 툴팁(회색 상자 + 검은 알약 두 겹) ✗ — 상자 없는 회색 글씨만(.hg-hover 와 같은 모양) */
+.float-tooltip-kap,.scene-tooltip{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;border-radius:0!important;color:rgba(33,27,49,.58)!important;font:400 11px 'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif!important;letter-spacing:normal!important;white-space:nowrap}
 /* 🆕 9/30 영아: 상태 한 줄(숫자) + 오른쪽 도슨트 칩 — 앱과 같은 자리 */
 .hg-status{display:flex;align-items:center;gap:10px;width:100%;min-height:34px;margin-top:6px}
-.hg-status .hg-line{flex:1;margin:0;text-align:left;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hg-chip{border:0;background:#FFF2EA;color:#C6431F;font-family:inherit;font-size:12px;font-weight:700;border-radius:999px;padding:5px 10px;cursor:pointer;white-space:nowrap}
+.hg-status .hg-line{flex:1;margin:0;text-align:left;font-weight:400;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hg-chip{border:0;background:#FFF2EA;color:#C6431F;font-family:inherit;font-size:12px;font-weight:500;border-radius:999px;padding:5px 10px;cursor:pointer;white-space:nowrap}
 .hg-tab{border:0;background:none;padding:8px 22px;border-radius:999px;color:#6E655D;font-family:inherit;font-size:13.5px;position:relative;z-index:1;transition:color .2s;cursor:pointer}
 .hg-tab[aria-selected="true"]{color:#fff;font-weight:700}
 .hg-stage{position:relative}
 #hgBox{position:absolute;inset:0}   /* 캔버스가 칸 폭을 밀지 않게 — 지구본은 칸을 따라가고 칸은 부모를 따라간다 */
 .hg-play{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink);background:rgba(255,255,255,.9);border-radius:999px;padding:6px 12px 6px 8px;box-shadow:0 2px 12px rgba(0,0,0,.06);white-space:nowrap}
 .hg-play img{width:24px;height:24px;animation:hgBob 2.8s ease-in-out infinite}
-.hg-play button{border:0;background:none;font-family:inherit;font-size:12px;color:#C6431F;font-weight:700;cursor:pointer;padding:0 0 0 4px}
+.hg-play button{border:0;background:none;font-family:inherit;font-size:12px;color:#C6431F;font-weight:500;cursor:pointer;padding:0 0 0 4px}
 .hg-play a{color:#C6431F;font-weight:700;text-decoration:none}
 @keyframes hgBob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-7px) rotate(-4deg)}}
 @media (prefers-reduced-motion:reduce){.hg-play img{animation:none}}
@@ -194,26 +199,26 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 /* 🆕 #048 ②: 탭을 바꿔도 지구본이 안 흔들리게 — 아래 칸(여행 줄·모드니 한 줄) 높이 고정 */
 .hg-below{height:112px;overflow:hidden;display:flex;flex-direction:column;align-items:center}
 /* 🆕 #048 ③: 지구본 오른쪽 아래 탭별 링크(코랄 글씨 · 알약 ✗) */
-.hg-cta{position:absolute;right:0;bottom:4px;border:0;background:none;font-family:inherit;font-size:13px;font-weight:700;color:#C6431F;cursor:pointer;padding:4px 0;white-space:nowrap;z-index:2}
+.hg-cta{position:absolute;right:0;bottom:4px;border:0;background:none;font-family:inherit;font-size:13px;font-weight:500;color:#C6431F;cursor:pointer;padding:4px 0;white-space:nowrap;z-index:2}
 .hg-cta:hover{text-decoration:underline}
 .hg-pop{position:absolute;right:0;top:10px;width:260px;max-height:300px;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:10px 12px;z-index:3}
 .hg-pop h4{display:flex;justify-content:space-between;align-items:center;font-size:13.5px;font-weight:700;margin-bottom:4px}
-.hg-pop h4 button{border:0;background:none;font-family:inherit;font-size:12.5px;font-weight:700;color:var(--ink);cursor:pointer}
+.hg-pop h4 button{border:0;background:none;font-family:inherit;font-size:12.5px;font-weight:500;color:var(--ink);cursor:pointer}
 .hg-row{display:flex;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--hair);cursor:pointer;font-size:13px}
-.hg-row .rk{font-size:11px;font-weight:700;min-width:62px}
+.hg-row .rk{font-size:11px;font-weight:500;min-width:62px}
 .hg-row b{flex:1;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hg-face{display:flex;align-items:center;transform:translate(-50%,-50%);cursor:pointer;pointer-events:auto}
-.hg-face i{width:26px;height:26px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font:700 11px 'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;font-style:normal;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.18);overflow:hidden}
+.hg-face i{width:26px;height:26px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font:500 11px 'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;font-style:normal;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.18);overflow:hidden}
 .hg-face i+i{margin-left:-8px}
 .hg-face i img{width:20px;height:20px}
-.hg-face .ok{margin:-16px 0 0 -6px;width:14px;height:14px;border-radius:50%;background:#2E9E5B;color:#fff;font:700 9px 'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;display:flex;align-items:center;justify-content:center}
-.hg-face .more{margin-left:4px;padding:1px 6px;border-radius:999px;background:rgba(255,255,255,.95);border:1px solid var(--line);font:700 10px 'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:var(--ink)}
+.hg-face .ok{margin:-16px 0 0 -6px;width:14px;height:14px;border-radius:50%;background:#2E9E5B;color:#fff;font:500 9px 'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;display:flex;align-items:center;justify-content:center}
+.hg-face .more{margin-left:4px;padding:1px 6px;border-radius:999px;background:rgba(255,255,255,.95);border:1px solid var(--line);font:500 10px 'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:var(--ink)}
 /* 집 — 칩 없이 글씨만(창5 #037 규칙: 이름이 집을 가리지 않게 · 겹치면 이름 생략) */
 .hg-house{display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-80%);pointer-events:auto;cursor:pointer}
 #hgBox canvas{cursor:grab}#hgBox canvas:active{cursor:grabbing}   /* 9/25 규칙: 누를 수 있는 것은 손 · 지구본은 잡기 */
 .hg-house span{font-size:22px;line-height:1;filter:drop-shadow(0 2px 2px rgba(0,0,0,.25))}
-.hg-house small{font:700 10px 'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:rgba(33,27,49,.58);margin-top:1px}   /* 🆕 #046: 회색만 · 테두리·그림자 ✗ */
-.hg-hover{transform:translate(-50%,-50%);font:700 11px 'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:rgba(33,27,49,.58);white-space:nowrap;pointer-events:none}   /* 🆕 #046: 커서 올린 나라 이름 — 상자·툴팁 ✗ */
+.hg-house small{font:400 10px 'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:rgba(33,27,49,.58);margin-top:1px}   /* 🆕 #046: 회색만 · 테두리·그림자 ✗ */
+.hg-hover{transform:translate(-50%,-50%);font:400 11px 'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:rgba(33,27,49,.58);white-space:nowrap;pointer-events:none}   /* 🆕 #046: 커서 올린 나라 이름 — 상자·툴팁 ✗ */
 @media (max-width:1023px){.hero-in.has-globe{grid-template-columns:1fr}}
 @media (max-width:600px){.hg-bar{flex-wrap:wrap;gap:6px}.hg-doc{position:static}}   /* 폰: 링크가 토글을 덮지 않게 한 줄 아래로 */
 @media (max-width:900px){.hg-pop{left:10px;right:10px;width:auto;top:auto;bottom:10px;max-height:60%}}
@@ -229,12 +234,12 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .hp-grp{display:flex;align-items:center;gap:8px;margin:13px 0 2px;padding-top:11px;border-top:1px solid var(--hair)}
 .hp-grp:first-child{border-top:0;padding-top:0;margin-top:10px}
 .hp-grp .gi{width:26px;height:26px;border-radius:9px;background:var(--orange-soft);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
-.hp-grp .gt{font-size:13px;font-weight:700;color:var(--ink);}
-.hp-grp .gs{font-size:11.5px;font-weight:700;color:var(--faint)}
+.hp-grp .gt{font-size:13px;font-weight:500;color:var(--ink);}
+.hp-grp .gs{font-size:11.5px;font-weight:400;color:var(--faint)}
 .hp-tail{margin-top:16px;padding-top:13px;border-top:1px solid var(--hair);display:flex;align-items:center;gap:8px;flex-wrap:wrap;
-  font-size:12.5px;font-weight:700;color:var(--orange-deep)}
-.hp-tail .ar{font-weight:700}
-.hp-tail .m{color:var(--faint);font-weight:700}
+  font-size:12.5px;font-weight:400;color:var(--orange-deep)}
+.hp-tail .ar{font-weight:400}
+.hp-tail .m{color:var(--faint);font-weight:400}
 .cap::before{content:"";position:absolute;left:19px;top:44px;bottom:-14px;width:2px;background:var(--line)}
 .cap:last-child::before{display:none}
 .cap .ci{position:relative;z-index:1;width:40px;height:40px;border-radius:50%;background:#fff;border:1.5px solid #f7ddc9;color:var(--orange);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.18s}
@@ -251,6 +256,7 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .hero-intro{display:flex;align-items:center;gap:12px;margin-bottom:26px}
 .hero-right{display:flex;flex-direction:column;gap:14px}
 .hero-right .eyebrow{align-self:flex-start}
+@media(max-width:1000px){.hero .eyebrow{font-weight:500}}   /* 🆕 10/3 영아: 13px 이하 굵게 ✗ — clamp 가 13px 이 되는 폭부터 500 */
 .hero-mark{flex-shrink:0;display:flex;align-items:center;justify-content:center}
 .hero-mark img{width:52px;height:52px;animation:modniFloat 3s ease-in-out infinite}
 @keyframes modniFloat{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-6px) rotate(-4deg)}}
@@ -266,7 +272,7 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .hero .modni-line span b{color:var(--orange-deep)}
 .journey{display:flex;align-items:center;gap:9px;margin-top:30px;flex-wrap:wrap}
 .journey .jc{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--line);border-radius:12px;
-  padding:9px 14px;font-size:13px;font-weight:700;color:var(--ink)}
+  padding:9px 14px;font-size:13px;font-weight:500;color:var(--ink)}
 .journey .jc svg{width:17px;height:17px;color:var(--orange)}
 .journey .arw{color:var(--faint);font-size:12px}
 @media(max-width:560px){.journey .arw{display:none}}
@@ -281,7 +287,7 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .hero-cta{margin-top:28px;display:flex;flex-direction:column;gap:14px;align-items:flex-start}
 .hero-cta .store.primary{padding:16px 26px;font-size:15px}
 .store-mini{display:flex;gap:10px;flex-wrap:wrap}
-.store-mini a{display:inline-flex;align-items:baseline;gap:7px;font-size:13px;font-weight:700;color:var(--sub);
+.store-mini a{display:inline-flex;align-items:baseline;gap:7px;font-size:13px;font-weight:500;color:var(--sub);
   border:1px solid var(--line);border-radius:999px;padding:9px 16px;background:#fff;transition:.15s}
 .store-mini a span{font-size:11px;font-weight:500;color:var(--faint)}
 .store-mini a:hover{border-color:var(--orange);color:var(--orange-deep)}
@@ -291,7 +297,7 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 
 /* ═══ 스크롤 섹션 공통 ═══ */
 .sect{max-width:1080px;margin:0 auto;padding:120px 30px 30px}
-.sect .eyebrow{font-size:13px;font-weight:700;color:var(--orange);text-transform:uppercase}
+.sect .eyebrow{font-size:13px;font-weight:500;color:var(--orange);text-transform:uppercase}
 .sect h2{font-size:clamp(27px,3.7vw,44px);font-weight:700;line-height:1.3;margin-top:12px;text-wrap:balance}
 .sect .lead{font-size:clamp(14px,1.55vw,17px);color:var(--sub);margin-top:16px;max-width:580px;line-height:1.5}
 .reveal{opacity:0;transform:translateY(28px);transition:opacity .7s cubic-bezier(.22,1,.36,1), transform .7s cubic-bezier(.22,1,.36,1)}
@@ -302,11 +308,11 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 /* 모형 카드 */
 .mock{background:#fff;border:1px solid var(--line);border-radius:22px;padding:24px;box-shadow:var(--shadow)}
 .mock .mh{display:flex;align-items:center;gap:10px;margin-bottom:14px}
-.mock .mh .badge{font-size:11.5px;font-weight:700;color:var(--orange-deep);background:var(--orange-soft);border-radius:999px;padding:4px 11px}
+.mock .mh .badge{font-size:11.5px;font-weight:500;color:var(--orange-deep);background:var(--orange-soft);border-radius:999px;padding:4px 11px}
 .mock .mh b{font-size:16px;font-weight:700;}
 .mslot{display:grid;grid-template-columns:44px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--hair);font-size:13.5px;align-items:start}
 .mslot:last-child{border-bottom:none}
-.mslot .t{color:var(--sub);font-size:12px;font-weight:700;padding-top:3px;text-align:center}
+.mslot .t{color:var(--sub);font-size:12px;font-weight:400;padding-top:3px;text-align:center}
 .mslot .ic{width:40px;height:40px;border-radius:12px;background:var(--orange-soft);display:flex;align-items:center;justify-content:center;color:var(--orange)}
 .mslot .ic svg{width:20px;height:20px}
 .mslot b{font-weight:700;}
@@ -315,7 +321,7 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .hcard .price{font-size:18px;font-weight:700;color:var(--orange)}
 .hcard .ref{font-size:11px;color:var(--faint)}
 .hbtns{display:flex;gap:9px;margin-top:14px}
-.hbtns span{flex:1;text-align:center;font-size:13px;font-weight:700;border-radius:12px;padding:12px 0}
+.hbtns span{flex:1;text-align:center;font-size:13px;font-weight:500;border-radius:12px;padding:12px 0}
 .hbtns .b1{background:var(--orange);color:#fff;box-shadow:0 8px 18px rgba(244,88,28,.22)}
 .hbtns .b2{background:#fff;color:var(--orange-deep);border:1px solid var(--line)}
 .mock .foot-note{font-size:11px;color:var(--faint);margin-top:14px;text-align:center}
@@ -330,7 +336,7 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .pick:hover img{transform:scale(1.05)}
 .pick .shade{position:absolute;inset:0;background:linear-gradient(180deg,transparent 32%,rgba(29,20,14,.62))}
 .pick .badge{position:absolute;top:14px;left:14px;background:#fff;color:var(--orange-deep);
-  font-size:11px;font-weight:700;border-radius:999px;padding:4px 12px;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+  font-size:11px;font-weight:500;border-radius:999px;padding:4px 12px;box-shadow:0 2px 8px rgba(0,0,0,.12)}
 .pick .pt{position:absolute;left:18px;bottom:34px;right:18px;color:#fff;font-size:18px;font-weight:700;
   text-shadow:0 1px 6px rgba(0,0,0,.4)}
 .pick .pm{position:absolute;left:18px;bottom:13px;color:#fff;font-size:12px;opacity:.92}
@@ -342,7 +348,7 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .search input{flex:1;border:none;background:none;font:inherit;font-size:14px;color:var(--ink);outline:none}
 .search input::placeholder{color:var(--faint)}
 .chips{display:flex;gap:8px;flex-wrap:wrap}
-.chips button,.sorts button{font-size:12.5px;font-weight:700;color:var(--sub);background:#fff;
+.chips button,.sorts button{font-size:12.5px;font-weight:500;color:var(--sub);background:#fff;
   border:1px solid var(--line);border-radius:999px;padding:8px 16px;transition:.15s}
 .chips button:hover,.sorts button:hover{border-color:var(--orange);color:var(--orange-deep)}
 .chips button.on,.sorts button.on{background:var(--orange);border-color:var(--orange);color:#fff}
@@ -351,30 +357,30 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .upcard{background:#fff;border:1px solid var(--line);border-radius:22px;padding:18px 20px 17px;box-shadow:0 18px 44px rgba(244,88,28,.13)}
 .upcard.plan{background:linear-gradient(180deg,#FFFDFB,#FFF6F0);border-color:#F7DECD}
 .upcard .uptop{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-.upcard .chip{font-size:11px;font-weight:700;color:var(--orange-deep);background:var(--orange-soft);border-radius:999px;padding:4px 10px}
+.upcard .chip{font-size:11px;font-weight:500;color:var(--orange-deep);background:var(--orange-soft);border-radius:999px;padding:4px 10px}
 .upcard .chip.g{color:var(--sub);background:#F3F1EE}
-.upcard .dday{font-size:11px;font-weight:700;color:#fff;background:var(--orange);border-radius:999px;padding:4px 10px}
-.upcard .ago{font-size:11.5px;font-weight:700;color:var(--faint);margin-left:auto}
+.upcard .dday{font-size:11px;font-weight:500;color:#fff;background:var(--orange);border-radius:999px;padding:4px 10px}
+.upcard .ago{font-size:11.5px;font-weight:400;color:var(--faint);margin-left:auto}
 .upcard h3{font-size:19px;font-weight:700;line-height:1.3;color:var(--ink);margin:0}
-.upcard .meta{font-size:12.5px;color:var(--sub);margin-top:6px;font-weight:700}
+.upcard .meta{font-size:12.5px;color:var(--sub);margin-top:6px;font-weight:400}
 .upcard .prog{margin-top:13px;border-top:1px solid var(--hair);padding-top:11px;display:flex;gap:16px;flex-wrap:wrap}
 .upcard .prow{display:flex;align-items:center;gap:6px;font-size:12.5px}
 .upcard .prow b{font-weight:700;color:var(--ink)}
-.upcard .ok{color:#3DA364;font-weight:700;font-size:12px}
-.upcard .todo{color:var(--faint);font-weight:700;font-size:12px}
+.upcard .ok{color:#3DA364;font-weight:500;font-size:12px}
+.upcard .todo{color:var(--faint);font-weight:500;font-size:12px}
 .upcard .dot{width:6px;height:6px;border-radius:50%;background:#3DA364}
 .upcard .dot.g{background:var(--line)}
 .upcard .bar{height:6px;border-radius:999px;background:#F3EDE7;overflow:hidden;margin-top:12px}
 .upcard .bar i{display:block;height:100%;background:linear-gradient(90deg,#F4581C,#FF9166);border-radius:999px}
-.upcard .step{font-size:12px;color:var(--sub);font-weight:700;margin-top:8px}
+.upcard .step{font-size:12px;color:var(--sub);font-weight:500;margin-top:8px}
 .upcard .step b{color:var(--orange-deep)}
 .upcard .upcta{display:flex;gap:8px;margin-top:14px}
-.upcard .upcta button{flex:1;border-radius:999px;padding:11px 0;font-size:13px;font-weight:700;transition:.15s}
+.upcard .upcta button{flex:1;border-radius:999px;padding:11px 0;font-size:13px;font-weight:500;transition:.15s}
 .upcard .upcta .p{background:var(--orange);color:#fff}
 .upcard .upcta .p:hover{background:var(--orange-deep)}
 .upcard .upcta .s{background:#fff;border:1px solid var(--line);color:var(--ink)}
 .upcard .upcta .s:hover{border-color:var(--orange)}
-.upmore{text-align:center;font-size:12.5px;font-weight:700;color:var(--sub);padding-top:2px;cursor:pointer}
+.upmore{text-align:center;font-size:12.5px;font-weight:500;color:var(--sub);padding-top:2px;cursor:pointer}
 .upmore:hover{color:var(--orange-deep)}
 @media(max-width:900px){.upcard h3{font-size:17.5px}}
 @media(min-width:1040px){.lead.oneline{max-width:none;white-space:nowrap}}
@@ -409,30 +415,30 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .gzoom button:hover{border-color:var(--orange);color:var(--orange-deep)}
 @media(max-width:900px){.gzoom{left:14px;bottom:14px}}
 .ghint{position:absolute;top:80px;left:33.5%;transform:translateX(-50%);z-index:3;white-space:nowrap;
-  font-size:12.5px;font-weight:700;color:var(--sub);pointer-events:none;
+  font-size:12.5px;font-weight:400;color:var(--sub);pointer-events:none;
   /* 확대하면 이 문구가 바다(짙은 파랑) 위로 올라온다 — 흰 헤일로로 양쪽 배경에서 읽히게 */
   text-shadow:0 1px 3px rgba(255,255,255,.9),0 0 10px rgba(255,255,255,.75)}
 .gside{position:absolute;right:22px;top:50%;transform:translateY(-50%);width:33%;max-height:calc(100% - 44px);
   overflow:hidden;display:flex;flex-direction:column;min-width:0;z-index:2}
 .gside-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:2px}
 .gside-t{font-size:17px;font-weight:700;}
-.gside-x{font-size:11.5px;font-weight:700;color:var(--sub);border:1px solid var(--line);border-radius:999px;padding:3px 9px;background:#fff;cursor:pointer}
-.gside-d{font-size:12px;color:var(--faint);font-weight:700;margin-bottom:10px}
+.gside-x{font-size:11.5px;font-weight:500;color:var(--sub);border:1px solid var(--line);border-radius:999px;padding:3px 9px;background:#fff;cursor:pointer}
+.gside-d{font-size:12px;color:var(--faint);font-weight:400;margin-bottom:10px}
 .gside-list{display:flex;flex-direction:column;gap:8px}
 .gci{display:flex;gap:10px;align-items:center;flex-shrink:0;cursor:pointer;min-width:0;
   border:1px solid rgba(255,255,255,.9);border-radius:13px;padding:9px 10px;
   background:rgba(255,255,255,.92);box-shadow:0 6px 18px rgba(150,80,40,.10);transition:transform .15s,box-shadow .15s}
 .gci:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(150,80,40,.16)}
 .gci .gth{width:44px;height:44px;border-radius:10px;flex-shrink:0;overflow:hidden;position:relative;
-  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:400;color:#fff;
   background:linear-gradient(140deg,#F4581C,#F7A07A)}
 .gci .gth img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .gci .gt{flex:1;min-width:0}
-.gci .gt b{display:block;font-size:12.8px;font-weight:700;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gci .gt b{display:block;font-size:12.8px;font-weight:500;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .gci .gt span{display:block;font-size:11px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.gci .gh{font-size:11.5px;color:#E0655C;font-weight:700;white-space:nowrap}
-.gbadge{display:inline-block;background:var(--orange-soft);color:var(--orange-deep);font-size:10px;font-weight:700;border-radius:999px;padding:0 6px;margin-bottom:2px}
-.gmore{text-align:center;font-size:12px;font-weight:700;color:var(--sub);padding:8px 0 4px;cursor:pointer}
+.gci .gh{font-size:11.5px;color:#E0655C;font-weight:400;white-space:nowrap}
+.gbadge{display:inline-block;background:var(--orange-soft);color:var(--orange-deep);font-size:10px;font-weight:500;border-radius:999px;padding:0 6px;margin-bottom:2px}
+.gmore{text-align:center;font-size:12px;font-weight:400;color:var(--sub);padding:8px 0 4px;cursor:pointer}
 /* 대륙 알약(.cpill) 스타일은 아래 기존 블록을 그대로 쓴다 — 중복 정의 금지 */
 @media(max-width:900px){
   .explore{height:auto;padding:16px 14px 18px}
@@ -446,8 +452,8 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
    알약에 auto를 주지 않으면 실제 마우스 클릭이 닿지 않는다(JS .click()은 통과해서 안 잡힘). */
 .cpill{pointer-events:auto;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;transform:translate(-50%,-50%);
   background:#fff;border:1.5px solid var(--orange);color:var(--orange-deep);border-radius:999px;
-  padding:6px 12px;font-size:13px;font-weight:700;box-shadow:0 6px 16px rgba(29,20,14,.18);cursor:pointer;transition:.18s}
-.cpill b{background:var(--orange);color:#fff;border-radius:999px;padding:1px 8px;font-size:12px;font-weight:700}
+  padding:6px 12px;font-size:13px;font-weight:500;box-shadow:0 6px 16px rgba(29,20,14,.18);cursor:pointer;transition:.18s}
+.cpill b{background:var(--orange);color:#fff;border-radius:999px;padding:1px 8px;font-size:12px;font-weight:500}
 .cpill:hover{transform:translate(-50%,-50%) scale(1.06)}
 .cpill.on{background:var(--orange);color:#fff}
 .cpill.on b{background:#fff;color:var(--orange-deep)}
@@ -457,7 +463,7 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 /* 🆕 9/17 확대 단계의 도시 핀 — 대륙 알약보다 한 단계 작게 */
 .cpill.city{padding:4px 10px;font-size:12px;border-width:1.2px}
 .cpill.city b{padding:0 6px;font-size:11px}
-.cpill.city i{font-style:normal;font-size:10.5px;font-weight:700;color:var(--faint);margin-right:5px}
+.cpill.city i{font-style:normal;font-size:10.5px;font-weight:400;color:var(--faint);margin-right:5px}
 .cpill.city.on i{color:rgba(255,255,255,.82)}
 .sorts{display:flex;gap:8px}
 .grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:13px;margin-top:4px}
@@ -472,7 +478,7 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .all-toggle:hover{border-color:var(--orange);box-shadow:var(--shadow)}
 .all-toggle .at-l{display:flex;flex-direction:column;gap:3px}
 .all-toggle .at-t{font-size:16px;font-weight:700;color:var(--ink)}
-.all-toggle .at-s{font-size:12.5px;color:var(--sub);font-weight:700}
+.all-toggle .at-s{font-size:12.5px;color:var(--sub);font-weight:500}
 .all-toggle .arw{font-size:24px;line-height:1;color:var(--orange);transition:transform .22s;flex-shrink:0}
 .all-toggle[aria-expanded="true"] .arw{transform:rotate(90deg)}
 .all-panel.hidden{display:none}
@@ -480,7 +486,7 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .memvid .mv-slide{position:absolute;inset:0;opacity:0;transition:opacity .8s ease}
 .memvid .mv-slide.on{opacity:1}
 .memvid .mv-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(29,20,14,.18) 0%,rgba(29,20,14,.02) 42%,rgba(29,20,14,.74) 100%)}
-.memvid .mv-badge{position:absolute;top:16px;left:16px;display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.42);color:#fff;font-size:11.5px;font-weight:700;border-radius:999px;padding:5px 11px}
+.memvid .mv-badge{position:absolute;top:16px;left:16px;display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.42);color:#fff;font-size:11.5px;font-weight:500;border-radius:999px;padding:5px 11px}
 .memvid .mv-play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:66px;height:66px;border-radius:999px;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,0,0,.28)}
 .memvid .mv-cap{position:absolute;left:20px;right:20px;bottom:24px;color:#fff}
 .memvid .mv-cap b{display:block;font-size:20px;font-weight:700;text-shadow:0 1px 8px rgba(0,0,0,.45)}
@@ -494,8 +500,8 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .m-body{min-width:0;flex:1}
 .m-t{font-size:14.5px;line-height:1.4;font-weight:700;}
 .m-meta{font-size:11.5px;color:var(--sub);margin-top:4px}
-.m-hearts{font-size:12.5px;color:var(--orange);font-weight:700;flex-shrink:0}
-.m-badge{font-size:10.5px;color:var(--orange-deep);background:var(--orange-soft);border-radius:999px;padding:2px 9px;margin-left:6px;vertical-align:1px;font-weight:700}
+.m-hearts{font-size:12.5px;color:var(--orange);font-weight:500;flex-shrink:0}
+.m-badge{font-size:10.5px;color:var(--orange-deep);background:var(--orange-soft);border-radius:999px;padding:2px 9px;margin-left:6px;vertical-align:1px;font-weight:500}
 .empty{font-size:13.5px;color:var(--sub);padding:38px 0;text-align:center}
 .rank-list{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-top:4px}
 .rank-item{display:flex;align-items:center;gap:13px;padding:13px 16px;cursor:pointer;border-bottom:1px solid var(--hair);transition:.13s}
@@ -505,7 +511,7 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .rank-body{min-width:0;flex:1}
 .rank-body h4{font-size:13.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rank-body span{font-size:11.5px;color:var(--sub)}
-.rank-heart{font-size:12px;font-weight:700;color:var(--orange);white-space:nowrap}
+.rank-heart{font-size:12px;font-weight:500;color:var(--orange);white-space:nowrap}
 
 /* ═══ 인앱 캡쳐 · 단계별 ═══ */
 .screens{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;margin-top:44px}
@@ -557,6 +563,7 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
 .foot-co b{color:var(--ink);font-size:14px}
 .foot-links{font-size:13px;color:var(--sub);display:flex;gap:16px;flex-wrap:wrap;margin-top:20px}
 .foot-links a{text-decoration:underline;text-underline-offset:3px}
+.foot-links b,.en-box b{font-weight:500}   /* 🆕 10/3 영아: 13px 이하 굵게 ✗ */
 .en-box{background:var(--warm);border:1px solid var(--hair);border-radius:16px;padding:20px 22px;margin-top:28px}
 .en-box h3{font-size:14px;font-weight:700;margin-bottom:8px}
 .en-box p{font-size:12.5px;color:var(--sub);margin-bottom:6px;line-height:1.75}
@@ -592,43 +599,43 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
   .day-map{height:40vh;min-height:200px}
   .day-map.folded{height:0;min-height:0;border:0}
   .map-fold{display:flex;order:-2;align-items:center;justify-content:space-between;width:100%;padding:8px 12px;margin:0;
-    border:1px solid var(--line);border-radius:12px;background:#fff;font:700 13px 'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:var(--ink);cursor:pointer}
+    border:1px solid var(--line);border-radius:12px;background:#fff;font:500 13px 'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:var(--ink);cursor:pointer}
 }
 .day-wrap + .day-h, .day-wrap + .see-all{margin-top:22px}
 .day-map.map-off{display:none}   /* 🆕 9/26 #051: 구글 지도 로드·인증 실패 → 칸을 접는다(워터마크 타일 ✗) */
 .map-pin{width:24px;height:24px;border-radius:50%;background:var(--orange);color:#fff;
-  font:700 12px 'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;display:flex;align-items:center;justify-content:center;
+  font:500 12px 'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;display:flex;align-items:center;justify-content:center;
   border:1.5px solid #fff;box-shadow:0 1px 4px rgba(29,27,25,.35)}
 .travel-chip{display:inline-block;background:rgba(255,255,255,.94);border:1px solid var(--line);
-  border-radius:999px;padding:1px 8px;font:700 10.5px 'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:var(--ink);
+  border-radius:999px;padding:1px 8px;font:500 10.5px 'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:var(--ink);
   white-space:nowrap;box-shadow:0 1px 3px rgba(29,27,25,.2);transform:translate(-50%,-50%)}
 .pin-no{display:inline-flex;width:17px;height:17px;border-radius:50%;background:var(--orange);color:#fff;
-  font-size:10.5px;font-weight:700;align-items:center;justify-content:center;margin-right:7px;vertical-align:1px}
+  font-size:10.5px;font-weight:500;align-items:center;justify-content:center;margin-right:7px;vertical-align:1px}
 .slot{display:grid;grid-template-columns:46px 1fr;gap:10px;padding:10px 0;border-bottom:1px solid var(--hair)}
-.slot .t{font-size:12px;color:var(--sub);font-weight:700;padding-top:2px}
+.slot .t{font-size:12px;color:var(--sub);font-weight:400;padding-top:2px}
 .slot .ti{font-size:13.5px;line-height:1.5;font-weight:700}
-.slot .ty{font-size:10.5px;color:var(--sub);border:1px solid var(--line);border-radius:999px;padding:0 7px;margin-left:6px;white-space:nowrap;font-weight:700}
+.slot .ty{font-size:10.5px;color:var(--sub);border:1px solid var(--line);border-radius:999px;padding:0 7px;margin-left:6px;white-space:nowrap;font-weight:400}
 .slot .tip{font-size:12px;color:var(--sub);margin-top:4px;line-height:1.6;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.guide-btn{display:inline-flex;align-items:center;gap:4px;font:700 11px 'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+.guide-btn{display:inline-flex;align-items:center;gap:4px;font:500 11px 'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
   color:var(--orange-deep);background:none;border:1px solid #f3ddc9;border-radius:999px;
   padding:2px 10px;margin-left:7px;vertical-align:2px}
 .guide-btn:hover{background:var(--orange-tint)}
 .bucket-card{background:var(--warm);border:1px solid var(--line);border-radius:16px;padding:16px 17px 15px;margin:10px 0 4px}
 .bucket-card h5{font-size:14.5px;font-weight:700}
-.bucket-card .cat{font-size:11px;color:var(--sub);border:1px solid var(--line);border-radius:999px;padding:1px 9px;margin-left:8px;vertical-align:2px;font-weight:700}
+.bucket-card .cat{font-size:11px;color:var(--sub);border:1px solid var(--line);border-radius:999px;padding:1px 9px;margin-left:8px;vertical-align:2px;font-weight:500}
 .bucket-card .desc{font-size:13px;color:var(--ink);line-height:1.75;margin-top:9px}
 .bucket-card .vinfo{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin-top:12px;font-size:12.5px}
 .bucket-card .vinfo dt{color:var(--sub)}
 .bucket-card .vinfo dd{color:var(--ink);font-weight:700}
 .bucket-card .tips{margin-top:12px;border-top:1px solid var(--line);padding-top:11px}
-.bucket-card .tips .tl{font-size:12.5px;font-weight:700;color:var(--orange)}
+.bucket-card .tips .tl{font-size:12.5px;font-weight:500;color:var(--orange)}
 .bucket-card .tips p{font-size:12.5px;color:var(--ink);line-height:1.7;margin-top:5px}
 .bucket-photo{display:block;max-width:100%;max-height:240px;width:auto;height:auto;
   border-radius:12px;border:1px solid var(--hair);margin:12px auto 0}
 .photo-credit{font-size:10.5px;color:var(--faint);margin-top:4px;text-align:center}
 .pspots{margin-top:12px;border-top:1px solid var(--line);padding-top:11px}
-.pspots .tl{font-size:12.5px;font-weight:700;color:var(--ink)}
+.pspots .tl{font-size:12.5px;font-weight:500;color:var(--ink)}
 .pspots p{font-size:12.5px;color:var(--ink);line-height:1.7;margin-top:5px}
 .audio-row{display:flex;align-items:center;gap:11px;margin-top:14px;border-top:1px solid var(--line);padding-top:13px}
 .audio-btn{width:40px;height:40px;border-radius:50%;border:1.6px solid var(--orange);background:#fff;
@@ -650,8 +657,8 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
 /* 내 여행 오버레이 카드 */
 .trip-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-top:12px;box-shadow:0 3px 10px rgba(35,30,25,.04)}
 .trip-row1{display:flex;align-items:center;gap:9px}
-.badge-plan{font-size:11.5px;font-weight:700;color:var(--orange-deep);background:var(--orange-soft);border-radius:999px;padding:3px 11px}
-.badge-done{font-size:11.5px;font-weight:700;color:var(--green);background:var(--green-soft);border-radius:999px;padding:3px 11px}
+.badge-plan{font-size:11.5px;font-weight:500;color:var(--orange-deep);background:var(--orange-soft);border-radius:999px;padding:3px 11px}
+.badge-done{font-size:11.5px;font-weight:500;color:var(--green);background:var(--green-soft);border-radius:999px;padding:3px 11px}
 .trip-row1 .dep{font-size:12px;color:var(--sub)}
 .trip-row1 .dday{margin-left:auto;font-size:15px;font-weight:700;color:var(--orange)}
 .trip-card h4{font-size:16px;font-weight:700;margin-top:9px;}
@@ -749,12 +756,13 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
          <button type="button" class="hg-tab" role="tab" data-tab="market" aria-selected="true">모두의 지구본</button>
          <button type="button" class="hg-tab" role="tab" data-tab="modni" aria-selected="false">모드니 지구본</button>
        </div>
-       <button type="button" class="hg-info" id="hgInfo" aria-label="이 지구본 안내" aria-expanded="false">ⓘ</button>
      </div>
-     <div class="hg-stage" id="hgStage"><div id="hgBox"></div><div class="hg-infopanel" id="hgInfoPanel" hidden></div><div class="hg-pop" id="hgPop" hidden></div>
+     <div class="hg-stage" id="hgStage"><div id="hgBox"></div><div class="hg-pop" id="hgPop" hidden></div>
        <button type="button" class="hg-cta" id="hgCta">여행 담기로 가기 ›</button>
        <div class="hg-play" id="hgPlay" hidden><img src="assets/modni_symbol.png" alt=""><span id="hgPlayT">마카오 퀴즈 · 모드니 도슨트</span><button type="button" id="hgStop">그만 듣기</button></div>
      </div>
+     <!-- 🆕 10/3 영아 목업(앱 S5 ③): ⓘ = 지구본 원 바깥 오른쪽 위(옆자리 없으면 지구본 아래) · 글은 ⓘ 바로 밑 · 상자 ✗ -->
+     <div class="hg-help" id="hgHelp"><button type="button" class="hg-info" id="hgInfo" aria-label="이 지구본 안내" aria-expanded="false" aria-controls="hgInfoPanel">ⓘ</button><div class="hg-infopanel" id="hgInfoPanel" hidden></div></div>
      <div class="hg-below" id="hgBelow">
        <div class="hg-status"><div class="hg-line" id="hgLine"></div><button type="button" class="hg-chip" id="hgDoc">🎧 도슨트 미리듣기 · 2분</button></div>
        <div class="hg-trips" id="hgTrips" hidden></div>
@@ -775,14 +783,14 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
   <div class="duo">
     <div class="mock-shot reveal">
       <div class="phone"><div class="app-rot" id="appRot"><div class="rot-frame" style="width:390px;height:844px;overflow:hidden;background:#ffffff;" data-screen-label="새 여행 서베이"><div style="display:flex;flex-direction:column;height:100%;"><div style="height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;flex-shrink:0;"><span style="font-size:16px;font-weight:700;color:#1d1b19;">1:00</span><div style="display:flex;align-items:center;gap:7px;"><svg width="18" height="12" viewBox="0 0 18 12" fill="#1d1b19"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="#1d1b19" stroke-width="1.6" stroke-linecap="round"><path d="M1 4.2C4.2 1.5 12.8 1.5 16 4.2"/><path d="M3.6 6.8C5.9 4.9 11.1 4.9 13.4 6.8"/><path d="M6.1 9.2C7.3 8.4 9.7 8.4 10.9 9.2"/></svg><div style="display:flex;align-items:center;gap:2px;"><div style="width:24px;height:12px;border-radius:3.5px;border:1.4px solid rgba(29,27,25,.85);padding:1.6px;"><div style="width:80%;height:100%;background:#1d1b19;border-radius:1.5px;"></div></div><div style="width:1.6px;height:4px;background:rgba(29,27,25,.85);border-radius:1px;"></div></div></div></div>
-<div style="display:flex;align-items:center;gap:10px;padding:8px 20px 12px;flex-shrink:0;border-bottom:1px solid #f2f0ed;"><button style="width:34px;height:34px;border:none;background:transparent;display:flex;align-items:center;justify-content:center;margin-left:-8px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d1b19" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button><div style="flex:1;"></div><div style="position:absolute;left:0;right:0;text-align:center;font-size:16px;font-weight:700;color:#1d1b19;pointer-events:none;">새 여행 만들기</div><div style="display:flex;align-items:center;gap:5px;background:#fff;border:1px solid #eeece9;border-radius:999px;padding:6px 12px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="#e8a72c"><path d="M12 2.2 13.7 9.1 20.5 12 13.7 14.9 12 21.8 10.3 14.9 3.5 12 10.3 9.1Z"/></svg><span style="font-size:12.5px;font-weight:700;color:#3c3833;">200</span></div></div>
+<div style="display:flex;align-items:center;gap:10px;padding:8px 20px 12px;flex-shrink:0;border-bottom:1px solid #f2f0ed;"><button style="width:34px;height:34px;border:none;background:transparent;display:flex;align-items:center;justify-content:center;margin-left:-8px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d1b19" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button><div style="flex:1;"></div><div style="position:absolute;left:0;right:0;text-align:center;font-size:16px;font-weight:700;color:#1d1b19;pointer-events:none;">새 여행 만들기</div><div style="display:flex;align-items:center;gap:5px;background:#fff;border:1px solid #eeece9;border-radius:999px;padding:6px 12px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="#e8a72c"><path d="M12 2.2 13.7 9.1 20.5 12 13.7 14.9 12 21.8 10.3 14.9 3.5 12 10.3 9.1Z"/></svg><span style="font-size:12.5px;font-weight:500;color:#3c3833;">200</span></div></div>
 <div style="flex:1;overflow:hidden;padding:20px 18px;display:flex;flex-direction:column;gap:14px;background:#faf9f7;">
  <div style="display:flex;gap:9px;align-items:flex-end;"><div style="width:34px;height:34px;border-radius:999px;background:#fff2ea;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg viewBox="0 0 100 100" fill="none" style="width:62%;height:62%;"><circle cx="50" cy="50" r="43" stroke="#f4581c" stroke-width="6"/><circle cx="41" cy="46" r="4.9" fill="#f4581c"/><circle cx="61" cy="41" r="4.1" fill="#f4581c"/></svg></div><div style="max-width:76%;background:#fff;border:1px solid #eeece9;border-radius:4px 16px 16px 16px;padding:12px 15px;"><div style="font-size:14px;font-weight:700;color:#1d1b19;">안녕하세요! 저는 모드니예요</div><div style="font-size:13px;color:#7a726c;margin-top:3px;line-height:1.5;">여행의 모든 것을 함께 준비해드릴게요</div></div></div>
  <div style="display:flex;gap:9px;align-items:flex-end;"><div style="width:34px;height:34px;border-radius:999px;background:#fff2ea;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg viewBox="0 0 100 100" fill="none" style="width:62%;height:62%;"><circle cx="50" cy="50" r="43" stroke="#f4581c" stroke-width="6"/><circle cx="41" cy="46" r="4.9" fill="#f4581c"/><circle cx="61" cy="41" r="4.1" fill="#f4581c"/></svg></div><div style="max-width:80%;background:#fff;border:1px solid #eeece9;border-radius:4px 16px 16px 16px;padding:12px 15px;"><div style="font-size:14px;font-weight:700;color:#1d1b19;">어떤 여행을 꿈꾸세요? 편하게 말해주세요</div><div style="font-size:12.5px;color:#9c9690;margin-top:5px;line-height:1.55;">예) 10월에 남편이랑 남프랑스 2주 정도 다녀오려고요</div></div></div>
  <div style="display:flex;justify-content:flex-end;"><div style="max-width:78%;background:#f4581c;border-radius:16px 16px 4px 16px;padding:12px 15px;"><div style="font-size:13.5px;color:#fff;line-height:1.55;">11월 일본 5박 여행</div></div></div>
 </div>
 <div style="flex-shrink:0;padding:12px 16px 14px;border-top:1px solid #f2f0ed;background:#fff;"><div style="display:flex;align-items:center;gap:9px;background:#f5f2ee;border-radius:999px;padding:8px 8px 8px 16px;"><span style="flex:1;font-size:13.5px;color:#b2aba4;">여행 이야기를 들려주세요…</span><button style="width:38px;height:38px;border:none;border-radius:999px;background:#f4581c;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg></button></div></div>
-<div style="flex-shrink:0;background:#fff;border-top:1px solid #f2f0ed;display:flex;padding:10px 12px 24px;"><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14"/><path d="M15 6v14"/></svg><span style="font-size:10.5px;font-weight:700;color:#f4581c;">계획</span></button><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18"/><path d="M8 3v4"/><path d="M16 3v4"/></svg><span style="font-size:10.5px;font-weight:700;color:#b2aba4;">일정표</span></button><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 8v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-8Z"/></svg><span style="font-size:10.5px;font-weight:700;color:#b2aba4;">예약</span></button><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2Z"/><path d="M8.5 8a3.5 3.5 0 0 1 7 0"/></svg><span style="font-size:10.5px;font-weight:700;color:#b2aba4;">준비물</span></button><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 11h18"/></svg><span style="font-size:10.5px;font-weight:700;color:#b2aba4;">비용</span></button><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 4v16"/><path d="M17 4v16"/></svg><span style="font-size:10.5px;font-weight:700;color:#b2aba4;">추억</span></button></div>
+<div style="flex-shrink:0;background:#fff;border-top:1px solid #f2f0ed;display:flex;padding:10px 12px 24px;"><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14"/><path d="M15 6v14"/></svg><span style="font-size:10.5px;font-weight:500;color:#f4581c;">계획</span></button><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18"/><path d="M8 3v4"/><path d="M16 3v4"/></svg><span style="font-size:10.5px;font-weight:400;color:#b2aba4;">일정표</span></button><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 8v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-8Z"/></svg><span style="font-size:10.5px;font-weight:400;color:#b2aba4;">예약</span></button><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2Z"/><path d="M8.5 8a3.5 3.5 0 0 1 7 0"/></svg><span style="font-size:10.5px;font-weight:400;color:#b2aba4;">준비물</span></button><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 11h18"/></svg><span style="font-size:10.5px;font-weight:400;color:#b2aba4;">비용</span></button><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 4v16"/><path d="M17 4v16"/></svg><span style="font-size:10.5px;font-weight:400;color:#b2aba4;">추억</span></button></div>
 </div><div style="position:absolute;bottom:9px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:rgba(29,27,25,.28);z-index:3;"></div></div><div class="rot-frame" style="width:390px;height:844px;overflow:hidden;background:#ffffff;" data-screen-label="여행 취향 요약">
     <div style="position:relative;z-index:2;height:100%;display:flex;flex-direction:column;">
      <div style="height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;flex-shrink:0;">
@@ -802,7 +810,7 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
       <button style="width:34px;height:34px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#3c3833" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 21l-6-4-6 4V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2Z"/></svg></button>
       <div style="display:flex;align-items:center;gap:5px;background:#fff;border:1px solid #eeece9;border-radius:999px;padding:6px 12px;">
        <svg width="13" height="13" viewBox="0 0 24 24" fill="#e8a72c"><path d="M12 2.2 13.7 9.1 20.5 12 13.7 14.9 12 21.8 10.3 14.9 3.5 12 10.3 9.1Z"/></svg>
-       <span style="font-size:12.5px;font-weight:700;color:#3c3833;">200</span>
+       <span style="font-size:12.5px;font-weight:500;color:#3c3833;">200</span>
       </div>
      </div>
 
@@ -820,60 +828,60 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
         <div style="width:30px;height:30px;border-radius:10px;background:#fff2ea;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18Z"/></svg></div>
         <div style="min-width:0;">
          <div style="font-size:11px;color:#9c9690;">지역</div>
-         <div style="font-size:13px;font-weight:700;color:#1d1b19;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">일본</div>
+         <div style="font-size:13px;font-weight:500;color:#1d1b19;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">일본</div>
         </div>
        </div>
        <div style="display:flex;align-items:center;gap:10px;border:1px solid #eeece9;background:#fff;border-radius:14px;padding:12px 13px;">
         <div style="width:30px;height:30px;border-radius:10px;background:#fff2ea;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M20 13A8 8 0 1 1 11 4a6.5 6.5 0 0 0 9 9Z"/></svg></div>
         <div style="min-width:0;">
          <div style="font-size:11px;color:#9c9690;">기간</div>
-         <div style="font-size:13px;font-weight:700;color:#1d1b19;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">5박</div>
+         <div style="font-size:13px;font-weight:500;color:#1d1b19;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">5박</div>
         </div>
        </div>
        <div style="display:flex;align-items:center;gap:10px;border:1px solid #eeece9;background:#fff;border-radius:14px;padding:12px 13px;">
         <div style="width:30px;height:30px;border-radius:10px;background:#fff2ea;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18"/><path d="M8 3v4"/><path d="M16 3v4"/></svg></div>
         <div style="min-width:0;">
          <div style="font-size:11px;color:#9c9690;">출발</div>
-         <div style="font-size:13px;font-weight:700;color:#1d1b19;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">11.01 ~ 11.06</div>
+         <div style="font-size:13px;font-weight:500;color:#1d1b19;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">11.01 ~ 11.06</div>
         </div>
        </div>
        <div style="display:flex;align-items:center;gap:10px;border:1px solid #eeece9;background:#fff;border-radius:14px;padding:12px 13px;">
         <div style="width:30px;height:30px;border-radius:10px;background:#fff2ea;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c0-3 2.4-5 5.5-5s5.5 2 5.5 5"/><circle cx="17" cy="9" r="2.6"/><path d="M16 14.3c2.6.3 4.5 2 4.5 4.7"/></svg></div>
         <div style="min-width:0;">
          <div style="font-size:11px;color:#9c9690;">동행</div>
-         <div style="font-size:13px;font-weight:700;color:#1d1b19;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">커플 · 2명</div>
+         <div style="font-size:13px;font-weight:500;color:#1d1b19;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">커플 · 2명</div>
         </div>
        </div>
        <div style="display:flex;align-items:center;gap:10px;border:1px solid #eeece9;background:#fff;border-radius:14px;padding:12px 13px;">
         <div style="width:30px;height:30px;border-radius:10px;background:#fff2ea;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M10.5 13.5 L3 11 L21 4 L14 21 Z"/></svg></div>
         <div style="min-width:0;">
          <div style="font-size:11px;color:#9c9690;">출발 공항</div>
-         <div style="font-size:13px;font-weight:700;color:#1d1b19;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">인천 ICN</div>
+         <div style="font-size:13px;font-weight:500;color:#1d1b19;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">인천 ICN</div>
         </div>
        </div>
        <div style="display:flex;align-items:center;gap:10px;border:1px solid #eeece9;background:#fff;border-radius:14px;padding:12px 13px;">
         <div style="width:30px;height:30px;border-radius:10px;background:#fff2ea;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 11h18"/></svg></div>
         <div style="min-width:0;">
          <div style="font-size:11px;color:#9c9690;">1인 예산</div>
-         <div style="font-size:13px;font-weight:700;color:#1d1b19;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">100만원</div>
+         <div style="font-size:13px;font-weight:500;color:#1d1b19;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">100만원</div>
         </div>
        </div>
       </div>
       <div style="border:1px solid #eeece9;background:#faf9f7;border-radius:14px;padding:13px 14px;margin-top:8px;">
        <span style="font-size:11.5px;color:#9c9690;">여행 스타일</span>
        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
-        <span style="background:#fff2ea;color:#d84a12;font-size:12px;font-weight:700;padding:6px 11px;border-radius:999px;">여유로운 아침</span>
-        <span style="background:#fff2ea;color:#d84a12;font-size:12px;font-weight:700;padding:6px 11px;border-radius:999px;">빡빡한 일정</span>
-        <span style="background:#fff2ea;color:#d84a12;font-size:12px;font-weight:700;padding:6px 11px;border-radius:999px;">여러 도시</span>
-        <span style="background:#fff2ea;color:#d84a12;font-size:12px;font-weight:700;padding:6px 11px;border-radius:999px;">비즈니스급 숙소</span>
-        <span style="background:#fff2ea;color:#d84a12;font-size:12px;font-weight:700;padding:6px 11px;border-radius:999px;">식비 10만원/일</span>
-        <span style="background:#fff2ea;color:#d84a12;font-size:12px;font-weight:700;padding:6px 11px;border-radius:999px;">특별활동 30만원</span>
+        <span style="background:#fff2ea;color:#d84a12;font-size:12px;font-weight:500;padding:6px 11px;border-radius:999px;">여유로운 아침</span>
+        <span style="background:#fff2ea;color:#d84a12;font-size:12px;font-weight:500;padding:6px 11px;border-radius:999px;">빡빡한 일정</span>
+        <span style="background:#fff2ea;color:#d84a12;font-size:12px;font-weight:500;padding:6px 11px;border-radius:999px;">여러 도시</span>
+        <span style="background:#fff2ea;color:#d84a12;font-size:12px;font-weight:500;padding:6px 11px;border-radius:999px;">비즈니스급 숙소</span>
+        <span style="background:#fff2ea;color:#d84a12;font-size:12px;font-weight:500;padding:6px 11px;border-radius:999px;">식비 10만원/일</span>
+        <span style="background:#fff2ea;color:#d84a12;font-size:12px;font-weight:500;padding:6px 11px;border-radius:999px;">특별활동 30만원</span>
        </div>
       </div>
       <div style="border:1px solid #eeece9;background:#fff;border-radius:14px;padding:13px 14px;margin-top:8px;display:flex;align-items:center;gap:10px;">
        <div style="width:30px;height:30px;border-radius:10px;background:#fff2ea;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M12 21C7 16.5 3 13.2 3 9.3 3 6.4 5.2 4.5 7.8 4.5c1.6 0 3.2.8 4.2 2.2 1-1.4 2.6-2.2 4.2-2.2 2.6 0 4.8 1.9 4.8 4.8 0 3.9-4 7.2-9 11.7Z"/></svg></div>
        <span style="font-size:11px;color:#9c9690;flex-shrink:0;">위시리스트</span>
-       <span style="flex:1;text-align:right;font-size:13px;font-weight:700;color:#1d1b19;">하코네 온천 2박</span>
+       <span style="flex:1;text-align:right;font-size:13px;font-weight:500;color:#1d1b19;">하코네 온천 2박</span>
        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#c5bfb8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M17 3l4 4L8 20l-5 1 1-5Z"/></svg>
       </div>
      </div>
@@ -883,27 +891,27 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
 <div style="flex-shrink:0;background:#fff;border-top:1px solid #f2f0ed;display:flex;padding:10px 12px 24px;">
       <button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;">
        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14"/><path d="M15 6v14"/></svg>
-       <span style="font-size:10.5px;font-weight:700;color:#f4581c;">계획</span>
+       <span style="font-size:10.5px;font-weight:500;color:#f4581c;">계획</span>
       </button>
       <button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;">
        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18"/><path d="M8 3v4"/><path d="M16 3v4"/></svg>
-       <span style="font-size:10.5px;font-weight:700;color:#b2aba4;">일정표</span>
+       <span style="font-size:10.5px;font-weight:400;color:#b2aba4;">일정표</span>
       </button>
       <button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;">
        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 8v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-8Z"/><path d="M13 5v2"/><path d="M13 11v2"/><path d="M13 17v2"/></svg>
-       <span style="font-size:10.5px;font-weight:700;color:#b2aba4;">예약</span>
+       <span style="font-size:10.5px;font-weight:400;color:#b2aba4;">예약</span>
       </button>
       <button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;">
        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2Z"/><path d="M8.5 8a3.5 3.5 0 0 1 7 0"/></svg>
-       <span style="font-size:10.5px;font-weight:700;color:#b2aba4;">준비물</span>
+       <span style="font-size:10.5px;font-weight:400;color:#b2aba4;">준비물</span>
       </button>
       <button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;">
        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 11h18"/></svg>
-       <span style="font-size:10.5px;font-weight:700;color:#b2aba4;">비용</span>
+       <span style="font-size:10.5px;font-weight:400;color:#b2aba4;">비용</span>
       </button>
       <button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;">
        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 4v16"/><path d="M17 4v16"/></svg>
-       <span style="font-size:10.5px;font-weight:700;color:#b2aba4;">추억</span>
+       <span style="font-size:10.5px;font-weight:400;color:#b2aba4;">추억</span>
       </button>
      </div>
     </div>
@@ -926,7 +934,7 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
       <button style="width:34px;height:34px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#3c3833" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 21l-6-4-6 4V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2Z"/></svg></button>
       <div style="display:flex;align-items:center;gap:5px;background:#fff;border:1px solid #eeece9;border-radius:999px;padding:6px 12px;">
        <svg width="13" height="13" viewBox="0 0 24 24" fill="#e8a72c"><path d="M12 2.2 13.7 9.1 20.5 12 13.7 14.9 12 21.8 10.3 14.9 3.5 12 10.3 9.1Z"/></svg>
-       <span style="font-size:12.5px;font-weight:700;color:#3c3833;">200</span>
+       <span style="font-size:12.5px;font-weight:500;color:#3c3833;">200</span>
       </div>
      </div>
      <div class="hscroll" style="flex:1;overflow-y:auto;padding:18px 20px 8px;">
@@ -936,16 +944,16 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
       </div>
       <div style="display:flex;gap:8px;margin-top:16px;">
        <div style="flex:1;border:1.5px solid #f4581c;background:#fff2ea;border-radius:14px;padding:10px 8px;text-align:center;cursor:pointer;">
-       <div style="font-size:11.5px;font-weight:700;color:#d84a12;">코스 1</div>
-       <div style="font-size:13px;font-weight:700;color:#1d1b19;margin-top:3px;">하코네 온천 여행</div>
+       <div style="font-size:11.5px;font-weight:500;color:#d84a12;">코스 1</div>
+       <div style="font-size:13px;font-weight:500;color:#1d1b19;margin-top:3px;">하코네 온천 여행</div>
       </div>
        <div style="flex:1;border:1.5px solid #eeece9;background:#fff;border-radius:14px;padding:10px 8px;text-align:center;cursor:pointer;">
-       <div style="font-size:11.5px;font-weight:700;color:#b2aba4;">코스 2</div>
-       <div style="font-size:13px;font-weight:700;color:#3c3833;margin-top:3px;">하네다 단풍 여행</div>
+       <div style="font-size:11.5px;font-weight:400;color:#b2aba4;">코스 2</div>
+       <div style="font-size:13px;font-weight:500;color:#3c3833;margin-top:3px;">하네다 단풍 여행</div>
       </div>
        <div style="flex:1;border:1.5px solid #eeece9;background:#fff;border-radius:14px;padding:10px 8px;text-align:center;cursor:pointer;">
-       <div style="font-size:11.5px;font-weight:700;color:#b2aba4;">코스 3</div>
-       <div style="font-size:13px;font-weight:700;color:#3c3833;margin-top:3px;">닛코 단풍 여행</div>
+       <div style="font-size:11.5px;font-weight:400;color:#b2aba4;">코스 3</div>
+       <div style="font-size:13px;font-weight:500;color:#3c3833;margin-top:3px;">닛코 단풍 여행</div>
       </div>
       </div>
       <div style="font-size:20px;font-weight:700;color:#1d1b19;margin-top:20px;">도쿄 + 하코네 단풍 힐링 5박</div>
@@ -966,7 +974,7 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
         </div>
         <div style="flex:1;min-width:0;padding-bottom:18px;display:flex;align-items:flex-start;gap:8px;">
          <div style="flex:1;min-width:0;">
-          <div style="display:flex;align-items:center;gap:7px;"><span style="font-size:15px;font-weight:700;color:#1d1b19;">도쿄</span><span style="font-size:12.5px;font-weight:700;color:#d84a12;">3박</span></div>
+          <div style="display:flex;align-items:center;gap:7px;"><span style="font-size:15px;font-weight:700;color:#1d1b19;">도쿄</span><span style="font-size:12.5px;font-weight:500;color:#d84a12;">3박</span></div>
           <div style="font-size:12.5px;color:#7a726c;line-height:1.55;margin-top:3px;">시부야·하라주쿠 쇼핑 · 아사쿠사·스카이트리 · 신주쿠 야경·이자카야</div>
          </div>
          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c5bfb8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><path d="M9 6l6 6-6 6"/></svg>
@@ -979,7 +987,7 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
         </div>
         <div style="flex:1;min-width:0;padding-bottom:18px;display:flex;align-items:flex-start;gap:8px;">
          <div style="flex:1;min-width:0;">
-          <div style="display:flex;align-items:center;gap:7px;"><span style="font-size:15px;font-weight:700;color:#1d1b19;">하코네</span><span style="font-size:12.5px;font-weight:700;color:#d84a12;">1박</span></div>
+          <div style="display:flex;align-items:center;gap:7px;"><span style="font-size:15px;font-weight:700;color:#1d1b19;">하코네</span><span style="font-size:12.5px;font-weight:500;color:#d84a12;">1박</span></div>
           <div style="font-size:12.5px;color:#7a726c;line-height:1.55;margin-top:3px;">노천온천 료칸 숙박 · 후지산 전망 · 아시 호수 유람선 · 하코네 오픈에어 뮤지엄</div>
          </div>
          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c5bfb8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><path d="M9 6l6 6-6 6"/></svg>
@@ -992,7 +1000,7 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
         </div>
         <div style="flex:1;min-width:0;padding-bottom:18px;display:flex;align-items:flex-start;gap:8px;">
          <div style="flex:1;min-width:0;">
-          <div style="display:flex;align-items:center;gap:7px;"><span style="font-size:15px;font-weight:700;color:#1d1b19;">가마쿠라</span><span style="font-size:12.5px;font-weight:700;color:#d84a12;">1박</span></div>
+          <div style="display:flex;align-items:center;gap:7px;"><span style="font-size:15px;font-weight:700;color:#1d1b19;">가마쿠라</span><span style="font-size:12.5px;font-weight:500;color:#d84a12;">1박</span></div>
           <div style="font-size:12.5px;color:#7a726c;line-height:1.55;margin-top:3px;">가마쿠라 대불 · 고토쿠인·쓰루가오카 하치만구 · 에노시마 당일치기</div>
          </div>
          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c5bfb8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><path d="M9 6l6 6-6 6"/></svg>
@@ -1007,7 +1015,7 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
        </div>
       </div>
       <div style="border:1px solid #eeece9;background:#faf9f7;border-radius:16px;padding:14px 16px;margin-top:12px;">
-       <div style="display:inline-flex;align-items:center;gap:6px;background:#fff2ea;border-radius:999px;padding:5px 11px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d84a12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="15" rx="3"/><path d="M5 11h14"/><path d="M8 21l1.5-3"/><path d="M16 21l-1.5-3"/></svg><span style="font-size:12px;font-weight:700;color:#d84a12;">대중교통</span></div>
+       <div style="display:inline-flex;align-items:center;gap:6px;background:#fff2ea;border-radius:999px;padding:5px 11px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d84a12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="15" rx="3"/><path d="M5 11h14"/><path d="M8 21l1.5-3"/><path d="M16 21l-1.5-3"/></svg><span style="font-size:12px;font-weight:500;color:#d84a12;">대중교통</span></div>
        <div style="font-size:12.5px;color:#3c3833;line-height:1.6;margin-top:9px;">도쿄→하코네: 신주쿠에서 로망스카(小田急) 약 85분 / 하코네→가마쿠라: 오다와라 경유 JR 약 60분 / 가마쿠라→나리타: 오후나·요코하마·시나가와 경유 N'EX 약 90분</div>
       </div>
       <div style="border:1px solid #f3e0d2;background:#fff6f0;border-radius:16px;padding:14px 16px;margin-top:12px;">
@@ -1022,7 +1030,7 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
       <button style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;border:none;background:#fff2ea;border-radius:14px;padding:15px;margin-top:14px;cursor:pointer;">
        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4V2"/><path d="M15 10V8"/><path d="M12.5 6.5h-2"/><path d="M19.5 6.5h-2"/><path d="M3 21l9-9"/><path d="M12.5 5.5 18 11"/></svg>
        <span style="font-size:14.5px;font-weight:700;color:#d84a12;">이 코스 다듬기</span>
-       <span style="font-size:11.5px;font-weight:700;color:#c99a6f;">· 도시·기간 조절</span>
+       <span style="font-size:11.5px;font-weight:500;color:#c99a6f;">· 도시·기간 조절</span>
       </button>
       <div style="font-size:14px;font-weight:700;color:#1d1b19;margin-top:24px;">1인 예상 예산</div>
       <div style="border:1px solid #eeece9;background:#fff;border-radius:16px;padding:6px 16px 14px;margin-top:10px;">
@@ -1040,47 +1048,47 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
      <div style="flex-shrink:0;background:#fff;border-top:1px solid #f2f0ed;display:flex;padding:10px 12px 24px;">
       <button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;">
        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14"/><path d="M15 6v14"/></svg>
-       <span style="font-size:10.5px;font-weight:700;color:#f4581c;">계획</span>
+       <span style="font-size:10.5px;font-weight:500;color:#f4581c;">계획</span>
       </button>
       <button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;">
        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18"/><path d="M8 3v4"/><path d="M16 3v4"/></svg>
-       <span style="font-size:10.5px;font-weight:700;color:#b2aba4;">일정표</span>
+       <span style="font-size:10.5px;font-weight:400;color:#b2aba4;">일정표</span>
       </button>
       <button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;">
        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 8v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-8Z"/><path d="M13 5v2"/><path d="M13 11v2"/><path d="M13 17v2"/></svg>
-       <span style="font-size:10.5px;font-weight:700;color:#b2aba4;">예약</span>
+       <span style="font-size:10.5px;font-weight:400;color:#b2aba4;">예약</span>
       </button>
       <button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;">
        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2Z"/><path d="M8.5 8a3.5 3.5 0 0 1 7 0"/></svg>
-       <span style="font-size:10.5px;font-weight:700;color:#b2aba4;">준비물</span>
+       <span style="font-size:10.5px;font-weight:400;color:#b2aba4;">준비물</span>
       </button>
       <button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;">
        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 11h18"/></svg>
-       <span style="font-size:10.5px;font-weight:700;color:#b2aba4;">비용</span>
+       <span style="font-size:10.5px;font-weight:400;color:#b2aba4;">비용</span>
       </button>
       <button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;">
        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 4v16"/><path d="M17 4v16"/></svg>
-       <span style="font-size:10.5px;font-weight:700;color:#b2aba4;">추억</span>
+       <span style="font-size:10.5px;font-weight:400;color:#b2aba4;">추억</span>
       </button>
      </div>
     </div>
     <div style="position:absolute;bottom:9px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:rgba(29,27,25,.28);z-index:3;"></div>
-   </div><div class="rot-frame" style="width:390px;height:844px;overflow:hidden;background:#ffffff;" data-screen-label="최종 일정표"><div style="position:relative;z-index:2;height:100%;display:flex;flex-direction:column;"><div style="height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;flex-shrink:0;"><span style="font-size:16px;font-weight:700;color:#1d1b19;">1:00</span><div style="display:flex;align-items:center;gap:7px;"><svg width="18" height="12" viewBox="0 0 18 12" fill="#1d1b19"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="#1d1b19" stroke-width="1.6" stroke-linecap="round"><path d="M1 4.2C4.2 1.5 12.8 1.5 16 4.2"/><path d="M3.6 6.8C5.9 4.9 11.1 4.9 13.4 6.8"/><path d="M6.1 9.2C7.3 8.4 9.7 8.4 10.9 9.2"/></svg><div style="display:flex;align-items:center;gap:2px;"><div style="width:24px;height:12px;border-radius:3.5px;border:1.4px solid rgba(29,27,25,.85);padding:1.6px;"><div style="width:80%;height:100%;background:#1d1b19;border-radius:1.5px;"></div></div><div style="width:1.6px;height:4px;background:rgba(29,27,25,.85);border-radius:1px;"></div></div></div></div><div style="position:relative;display:flex;align-items:center;gap:10px;padding:6px 20px 8px;flex-shrink:0;"><button style="width:34px;height:34px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-left:-8px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d1b19" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button><div style="flex:1;"></div><div style="position:absolute;left:0;right:0;text-align:center;font-size:16px;font-weight:700;color:#1d1b19;pointer-events:none;">최종 일정</div><button style="width:34px;height:34px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#3c3833" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 21l-6-4-6 4V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2Z"/></svg></button><div style="display:flex;align-items:center;gap:5px;background:#fff;border:1px solid #eeece9;border-radius:999px;padding:6px 12px;flex-shrink:0;"><svg width="13" height="13" viewBox="0 0 24 24" fill="#e8a72c"><path d="M12 2.2 13.7 9.1 20.5 12 13.7 14.9 12 21.8 10.3 14.9 3.5 12 10.3 9.1Z"/></svg><span style="font-size:12.5px;font-weight:700;color:#3c3833;">200</span></div></div><div style="display:flex;align-items:flex-start;gap:10px;padding:0 20px 10px;flex-shrink:0;"><div style="flex:1;min-width:0;"><div style="font-size:17px;font-weight:700;color:#1d1b19;line-height:1.25;">도쿄 + 하코네 단풍 힐링 5박</div><div style="font-size:11.5px;color:#9c9690;line-height:1.4;margin-top:3px;">나리타 IN·OUT · 도쿄 3박 + 하코네 1박 + 가마쿠라 당일치기 커플 코스</div><button style="display:inline-flex;align-items:center;gap:5px;border:none;background:transparent;cursor:pointer;padding:8px 0 0;"><svg width="15" height="15" viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="43" stroke="#f4581c" stroke-width="7"/><circle cx="41" cy="46" r="5.5" fill="#f4581c"/><circle cx="61" cy="41" r="4.6" fill="#f4581c"/></svg><span style="font-size:12.5px;font-weight:700;color:#f4581c;">코스·버킷 다시 보기</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button></div><button style="width:32px;height:32px;border:none;background:transparent;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></button></div><div class="hscroll" style="display:flex;gap:8px;padding:0 20px 12px;overflow-x:auto;flex-shrink:0;"><button style="flex-shrink:0;border:1.5px solid #f4581c;background:#fff2ea;border-radius:14px;padding:8px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;position:relative;"><span style="font-size:14px;font-weight:700;color:#d84a12;">1일</span><span style="font-size:10px;font-weight:700;color:#e0885a;">도쿄</span></button><button style="flex-shrink:0;border:1.5px solid #eeece9;background:#fff;border-radius:14px;padding:8px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;position:relative;"><span style="font-size:14px;font-weight:700;color:#9c9690;">2일</span><span style="font-size:10px;font-weight:700;color:#c2bcb5;">도쿄</span></button><button style="flex-shrink:0;border:1.5px solid #eeece9;background:#fff;border-radius:14px;padding:8px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;position:relative;"><span style="font-size:14px;font-weight:700;color:#9c9690;">3일</span><span style="font-size:10px;font-weight:700;color:#c2bcb5;">하코네</span></button><button style="flex-shrink:0;border:1.5px solid #eeece9;background:#fff;border-radius:14px;padding:8px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;position:relative;"><span style="font-size:14px;font-weight:700;color:#9c9690;">4일</span><span style="font-size:10px;font-weight:700;color:#c2bcb5;">하코네</span></button></div><div class="hscroll" style="flex:1;overflow-y:auto;padding:12px 20px 8px;"><div style="display:flex;align-items:center;gap:6px;padding:2px 0 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.5 7-11a7 7 0 1 0-14 0c0 4.5 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg><span style="font-size:14px;font-weight:700;color:#1d1b19;">도쿄</span><span style="font-size:11px;color:#b2aba4;margin-left:2px;">2026-10-01</span></div><div style="margin-top:12px;">
-              <div style="display:flex;gap:11px;"><div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:4px;"><div style="width:10px;height:10px;border-radius:999px;background:#f4581c;"></div><div style="flex:1;width:2px;background:#f3e0d2;margin:3px 0;"></div></div><div style="flex:1;padding-bottom:12px;"><div style="display:flex;align-items:center;gap:7px;"><span style="font-size:13.5px;font-weight:700;color:#1d1b19;">17:35</span><span style="display:inline-flex;align-items:center;gap:4px;background:#fff2ea;border-radius:7px;padding:2px 7px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16l1.5-5a2 2 0 0 1 1.9-1.4h7.2a2 2 0 0 1 1.9 1.4L20 16"/><path d="M4 16h16v3H4z"/><circle cx="7.5" cy="19" r="1.2"/><circle cx="16.5" cy="19" r="1.2"/></svg><span style="font-size:10.5px;font-weight:700;color:#d84a12;">90분</span></span></div><div style="font-size:14px;font-weight:700;color:#1d1b19;margin-top:5px;">집 출발 → 인천국제공항 이동</div><div style="font-size:12px;color:#9c9690;line-height:1.5;margin-top:3px;">공항까지 90분 소요. 출발 3시간 전 공항 도착 목표로 17:35에 집을 나섭니다.</div></div></div>
+   </div><div class="rot-frame" style="width:390px;height:844px;overflow:hidden;background:#ffffff;" data-screen-label="최종 일정표"><div style="position:relative;z-index:2;height:100%;display:flex;flex-direction:column;"><div style="height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;flex-shrink:0;"><span style="font-size:16px;font-weight:700;color:#1d1b19;">1:00</span><div style="display:flex;align-items:center;gap:7px;"><svg width="18" height="12" viewBox="0 0 18 12" fill="#1d1b19"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="#1d1b19" stroke-width="1.6" stroke-linecap="round"><path d="M1 4.2C4.2 1.5 12.8 1.5 16 4.2"/><path d="M3.6 6.8C5.9 4.9 11.1 4.9 13.4 6.8"/><path d="M6.1 9.2C7.3 8.4 9.7 8.4 10.9 9.2"/></svg><div style="display:flex;align-items:center;gap:2px;"><div style="width:24px;height:12px;border-radius:3.5px;border:1.4px solid rgba(29,27,25,.85);padding:1.6px;"><div style="width:80%;height:100%;background:#1d1b19;border-radius:1.5px;"></div></div><div style="width:1.6px;height:4px;background:rgba(29,27,25,.85);border-radius:1px;"></div></div></div></div><div style="position:relative;display:flex;align-items:center;gap:10px;padding:6px 20px 8px;flex-shrink:0;"><button style="width:34px;height:34px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-left:-8px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d1b19" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button><div style="flex:1;"></div><div style="position:absolute;left:0;right:0;text-align:center;font-size:16px;font-weight:700;color:#1d1b19;pointer-events:none;">최종 일정</div><button style="width:34px;height:34px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#3c3833" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 21l-6-4-6 4V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2Z"/></svg></button><div style="display:flex;align-items:center;gap:5px;background:#fff;border:1px solid #eeece9;border-radius:999px;padding:6px 12px;flex-shrink:0;"><svg width="13" height="13" viewBox="0 0 24 24" fill="#e8a72c"><path d="M12 2.2 13.7 9.1 20.5 12 13.7 14.9 12 21.8 10.3 14.9 3.5 12 10.3 9.1Z"/></svg><span style="font-size:12.5px;font-weight:500;color:#3c3833;">200</span></div></div><div style="display:flex;align-items:flex-start;gap:10px;padding:0 20px 10px;flex-shrink:0;"><div style="flex:1;min-width:0;"><div style="font-size:17px;font-weight:700;color:#1d1b19;line-height:1.25;">도쿄 + 하코네 단풍 힐링 5박</div><div style="font-size:11.5px;color:#9c9690;line-height:1.4;margin-top:3px;">나리타 IN·OUT · 도쿄 3박 + 하코네 1박 + 가마쿠라 당일치기 커플 코스</div><button style="display:inline-flex;align-items:center;gap:5px;border:none;background:transparent;cursor:pointer;padding:8px 0 0;"><svg width="15" height="15" viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="43" stroke="#f4581c" stroke-width="7"/><circle cx="41" cy="46" r="5.5" fill="#f4581c"/><circle cx="61" cy="41" r="4.6" fill="#f4581c"/></svg><span style="font-size:12.5px;font-weight:500;color:#f4581c;">코스·버킷 다시 보기</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button></div><button style="width:32px;height:32px;border:none;background:transparent;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></button></div><div class="hscroll" style="display:flex;gap:8px;padding:0 20px 12px;overflow-x:auto;flex-shrink:0;"><button style="flex-shrink:0;border:1.5px solid #f4581c;background:#fff2ea;border-radius:14px;padding:8px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;position:relative;"><span style="font-size:14px;font-weight:700;color:#d84a12;">1일</span><span style="font-size:10px;font-weight:500;color:#e0885a;">도쿄</span></button><button style="flex-shrink:0;border:1.5px solid #eeece9;background:#fff;border-radius:14px;padding:8px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;position:relative;"><span style="font-size:14px;font-weight:700;color:#9c9690;">2일</span><span style="font-size:10px;font-weight:400;color:#c2bcb5;">도쿄</span></button><button style="flex-shrink:0;border:1.5px solid #eeece9;background:#fff;border-radius:14px;padding:8px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;position:relative;"><span style="font-size:14px;font-weight:700;color:#9c9690;">3일</span><span style="font-size:10px;font-weight:400;color:#c2bcb5;">하코네</span></button><button style="flex-shrink:0;border:1.5px solid #eeece9;background:#fff;border-radius:14px;padding:8px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;position:relative;"><span style="font-size:14px;font-weight:700;color:#9c9690;">4일</span><span style="font-size:10px;font-weight:400;color:#c2bcb5;">하코네</span></button></div><div class="hscroll" style="flex:1;overflow-y:auto;padding:12px 20px 8px;"><div style="display:flex;align-items:center;gap:6px;padding:2px 0 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.5 7-11a7 7 0 1 0-14 0c0 4.5 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg><span style="font-size:14px;font-weight:700;color:#1d1b19;">도쿄</span><span style="font-size:11px;color:#b2aba4;margin-left:2px;">2026-10-01</span></div><div style="margin-top:12px;">
+              <div style="display:flex;gap:11px;"><div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:4px;"><div style="width:10px;height:10px;border-radius:999px;background:#f4581c;"></div><div style="flex:1;width:2px;background:#f3e0d2;margin:3px 0;"></div></div><div style="flex:1;padding-bottom:12px;"><div style="display:flex;align-items:center;gap:7px;"><span style="font-size:13.5px;font-weight:700;color:#1d1b19;">17:35</span><span style="display:inline-flex;align-items:center;gap:4px;background:#fff2ea;border-radius:7px;padding:2px 7px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16l1.5-5a2 2 0 0 1 1.9-1.4h7.2a2 2 0 0 1 1.9 1.4L20 16"/><path d="M4 16h16v3H4z"/><circle cx="7.5" cy="19" r="1.2"/><circle cx="16.5" cy="19" r="1.2"/></svg><span style="font-size:10.5px;font-weight:500;color:#d84a12;">90분</span></span></div><div style="font-size:14px;font-weight:700;color:#1d1b19;margin-top:5px;">집 출발 → 인천국제공항 이동</div><div style="font-size:12px;color:#9c9690;line-height:1.5;margin-top:3px;">공항까지 90분 소요. 출발 3시간 전 공항 도착 목표로 17:35에 집을 나섭니다.</div></div></div>
               <div style="display:flex;gap:11px;"><div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;"><div style="flex:1;width:2px;background:#f0ece6;"></div></div><div style="display:flex;align-items:center;gap:6px;padding:2px 0 10px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c2bcb5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4.5" r="1.6"/><path d="M12 8l-2 5 3 2 1 5"/><path d="M10 13l-3 1"/><path d="M13 10l3 2"/></svg><span style="font-size:11.5px;color:#b2aba4;">집에서 공항까지 90분 (버스·지하철·택시 이용)</span></div></div>
-              <div style="display:flex;gap:11px;"><div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:4px;"><div style="width:10px;height:10px;border-radius:999px;background:#f4581c;"></div><div style="flex:1;width:2px;background:#f3e0d2;margin:3px 0;"></div></div><div style="flex:1;padding-bottom:12px;"><div style="display:flex;align-items:center;gap:7px;"><span style="font-size:13.5px;font-weight:700;color:#1d1b19;">19:05</span><span style="display:inline-flex;align-items:center;gap:4px;background:#fff2ea;border-radius:7px;padding:2px 7px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16l1.5-5a2 2 0 0 1 1.9-1.4h7.2a2 2 0 0 1 1.9 1.4L20 16"/><path d="M4 16h16v3H4z"/><circle cx="7.5" cy="19" r="1.2"/><circle cx="16.5" cy="19" r="1.2"/></svg><span style="font-size:10.5px;font-weight:700;color:#d84a12;">40분</span></span></div><div style="font-size:14px;font-weight:700;color:#1d1b19;margin-top:5px;">인천국제공항 도착 → 체크인 카운터</div><div style="font-size:12px;color:#9c9690;line-height:1.5;margin-top:3px;">제1여객터미널 또는 제2여객터미널 항공사 카운터에서 탑승 수속. 편명 확정 후 해당 터미널 확인 필요.</div></div></div>
+              <div style="display:flex;gap:11px;"><div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:4px;"><div style="width:10px;height:10px;border-radius:999px;background:#f4581c;"></div><div style="flex:1;width:2px;background:#f3e0d2;margin:3px 0;"></div></div><div style="flex:1;padding-bottom:12px;"><div style="display:flex;align-items:center;gap:7px;"><span style="font-size:13.5px;font-weight:700;color:#1d1b19;">19:05</span><span style="display:inline-flex;align-items:center;gap:4px;background:#fff2ea;border-radius:7px;padding:2px 7px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16l1.5-5a2 2 0 0 1 1.9-1.4h7.2a2 2 0 0 1 1.9 1.4L20 16"/><path d="M4 16h16v3H4z"/><circle cx="7.5" cy="19" r="1.2"/><circle cx="16.5" cy="19" r="1.2"/></svg><span style="font-size:10.5px;font-weight:500;color:#d84a12;">40분</span></span></div><div style="font-size:14px;font-weight:700;color:#1d1b19;margin-top:5px;">인천국제공항 도착 → 체크인 카운터</div><div style="font-size:12px;color:#9c9690;line-height:1.5;margin-top:3px;">제1여객터미널 또는 제2여객터미널 항공사 카운터에서 탑승 수속. 편명 확정 후 해당 터미널 확인 필요.</div></div></div>
               <div style="display:flex;gap:11px;"><div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;"><div style="flex:1;width:2px;background:#f0ece6;"></div></div><div style="display:flex;align-items:center;gap:6px;padding:2px 0 10px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c2bcb5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4.5" r="1.6"/><path d="M12 8l-2 5 3 2 1 5"/><path d="M10 13l-3 1"/><path d="M13 10l3 2"/></svg><span style="font-size:11.5px;color:#b2aba4;">체크인 완료 후 보안검색대 이동</span></div></div>
-              <div style="display:flex;gap:11px;"><div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:4px;"><div style="width:10px;height:10px;border-radius:999px;background:#f4581c;"></div><div style="flex:1;width:2px;background:#f3e0d2;margin:3px 0;"></div></div><div style="flex:1;padding-bottom:12px;"><div style="display:flex;align-items:center;gap:7px;"><span style="font-size:13.5px;font-weight:700;color:#1d1b19;">19:45</span><span style="display:inline-flex;align-items:center;gap:4px;background:#fff2ea;border-radius:7px;padding:2px 7px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4.5" r="1.6"/><path d="M12 8l-2 5 3 2 1 5"/><path d="M10 13l-3 1"/><path d="M13 10l3 2"/></svg><span style="font-size:10.5px;font-weight:700;color:#d84a12;">40분</span></span></div><div style="font-size:14px;font-weight:700;color:#1d1b19;margin-top:5px;">보안검색 + 출국심사</div><div style="font-size:12px;color:#9c9690;line-height:1.5;margin-top:3px;">출국심사 최소 1시간 여유 확보. 자동출입국심사(SES) 이용 시 대기 단축 가능.</div></div></div>
+              <div style="display:flex;gap:11px;"><div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:4px;"><div style="width:10px;height:10px;border-radius:999px;background:#f4581c;"></div><div style="flex:1;width:2px;background:#f3e0d2;margin:3px 0;"></div></div><div style="flex:1;padding-bottom:12px;"><div style="display:flex;align-items:center;gap:7px;"><span style="font-size:13.5px;font-weight:700;color:#1d1b19;">19:45</span><span style="display:inline-flex;align-items:center;gap:4px;background:#fff2ea;border-radius:7px;padding:2px 7px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4.5" r="1.6"/><path d="M12 8l-2 5 3 2 1 5"/><path d="M10 13l-3 1"/><path d="M13 10l3 2"/></svg><span style="font-size:10.5px;font-weight:500;color:#d84a12;">40분</span></span></div><div style="font-size:14px;font-weight:700;color:#1d1b19;margin-top:5px;">보안검색 + 출국심사</div><div style="font-size:12px;color:#9c9690;line-height:1.5;margin-top:3px;">출국심사 최소 1시간 여유 확보. 자동출입국심사(SES) 이용 시 대기 단축 가능.</div></div></div>
             </div><div style="height:8px;"></div></div><div style="flex-shrink:0;border-top:1px solid #f2f0ed;">
-            <div style="padding:12px 20px 10px;"><button style="width:100%;border:none;border-radius:15px;background:#f4581c;padding:13px;cursor:pointer;box-shadow:0 8px 20px rgba(244,88,28,.22);"><div style="font-size:15px;font-weight:700;color:#fff;">한꺼번에 예약하기</div><div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.85);margin-top:2px;">항공 · 호텔 · 렌터카 · 입장권</div></button></div>
+            <div style="padding:12px 20px 10px;"><button style="width:100%;border:none;border-radius:15px;background:#f4581c;padding:13px;cursor:pointer;box-shadow:0 8px 20px rgba(244,88,28,.22);"><div style="font-size:15px;font-weight:700;color:#fff;">한꺼번에 예약하기</div><div style="font-size:11px;font-weight:500;color:rgba(255,255,255,.85);margin-top:2px;">항공 · 호텔 · 렌터카 · 입장권</div></button></div>
             <div style="display:flex;padding:2px 12px 10px;">
-              <button style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;border:none;background:transparent;cursor:pointer;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7a726c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l4 4L8 20l-5 1 1-5Z"/></svg><span style="font-size:12.5px;font-weight:700;color:#3c3833;">일정 변경</span></button>
+              <button style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;border:none;background:transparent;cursor:pointer;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7a726c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l4 4L8 20l-5 1 1-5Z"/></svg><span style="font-size:12.5px;font-weight:500;color:#3c3833;">일정 변경</span></button>
               <div style="width:1px;background:#f0ece6;margin:4px 0;"></div>
-              <button style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;border:none;background:transparent;cursor:pointer;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7a726c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 21l-6-4-6 4V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2Z"/></svg><span style="font-size:12.5px;font-weight:700;color:#3c3833;">여행 저장</span></button>
+              <button style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;border:none;background:transparent;cursor:pointer;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7a726c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 21l-6-4-6 4V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2Z"/></svg><span style="font-size:12.5px;font-weight:500;color:#3c3833;">여행 저장</span></button>
               <div style="width:1px;background:#f0ece6;margin:4px 0;"></div>
-              <button style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;border:none;background:transparent;cursor:pointer;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7a726c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span style="font-size:12.5px;font-weight:700;color:#3c3833;">공유</span></button>
+              <button style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;border:none;background:transparent;cursor:pointer;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7a726c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span style="font-size:12.5px;font-weight:500;color:#3c3833;">공유</span></button>
             </div>
-          </div><div style="flex-shrink:0;background:#fff;border-top:1px solid #f2f0ed;display:flex;padding:10px 12px 24px;"><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14"/><path d="M15 6v14"/></svg><span style="font-size:10.5px;font-weight:700;color:#b2aba4;">계획</span></button><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18"/><path d="M8 3v4"/><path d="M16 3v4"/></svg><span style="font-size:10.5px;font-weight:700;color:#f4581c;">일정표</span></button><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 8v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-8Z"/></svg><span style="font-size:10.5px;font-weight:700;color:#b2aba4;">예약</span></button><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2Z"/><path d="M8.5 8a3.5 3.5 0 0 1 7 0"/></svg><span style="font-size:10.5px;font-weight:700;color:#b2aba4;">준비물</span></button><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18"/></svg><span style="font-size:10.5px;font-weight:700;color:#b2aba4;">비용</span></button><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M8 5 6 19"/><path d="M16 5l2 14"/><path d="M3 10h18"/></svg><span style="font-size:10.5px;font-weight:700;color:#b2aba4;">추억</span></button></div></div><div style="position:absolute;bottom:9px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:rgba(29,27,25,.28);z-index:3;"></div></div></div></div>
+          </div><div style="flex-shrink:0;background:#fff;border-top:1px solid #f2f0ed;display:flex;padding:10px 12px 24px;"><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14"/><path d="M15 6v14"/></svg><span style="font-size:10.5px;font-weight:400;color:#b2aba4;">계획</span></button><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18"/><path d="M8 3v4"/><path d="M16 3v4"/></svg><span style="font-size:10.5px;font-weight:500;color:#f4581c;">일정표</span></button><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 8v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-8Z"/></svg><span style="font-size:10.5px;font-weight:400;color:#b2aba4;">예약</span></button><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2Z"/><path d="M8.5 8a3.5 3.5 0 0 1 7 0"/></svg><span style="font-size:10.5px;font-weight:400;color:#b2aba4;">준비물</span></button><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18"/></svg><span style="font-size:10.5px;font-weight:400;color:#b2aba4;">비용</span></button><button style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:transparent;cursor:pointer;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M8 5 6 19"/><path d="M16 5l2 14"/><path d="M3 10h18"/></svg><span style="font-size:10.5px;font-weight:400;color:#b2aba4;">추억</span></button></div></div><div style="position:absolute;bottom:9px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:rgba(29,27,25,.28);z-index:3;"></div></div></div></div>
       <div class="foot-note">실제 앱 일정표 화면</div>
     </div>
     <div class="mock reveal" style="transition-delay:.15s">
@@ -1233,12 +1241,12 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
               <div style="background:#fff;border:1px solid #eeece9;border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:11px;"><div style="width:34px;height:34px;border-radius:11px;background:#fff2ea;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8"/><path d="M12 16v4"/></svg></div><div style="flex:1;"><div style="font-size:15px;font-weight:700;color:#1d1b19;">전자기기</div><div style="font-size:12px;color:#9c9690;margin-top:1px;">0/10 완료</div></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c5bfb8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></div>
             </div>
             <div style="flex-shrink:0;background:#fff;border-top:1px solid #f2f0ed;display:flex;padding:9px 8px 22px;">
-              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14"/><path d="M15 6v14"/></svg><span style="font-size:10px;font-weight:700;color:#b2aba4;">계획</span></div>
-              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18"/><path d="M8 3v4"/><path d="M16 3v4"/></svg><span style="font-size:10px;font-weight:700;color:#b2aba4;">일정표</span></div>
-              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 8v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-8Z"/></svg><span style="font-size:10px;font-weight:700;color:#b2aba4;">예약</span></div>
-              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2Z"/><path d="M8.5 8a3.5 3.5 0 0 1 7 0"/></svg><span style="font-size:10px;font-weight:700;color:#f4581c;">준비물</span></div>
-              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 11h18"/></svg><span style="font-size:10px;font-weight:700;color:#b2aba4;">비용</span></div>
-              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 4v16"/><path d="M17 4v16"/></svg><span style="font-size:10px;font-weight:700;color:#b2aba4;">추억</span></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14"/><path d="M15 6v14"/></svg><span style="font-size:10px;font-weight:400;color:#b2aba4;">계획</span></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18"/><path d="M8 3v4"/><path d="M16 3v4"/></svg><span style="font-size:10px;font-weight:400;color:#b2aba4;">일정표</span></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 8v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-8Z"/></svg><span style="font-size:10px;font-weight:400;color:#b2aba4;">예약</span></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2Z"/><path d="M8.5 8a3.5 3.5 0 0 1 7 0"/></svg><span style="font-size:10px;font-weight:500;color:#f4581c;">준비물</span></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 11h18"/></svg><span style="font-size:10px;font-weight:400;color:#b2aba4;">비용</span></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 4v16"/><path d="M17 4v16"/></svg><span style="font-size:10px;font-weight:400;color:#b2aba4;">추억</span></div>
             </div>
           </div>
         </div>
@@ -1275,12 +1283,12 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
               </div>
             </div>
             <div style="flex-shrink:0;background:#fff;border-top:1px solid #f2f0ed;display:flex;padding:9px 8px 22px;">
-              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14"/><path d="M15 6v14"/></svg><span style="font-size:10px;font-weight:700;color:#b2aba4;">계획</span></div>
-              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18"/><path d="M8 3v4"/><path d="M16 3v4"/></svg><span style="font-size:10px;font-weight:700;color:#b2aba4;">일정표</span></div>
-              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 8v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-8Z"/></svg><span style="font-size:10px;font-weight:700;color:#b2aba4;">예약</span></div>
-              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2Z"/><path d="M8.5 8a3.5 3.5 0 0 1 7 0"/></svg><span style="font-size:10px;font-weight:700;color:#f4581c;">준비물</span></div>
-              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 11h18"/></svg><span style="font-size:10px;font-weight:700;color:#b2aba4;">비용</span></div>
-              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 4v16"/><path d="M17 4v16"/></svg><span style="font-size:10px;font-weight:700;color:#b2aba4;">추억</span></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14"/><path d="M15 6v14"/></svg><span style="font-size:10px;font-weight:400;color:#b2aba4;">계획</span></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18"/><path d="M8 3v4"/><path d="M16 3v4"/></svg><span style="font-size:10px;font-weight:400;color:#b2aba4;">일정표</span></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 8v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-8Z"/></svg><span style="font-size:10px;font-weight:400;color:#b2aba4;">예약</span></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f4581c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2Z"/><path d="M8.5 8a3.5 3.5 0 0 1 7 0"/></svg><span style="font-size:10px;font-weight:500;color:#f4581c;">준비물</span></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 11h18"/></svg><span style="font-size:10px;font-weight:400;color:#b2aba4;">비용</span></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b2aba4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 4v16"/><path d="M17 4v16"/></svg><span style="font-size:10px;font-weight:400;color:#b2aba4;">추억</span></div>
             </div>
           </div>
         </div>
@@ -2663,17 +2671,17 @@ const HG_DOCENT = { city: "마카오", title: "마카오 퀴즈", lat: 22.1987, 
 const hgRing = c => (c.proof && c.proof.verified === true) ? "visited" : (c.is_sample ? "modni" : "planned");
 /* 🆕 9/30 영아: 세 칸 안내 — 앱 lib/globe/firstCardRules GLOBE_TAB_INFO 와 같은 글(한 곳에서 바꾸면 여기도) */
 const HG_TAB_NAME = { mine: "내 지구본", market: "모두의 지구본", modni: "모드니 지구본" };
+/* 🆕 10/3 영아 목업: 한 줄에 들어가는 짧은 글 · 내 지구본은 줄마다 그림(집·나무·가로등 그대로) + 글 */
 const HG_TAB_INFO = {
-  mine:   { title: "내 지구본을 꾸며 보세요", lines: ["여행을 세우면 그 도시에 집이 생기고, 다녀오면 집이 자라요", "🏠 계획한 곳 · 🏡 다녀오면 · 🏘 두 번 · 🏰 세 번부터", "🌳 도시 2·4·6곳 · 🏮 나라 5·10·20곳"] },
-  market: { title: "다른 여행자의 여행을 구경하고 내 일정으로 담아요", lines: ["지구본을 가까이 당기면 그 지역 일정이 떠요", "가고 싶은 곳을 검색해 그대로, 또는 조금 고쳐서 다녀오세요", "담으면 내 지구본에 점선 집이 생겨요"] },
-  modni:  { title: "모드니가 세계 곳곳의 추천 일정을 미리 만들어 뒀어요", lines: ["지구본을 가까이 당겨 집을 누르면 그 도시 추천 일정이 열려요", "구경하다 마음에 들면 찜 ♡ 해 두세요", "취향대로 조금씩 고치면 일정 짜기가 편해요", "정식 ✓ = 모드니가 검증한 일정 · 일본 외는 β 베타"] },
+  mine:   { title: "여행을 세우면 집이 생기고, 다녀오면 자라요", lines: [["🏠", "계획한 곳"], ["🏡", "다녀온 곳"], ["🏘", "두 번 간 곳"], ["🏰", "세 번부터"], ["🌳", "도시 2·4·6곳"], ["🏮", "나라 5·10·20곳"]] },
+  market: { title: "다른 여행자의 일정을 구경하고 담아요", lines: ["가까이 당기면 그 지역 일정이 떠요", "그대로 담거나 고쳐서 담아요", "담으면 내 지구본에 점선 집이 생겨요"] },
+  modni:  { title: "모드니가 만들어 둔 추천 일정이에요", lines: ["가까이 당겨 집을 누르면 일정이 열려요", "마음에 들면 찜 ♡", "취향대로 고쳐서 담아요", "정식 ✓ = 검증한 일정 · 일본 외는 β"] },
 };
 let hgInfoPinned = false;
 function hgInfoShow(on, pin){
   const p = $("hgInfoPanel"), b = $("hgInfo"); if (!p || !b) return;
   if (on){ const i = HG_TAB_INFO[hgTab] || HG_TAB_INFO.market;
-    p.innerHTML = '<button type="button" class="x" aria-label="안내 닫기">✕</button><div class="k">' + HG_TAB_NAME[hgTab] + '</div><h5>' + i.title + '</h5>' + i.lines.map(l => '<p>· ' + l + '</p>').join("");
-    p.querySelector(".x").addEventListener("click", () => hgInfoShow(false));
+    p.innerHTML = '<h5>' + i.title + '</h5>' + i.lines.map(l => Array.isArray(l) ? '<p><i class="ic">' + l[0] + '</i>' + l[1] + '</p>' : '<p>' + l + '</p>').join("");
   }
   p.hidden = !on; b.setAttribute("aria-expanded", String(!!on)); hgInfoPinned = !!(on && pin);
 }
@@ -2817,7 +2825,17 @@ function hgPaint(){
   else if (hgTab === "modni"){ const mp = hgModniPins(); const mc = mp.reduce((a, p) => a + p.courses.length, 0); line.textContent = mc ? "모드니 추천 " + mc + "개 · " + mp.length + "도시" : "모드니 추천 일정을 준비 중이에요"; }
   else { const v = all.filter(c => hgRing(c) === "visited").length, pl = n - v; line.textContent = n ? ["지금 " + n + "개 여행", v ? "✓다녀옴 " + v : "", pl ? "계획 중 " + pl : ""].filter(Boolean).join(" · ") : "아직 올라온 여행이 없어요"; }
   $("hgPop").hidden = true;
-  hgInfoShow(false);
+  if (!$("hgInfoPanel").hidden) hgInfoShow(true, hgInfoPinned);   // 🆕 10/3: 칸을 바꾸면 열린 채로 글만 바뀐다
+}
+/* 🆕 10/3 영아 목업: ⓘ 자리 — 지구본 오른쪽 여백(화면 끝까지)이 230px 이상이면(화면 폭 ≈ 1620px 이상) 원 바깥 오른쪽 위(14px 띄움 · 글 폭 ≤ 300) · 아니면 지구본 아래(폭 = 지구본) */
+const HG_HELP_GAP = 14, HG_HELP_MIN = 230, HG_HELP_MAX = 300;
+function hgHelpPlace(d){
+  const hg = $("heroGlobe"), help = $("hgHelp"), st = $("hgStage"); if (!hg || !help || !st) return;
+  const room = Math.floor(window.innerWidth - st.getBoundingClientRect().right - HG_HELP_GAP - 8);
+  const side = room >= HG_HELP_MIN;
+  hg.classList.toggle("hg-side", side);
+  if (side){ help.style.left = (st.offsetLeft + d + HG_HELP_GAP) + "px"; help.style.top = st.offsetTop + "px"; help.style.width = Math.min(HG_HELP_MAX, room) + "px"; }
+  else { help.style.left = ""; help.style.top = ""; help.style.width = d + "px"; }
 }
 /* 🆕 #048 ①: 토글 줄 = 지구본 폭 — 토글은 지구본 가운데, 도슨트는 지구본 오른쪽 끝선 · 아래 칸도 같은 폭 */
 function hgFitBar(d){
@@ -2832,6 +2850,7 @@ function hgResize(){
   hgGlobe.width(d).height(d);
   hgFitBar(d);
   if (!$("hgTrips").hidden) $("hgTrips").style.width = d + "px";
+  hgHelpPlace(d);
 }
 function hgInit(){
   const box = $("hgBox");
@@ -2840,6 +2859,7 @@ function hgInit(){
   const d = hgSize();
   const st = $("hgStage"); st.style.width = d + "px"; st.style.height = d + "px";
   hgFitBar(d);
+  hgHelpPlace(d);
   hgGlobe = Globe()(box)
     .width(d).height(d)
     .backgroundColor("rgba(0,0,0,0)")
@@ -3057,7 +3077,7 @@ $("langBtn").addEventListener("click", () => {
 <style>
 #hnBody{margin:0 0 14px;font-size:13.5px;line-height:1.6;color:#444;white-space:pre-line;max-height:38vh;overflow-y:auto;padding:12px 14px;border:1px solid #eeece9;border-radius:10px;background:#fafaf8;-webkit-overflow-scrolling:touch}
 #hnLinks{display:flex;flex-wrap:wrap;gap:8px;margin:0}
-#hnLinks a{font-size:12.5px;font-weight:700;color:var(--orange);text-decoration:none;border:1px solid #f8c9b3;border-radius:999px;padding:6px 12px;background:#fff}
+#hnLinks a{font-size:12.5px;font-weight:500;color:var(--orange);text-decoration:none;border:1px solid #f8c9b3;border-radius:999px;padding:6px 12px;background:#fff}
 #hnLinks a.seen{background:#fff2ea;border-color:var(--orange)}
 #hnLinks a.seen::after{content:" ✓"}
 #hnHint{margin:10px 0 0;font-size:12px;line-height:1.5;color:#9c9690}
