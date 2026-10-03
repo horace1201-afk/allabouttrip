@@ -149,7 +149,7 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
    기능 패널(.hero-panel)·내 여행 카드(#heroTrips)는 지구본이 서면 숨는다(다섯 언어 id는 그대로 남아 있다). */
 .hero-in.has-globe{grid-template-columns:.95fr 1.05fr}
 .hero-in > .hero-right{min-width:0}   /* 1fr 칸은 내용만큼 늘어난다 — 캔버스가 칸을 밀던 것(9/26 실측 1280에서 1310px) */
-.hero-globe{width:100%;min-width:0;display:flex;flex-direction:column;align-items:center}
+.hero-globe{position:relative;width:100%;min-width:0;display:flex;flex-direction:column;align-items:center}
 .hero-globe[hidden],.hg-play[hidden],.hg-trips[hidden],.hg-pop[hidden]{display:none}   /* display:flex 가 hidden 속성을 이기지 않게(9/26 실측: 재생 줄이 늘 떠 있었다) */
 .hg-bar{position:relative;display:flex;justify-content:center;align-items:center;width:100%;margin-bottom:4px}
 /* 🔴 #067 13:40: 흰 배경 ✗ — 주황 슬라이더만 두 글자 사이를 넘어간다(미선택은 회색 글자 · #6E655D 살구 바탕 대비 5.3) */
@@ -157,15 +157,20 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .hg-tg:before{content:"";position:absolute;top:4px;bottom:4px;width:calc(33.333% - 2.7px);left:4px;border-radius:999px;background:linear-gradient(135deg,#ff7a4d,#e2532a);box-shadow:0 3px 10px rgba(226,83,42,.35);transition:left .25s}
 .hg-tg.t2:before{left:calc(33.333% + 1.3px)}
 .hg-tg.t3:before{left:calc(66.666% - 1.3px)}
-/* 🆕 9/30 영아: 세 칸 안내 = ⓘ 하나(앱 GlobeTabInfo 와 같은 자리·같은 판) · 말풍선·자동 코치마크 ✗ */
-.hg-info{border:0;background:none;width:28px;height:28px;border-radius:14px;margin-left:6px;cursor:pointer;color:#8A8494;font-size:18px;line-height:1;display:inline-flex;align-items:center;justify-content:center}
+/* 🆕 9/30 영아: 세 칸 안내 = ⓘ 하나 → 🆕 10/3 영아 목업(앱 S5 ③): 흰 카드가 지구본을 가리던 것 ✗
+   · 옆자리(지구본 오른쪽 여백 ≥ 230px · hgHelpPlace · 화면 폭 ≈ 1620px 이상)가 있으면 ⓘ = 원 바깥 오른쪽 위(14px 띄움) · 없으면(좁은 화면·폰) 지구본 아래
+   · 글 = ⓘ 바로 밑 · 배경·테두리·그림자·✕ 없이 글씨만 · 줄마다 한 줄(넘치면 …) · 제목 13px 700 · 줄 12.5px 400 */
+.hg-help{display:flex;flex-direction:column;align-items:flex-start;gap:2px;margin-top:6px;max-width:100%}
+.hero-globe.hg-side .hg-help{position:absolute;margin:0;z-index:4}
+.hg-info{border:0;background:none;width:28px;height:28px;border-radius:14px;cursor:pointer;color:#8A8494;font-size:18px;line-height:1;display:inline-flex;align-items:center;justify-content:center;flex:none}
 .hg-info[aria-expanded="true"]{background:#FFF2EA;color:#C6431F}
-.hg-infopanel{position:absolute;left:50%;top:8px;transform:translateX(-50%);width:min(320px,calc(100% - 16px));background:rgba(255,255,255,.97);border:1px solid var(--line);border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.12);padding:10px 12px;z-index:4;text-align:left}
+.hg-infopanel{width:100%;padding:0 0 0 4px;text-align:left;overflow:hidden}
 .hg-infopanel[hidden]{display:none}
-.hg-infopanel .k{font-size:11px;font-weight:700;color:#C6431F;margin-bottom:2px}
-.hg-infopanel h5{margin:0 0 6px;font-size:14px;line-height:1.35;color:var(--ink)}
-.hg-infopanel p{margin:2px 0;font-size:13px;line-height:1.4;color:var(--ink)}
-.hg-infopanel .x{position:absolute;right:8px;top:8px;border:0;background:none;cursor:pointer;font-size:16px;color:#8A8494}
+.hg-infopanel h5{margin:0 0 2px;font-size:13px;font-weight:700;line-height:1.5;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hg-infopanel p{margin:0;font-size:12.5px;font-weight:400;line-height:1.5;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hg-infopanel p .ic{display:inline-block;width:20px;font-style:normal}
+/* 🆕 10/3: globe.gl 자체 툴팁(회색 상자 + 검은 알약 두 겹) ✗ — 상자 없는 회색 글씨만(.hg-hover 와 같은 모양) */
+.float-tooltip-kap,.scene-tooltip{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;border-radius:0!important;color:rgba(33,27,49,.58)!important;font:700 11px 'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif!important;letter-spacing:normal!important;white-space:nowrap}
 /* 🆕 9/30 영아: 상태 한 줄(숫자) + 오른쪽 도슨트 칩 — 앱과 같은 자리 */
 .hg-status{display:flex;align-items:center;gap:10px;width:100%;min-height:34px;margin-top:6px}
 .hg-status .hg-line{flex:1;margin:0;text-align:left;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -749,12 +754,13 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
          <button type="button" class="hg-tab" role="tab" data-tab="market" aria-selected="true">모두의 지구본</button>
          <button type="button" class="hg-tab" role="tab" data-tab="modni" aria-selected="false">모드니 지구본</button>
        </div>
-       <button type="button" class="hg-info" id="hgInfo" aria-label="이 지구본 안내" aria-expanded="false">ⓘ</button>
      </div>
-     <div class="hg-stage" id="hgStage"><div id="hgBox"></div><div class="hg-infopanel" id="hgInfoPanel" hidden></div><div class="hg-pop" id="hgPop" hidden></div>
+     <div class="hg-stage" id="hgStage"><div id="hgBox"></div><div class="hg-pop" id="hgPop" hidden></div>
        <button type="button" class="hg-cta" id="hgCta">여행 담기로 가기 ›</button>
        <div class="hg-play" id="hgPlay" hidden><img src="assets/modni_symbol.png" alt=""><span id="hgPlayT">마카오 퀴즈 · 모드니 도슨트</span><button type="button" id="hgStop">그만 듣기</button></div>
      </div>
+     <!-- 🆕 10/3 영아 목업(앱 S5 ③): ⓘ = 지구본 원 바깥 오른쪽 위(옆자리 없으면 지구본 아래) · 글은 ⓘ 바로 밑 · 상자 ✗ -->
+     <div class="hg-help" id="hgHelp"><button type="button" class="hg-info" id="hgInfo" aria-label="이 지구본 안내" aria-expanded="false" aria-controls="hgInfoPanel">ⓘ</button><div class="hg-infopanel" id="hgInfoPanel" hidden></div></div>
      <div class="hg-below" id="hgBelow">
        <div class="hg-status"><div class="hg-line" id="hgLine"></div><button type="button" class="hg-chip" id="hgDoc">🎧 도슨트 미리듣기 · 2분</button></div>
        <div class="hg-trips" id="hgTrips" hidden></div>
@@ -2663,17 +2669,17 @@ const HG_DOCENT = { city: "마카오", title: "마카오 퀴즈", lat: 22.1987, 
 const hgRing = c => (c.proof && c.proof.verified === true) ? "visited" : (c.is_sample ? "modni" : "planned");
 /* 🆕 9/30 영아: 세 칸 안내 — 앱 lib/globe/firstCardRules GLOBE_TAB_INFO 와 같은 글(한 곳에서 바꾸면 여기도) */
 const HG_TAB_NAME = { mine: "내 지구본", market: "모두의 지구본", modni: "모드니 지구본" };
+/* 🆕 10/3 영아 목업: 한 줄에 들어가는 짧은 글 · 내 지구본은 줄마다 그림(집·나무·가로등 그대로) + 글 */
 const HG_TAB_INFO = {
-  mine:   { title: "내 지구본을 꾸며 보세요", lines: ["여행을 세우면 그 도시에 집이 생기고, 다녀오면 집이 자라요", "🏠 계획한 곳 · 🏡 다녀오면 · 🏘 두 번 · 🏰 세 번부터", "🌳 도시 2·4·6곳 · 🏮 나라 5·10·20곳"] },
-  market: { title: "다른 여행자의 여행을 구경하고 내 일정으로 담아요", lines: ["지구본을 가까이 당기면 그 지역 일정이 떠요", "가고 싶은 곳을 검색해 그대로, 또는 조금 고쳐서 다녀오세요", "담으면 내 지구본에 점선 집이 생겨요"] },
-  modni:  { title: "모드니가 세계 곳곳의 추천 일정을 미리 만들어 뒀어요", lines: ["지구본을 가까이 당겨 집을 누르면 그 도시 추천 일정이 열려요", "구경하다 마음에 들면 찜 ♡ 해 두세요", "취향대로 조금씩 고치면 일정 짜기가 편해요", "정식 ✓ = 모드니가 검증한 일정 · 일본 외는 β 베타"] },
+  mine:   { title: "여행을 세우면 집이 생기고, 다녀오면 자라요", lines: [["🏠", "계획한 곳"], ["🏡", "다녀온 곳"], ["🏘", "두 번 간 곳"], ["🏰", "세 번부터"], ["🌳", "도시 2·4·6곳"], ["🏮", "나라 5·10·20곳"]] },
+  market: { title: "다른 여행자의 일정을 구경하고 담아요", lines: ["가까이 당기면 그 지역 일정이 떠요", "그대로 담거나 고쳐서 담아요", "담으면 내 지구본에 점선 집이 생겨요"] },
+  modni:  { title: "모드니가 만들어 둔 추천 일정이에요", lines: ["가까이 당겨 집을 누르면 일정이 열려요", "마음에 들면 찜 ♡", "취향대로 고쳐서 담아요", "정식 ✓ = 검증한 일정 · 일본 외는 β"] },
 };
 let hgInfoPinned = false;
 function hgInfoShow(on, pin){
   const p = $("hgInfoPanel"), b = $("hgInfo"); if (!p || !b) return;
   if (on){ const i = HG_TAB_INFO[hgTab] || HG_TAB_INFO.market;
-    p.innerHTML = '<button type="button" class="x" aria-label="안내 닫기">✕</button><div class="k">' + HG_TAB_NAME[hgTab] + '</div><h5>' + i.title + '</h5>' + i.lines.map(l => '<p>· ' + l + '</p>').join("");
-    p.querySelector(".x").addEventListener("click", () => hgInfoShow(false));
+    p.innerHTML = '<h5>' + i.title + '</h5>' + i.lines.map(l => Array.isArray(l) ? '<p><i class="ic">' + l[0] + '</i>' + l[1] + '</p>' : '<p>' + l + '</p>').join("");
   }
   p.hidden = !on; b.setAttribute("aria-expanded", String(!!on)); hgInfoPinned = !!(on && pin);
 }
@@ -2817,7 +2823,17 @@ function hgPaint(){
   else if (hgTab === "modni"){ const mp = hgModniPins(); const mc = mp.reduce((a, p) => a + p.courses.length, 0); line.textContent = mc ? "모드니 추천 " + mc + "개 · " + mp.length + "도시" : "모드니 추천 일정을 준비 중이에요"; }
   else { const v = all.filter(c => hgRing(c) === "visited").length, pl = n - v; line.textContent = n ? ["지금 " + n + "개 여행", v ? "✓다녀옴 " + v : "", pl ? "계획 중 " + pl : ""].filter(Boolean).join(" · ") : "아직 올라온 여행이 없어요"; }
   $("hgPop").hidden = true;
-  hgInfoShow(false);
+  if (!$("hgInfoPanel").hidden) hgInfoShow(true, hgInfoPinned);   // 🆕 10/3: 칸을 바꾸면 열린 채로 글만 바뀐다
+}
+/* 🆕 10/3 영아 목업: ⓘ 자리 — 지구본 오른쪽 여백(화면 끝까지)이 230px 이상이면(화면 폭 ≈ 1620px 이상) 원 바깥 오른쪽 위(14px 띄움 · 글 폭 ≤ 300) · 아니면 지구본 아래(폭 = 지구본) */
+const HG_HELP_GAP = 14, HG_HELP_MIN = 230, HG_HELP_MAX = 300;
+function hgHelpPlace(d){
+  const hg = $("heroGlobe"), help = $("hgHelp"), st = $("hgStage"); if (!hg || !help || !st) return;
+  const room = Math.floor(window.innerWidth - st.getBoundingClientRect().right - HG_HELP_GAP - 8);
+  const side = room >= HG_HELP_MIN;
+  hg.classList.toggle("hg-side", side);
+  if (side){ help.style.left = (st.offsetLeft + d + HG_HELP_GAP) + "px"; help.style.top = st.offsetTop + "px"; help.style.width = Math.min(HG_HELP_MAX, room) + "px"; }
+  else { help.style.left = ""; help.style.top = ""; help.style.width = d + "px"; }
 }
 /* 🆕 #048 ①: 토글 줄 = 지구본 폭 — 토글은 지구본 가운데, 도슨트는 지구본 오른쪽 끝선 · 아래 칸도 같은 폭 */
 function hgFitBar(d){
@@ -2832,6 +2848,7 @@ function hgResize(){
   hgGlobe.width(d).height(d);
   hgFitBar(d);
   if (!$("hgTrips").hidden) $("hgTrips").style.width = d + "px";
+  hgHelpPlace(d);
 }
 function hgInit(){
   const box = $("hgBox");
@@ -2840,6 +2857,7 @@ function hgInit(){
   const d = hgSize();
   const st = $("hgStage"); st.style.width = d + "px"; st.style.height = d + "px";
   hgFitBar(d);
+  hgHelpPlace(d);
   hgGlobe = Globe()(box)
     .width(d).height(d)
     .backgroundColor("rgba(0,0,0,0)")
