@@ -1600,11 +1600,11 @@ function goSect(key){
    null인 동안은 플랜 소개 섹션으로 스크롤(앱 안내 유지). */
 const WEB_APP_URL = "https://plan.allabouttrip.app";   // 🆕 9/6 P4: 웹앱 라이브 — 루트(/)는 진입 게이트(미저장 트립 보존) → 서베이
 function goPlanEntry(){
-  if (WEB_APP_URL){ location.href = WEB_APP_URL + "/"; return; }   // /survey 직행 금지 — 게이트 경유
+  if (WEB_APP_URL){ location.href = WEB_APP_URL + "/?newTrip=1"; return; }   // /survey 직행 금지 — 게이트 경유 · 🔴 10/3 클로디 21:01: newTrip=1 = 새 여행(내 여행 ✗)
   goSect("plan");
 }
 function goPlanCta(){   /* 🆕 8/30 영아: 플랜 섹션 CTA — 스위치 온이면 웹 서베이 직행, null이면 앱 안내 섹션 */
-  if (WEB_APP_URL){ location.href = WEB_APP_URL + "/"; return; }   // /survey 직행 금지 — 게이트 경유
+  if (WEB_APP_URL){ location.href = WEB_APP_URL + "/?newTrip=1"; return; }   // /survey 직행 금지 — 게이트 경유 · 🔴 10/3 클로디 21:01: newTrip=1 = 새 여행(내 여행 ✗)
   goSect("cta");
 }
 function goMarketEntry(){   /* 🆕 9/6 P4: 스위치 온이면 웹앱 마켓(코스 담기) 직행, null이면 대문 마켓 섹션 */
