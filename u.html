@@ -20,7 +20,7 @@
 <meta property="og:image" content="https://allabouttrip.app/assets/icon.png">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/favicon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap"><style>html{font-synthesis:none}</style><!-- 🆕 9/27 지시함 #100: Pretendard → Noto Sans KR(영아 확정 C안) -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap"><style>html,body,button,input,textarea,select{font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;letter-spacing:normal}html{font-synthesis:none;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}b,strong{font-weight:700}body{line-height:1.5}h1,h2,h3{line-height:1.3}</style><!-- 🆕 9/27 지시함 #100: Pretendard → Noto Sans KR(영아 확정 C안) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 /* 팔레트 = index.html :root 와 동일 (앱 lib/theme.ts hub 정합) */
@@ -32,7 +32,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:var(--warm)}
-body{font-family:'Noto Sans KR',-apple-system,'Malgun Gothic',sans-serif;color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column}
+body{font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column}
 a{color:inherit;text-decoration:none}
 button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
 img{max-width:100%;display:block}
@@ -41,7 +41,7 @@ img{max-width:100%;display:block}
 /* ═══ 상단바 (대문 topbar 축약 — 로고 + 여행 만들기) ═══ */
 .topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:12px 20px;
   background:rgba(255,255,255,.92);backdrop-filter:blur(14px);box-shadow:0 1px 0 var(--hair)}
-.tb-logo{font-size:21px;font-weight:900;letter-spacing:.03em;color:var(--orange);padding:2px 4px}
+.tb-logo{font-size:21px;font-weight:700;color:var(--orange);padding:2px 4px}
 .tb-logo:hover{opacity:.8}
 .tb-sp{flex:1}
 .tb-plan{font-size:13.5px;font-weight:700;color:var(--ink);padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:#fff}
@@ -54,27 +54,27 @@ main{flex:1;width:100%;max-width:760px;margin:0 auto;padding:20px 16px 60px}
 .prof{background:#fff;border:1px solid var(--hair);border-radius:20px;padding:20px;box-shadow:var(--shadow)}
 .prof-top{display:flex;align-items:center;gap:14px}
 .ava{width:64px;height:64px;border-radius:50%;flex:none;background:linear-gradient(135deg,#FFD7C2,var(--orange));overflow:hidden;
-  display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:24px}
+  display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:24px}
 .ava img{width:100%;height:100%;object-fit:cover}
 .prof-id{min-width:0}
-.handle{color:var(--orange);font-weight:800;font-size:15px;letter-spacing:-.2px}
-.dname{font-size:19px;font-weight:800;letter-spacing:-.4px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.handle{color:var(--orange);font-weight:700;font-size:15px;}
+.dname{font-size:19px;font-weight:700;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .stats{display:flex;margin-top:16px;border-top:1px solid var(--hair);padding-top:12px}
 .stats div{flex:1;text-align:center}
-.stats b{display:block;font-size:19px;font-weight:800;letter-spacing:-.3px}
+.stats b{display:block;font-size:19px;font-weight:700;}
 .stats span{font-size:12px;color:var(--sub)}
 
 /* ═══ 여행 카드 ═══ */
-h2.sec{font-size:15px;font-weight:800;margin:26px 0 10px;letter-spacing:-.2px;display:flex;align-items:baseline;gap:8px}
+h2.sec{font-size:15px;font-weight:700;margin:26px 0 10px;display:flex;align-items:baseline;gap:8px}
 h2.sec .c{font-size:12px;color:var(--sub);font-weight:500}
 .trips{display:grid;gap:10px;grid-template-columns:minmax(0,1fr)}
 @media(min-width:768px){.trips{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .tcard{min-width:0;background:#fff;border:1px solid var(--hair);border-radius:16px;padding:16px;display:flex;gap:12px;align-items:center;text-align:left;width:100%;transition:.15s}
 .tcard:hover{border-color:var(--orange);box-shadow:var(--shadow)}
 .tcard.on{border-color:var(--orange);background:var(--orange-tint)}
-.tcard .th{width:52px;height:52px;border-radius:12px;flex:none;background:var(--orange-soft);color:var(--orange);font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;letter-spacing:-.3px;line-height:1.1;text-align:center}
+.tcard .th{width:52px;height:52px;border-radius:12px;flex:none;background:var(--orange-soft);color:var(--orange);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;line-height:1.1;text-align:center}
 .tcard .tb{min-width:0;flex:1}
-.tcard b{display:block;font-size:15px;font-weight:800;letter-spacing:-.3px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tcard b{display:block;font-size:15px;font-weight:700;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tcard span{font-size:12.5px;color:var(--sub);display:block;margin-top:3px}
 .tcard .chev{color:var(--faint);font-size:18px;flex:none}
 .empty{background:#fff;border:1px dashed var(--line);border-radius:16px;padding:28px 16px;text-align:center;color:var(--sub);font-size:14px}
@@ -84,21 +84,21 @@ h2.sec .c{font-size:12px;color:var(--sub);font-weight:500}
 @media(min-width:768px){.tview{padding:26px 28px}}
 .tv-attr{font-size:12.5px;color:var(--sub);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .tv-attr .h{color:var(--orange);font-weight:700}
-.tv-title{font-size:22px;font-weight:800;line-height:1.35;margin-top:8px;letter-spacing:-.5px}
+.tv-title{font-size:22px;font-weight:700;line-height:1.35;margin-top:8px;}
 .tv-meta{font-size:12.5px;color:var(--sub);margin-top:6px}
 .tv-actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
-.take{flex:1 1 200px;background:var(--orange);color:#fff;font-weight:800;font-size:15px;border-radius:999px;padding:13px 20px;text-align:center;transition:.15s;box-shadow:0 8px 20px rgba(244,88,28,.25)}
+.take{flex:1 1 200px;background:var(--orange);color:#fff;font-weight:700;font-size:15px;border-radius:999px;padding:13px 20px;text-align:center;transition:.15s;box-shadow:0 8px 20px rgba(244,88,28,.25)}
 .take:hover{background:var(--orange-deep);color:#fff}
 .take-sub{font-size:11.5px;color:var(--faint);width:100%;text-align:center;margin-top:2px}
 .ghost{flex:0 0 auto;border:1px solid var(--line);color:var(--ink);font-weight:700;font-size:13.5px;border-radius:999px;padding:12px 16px;background:#fff}
 .ghost:hover{border-color:var(--orange);color:var(--orange)}
-.day-h{font-size:15px;font-weight:800;margin:24px 0 6px;display:flex;gap:8px;align-items:baseline}
+.day-h{font-size:15px;font-weight:700;margin:24px 0 6px;display:flex;gap:8px;align-items:baseline}
 .day-h .c{font-size:12px;color:var(--sub);font-weight:500}
 .slot{display:grid;grid-template-columns:28px 1fr;gap:10px;padding:10px 0;border-bottom:1px solid var(--hair)}
-.slot .n{width:22px;height:22px;border-radius:50%;background:var(--orange);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.slot .n{width:22px;height:22px;border-radius:50%;background:var(--orange);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:2px}
 .slot .n.m{background:var(--line);color:var(--sub)}
 .slot .ti{font-size:13.5px;line-height:1.5;font-weight:700}
-.slot .ty{font-size:10.5px;color:var(--sub);border:1px solid var(--line);border-radius:999px;padding:0 7px;margin-left:6px;white-space:nowrap;font-weight:600;vertical-align:1px}
+.slot .ty{font-size:10.5px;color:var(--sub);border:1px solid var(--line);border-radius:999px;padding:0 7px;margin-left:6px;white-space:nowrap;font-weight:700;vertical-align:1px}
 .slot .tip{font-size:12px;color:var(--sub);margin-top:4px;line-height:1.6}
 .rest-days.hidden{display:none}
 .see-all{display:block;width:100%;margin-top:14px;padding:11px;border:1px solid var(--line);border-radius:12px;font-weight:700;font-size:13.5px;background:#fff}
@@ -121,16 +121,16 @@ h2.sec .c{font-size:12px;color:var(--sub);font-weight:500}
 /* ═══ 빈 상태 ═══ */
 .nopage{text-align:center;padding:70px 16px 40px}
 .nopage img{width:84px;margin:0 auto 16px;opacity:.9}
-.nopage h1{font-size:20px;font-weight:800;letter-spacing:-.4px}
+.nopage h1{font-size:20px;font-weight:700;}
 .nopage p{font-size:14px;color:var(--sub);margin-top:8px;word-break:keep-all}
-.nopage a{display:inline-block;margin-top:22px;background:var(--orange);color:#fff;font-weight:800;border-radius:999px;padding:12px 22px;font-size:14px}
+.nopage a{display:inline-block;margin-top:22px;background:var(--orange);color:#fff;font-weight:700;border-radius:999px;padding:12px 22px;font-size:14px}
 .nopage a:hover{background:var(--orange-deep);color:#fff}
 .loading{text-align:center;color:var(--faint);font-size:13px;padding:60px 0}
 
 /* ═══ 고지·footer (대문 footer 축약 — 새 진입점마다 통신판매중개자 고지 1줄) ═══ */
 .notice{word-break:keep-all;font-size:12px;color:var(--sub);line-height:1.7;background:#fff;border:1px solid var(--hair);border-radius:14px;padding:12px 14px;margin-top:22px}
 footer{background:#fff;border-top:1px solid var(--hair);padding:28px 20px 40px}
-.foot-in{max-width:760px;margin:0 auto;font-size:11.5px;color:var(--faint);line-height:1.8}
+.foot-in{max-width:760px;margin:0 auto;font-size:11.5px;color:var(--faint);line-height:1.5}
 .foot-in b{color:var(--sub)}
 .foot-links{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:12px;color:var(--sub)}
 .foot-links a{text-decoration:underline;text-underline-offset:3px}
