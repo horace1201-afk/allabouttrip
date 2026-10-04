@@ -26,7 +26,7 @@
 </script>
 <link rel="icon" href="assets/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap"></noscript><!-- 🆕 10/4 창4 ③ Lighthouse: 글꼴 CSS 비차단(렌더를 막던 것 · swap 이라 글자는 바로 뜸) --><style>html,body,button,input,textarea,select{font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;letter-spacing:normal}html{font-synthesis:none;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}b,strong{font-weight:700}body{line-height:1.5}h1,h2,h3{line-height:1.3}</style><!-- 🆕 9/27 지시함 #100: Pretendard → Noto Sans KR(영아 확정 C안) -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin><!-- 🆕 10/4 창4 ③: supabase-js 는 본문 끝(메인 스크립트 바로 앞)으로 — 미리 연결만 -->
 <script src="https://cdn.jsdelivr.net/npm/globe.gl@2.46.2/dist/globe.gl.min.js" defer></script>
 <style>
 :root{
@@ -1392,7 +1392,7 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
 
 <!-- ═══ CTA ═══ -->
 <section class="cta-band" id="cta">
-  <span class="mface"><img src="assets/modni_symbol.png" alt="모드니"></span>
+  <span class="mface"><img src="assets/modni_symbol.png" alt="모드니" loading="lazy" decoding="async"></span>
   <h2 id="ctaTitle">모드니와 첫 여행, 함께 그려볼까요?</h2>
   <p id="ctaP">Google Play 출시와 함께 만나요 — App Store도 준비 중이에요.</p>
   <div class="store-row">
@@ -1443,7 +1443,9 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
 
 <!-- 9/19 (영아 "내 여행이 두 개일 필요는 없다"): 대문 내 여행 오버레이 제거 — 플랜 웹 /mytrips 하나로 합침 (openMyTripsApp) -->
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<!-- 🆕 10/4 창4 ③ Lighthouse: supabase-js 를 head 에서 여기로 — 본문 HTML 이 다 그려진 뒤 받는다(head 동기 스크립트가 히어로 그리기를 막던 것) · 아래 메인 스크립트가 바로 window.supabase 를 쓴다
+     · 함께 있던 Cloudflare email-decode 스크립트(/cdn-cgi/…)는 저장 시 섞여 들어온 흔적 — GitHub Pages 에선 404 (data-cfemail 0개 · 쓰는 곳 없음) → 삭제 -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
 /* ─────────────────────────────────────────
    여행의 모든것 웹 3차 — 풀스크린 랜딩 + 왼쪽 슬라이드 메뉴 + 스크롤 리빌 (트리플 스타일)
    보존: 마켓(라이브) · 코스 상세(지도·가이드·오디오) · Google 인증 · 내 여행 · 꿈조각
@@ -3213,6 +3215,115 @@ const EN_TEXTS = [
   ["#planCta", "Start creating my trip →"],
   ["#ctaTitle", "Ready to draw your first trip with Modni?"],
   ["#ctaP", "Launching soon on Google Play — App Store coming next."],
+  /* 🆕 10/4 창4 ②(ENG 전환 빠진 글 점검 · 1440 실측 59묶음): 마케팅·UI 글 추가 — 폰 목업 안 글(앱 화면 복제)·사업자 정보·법률 고지·마켓 코스 데이터·지구본 안 JS 문구는 한글 그대로(의도) */
+  [".hero-intro-t", "I'm here for everyone's dream"],
+  [".hero-cta .store-mini a:nth-of-type(1) span", "coming soon"],
+  [".hero-cta .store-mini a:nth-of-type(2) span", "in preparation"],
+  [".scroll-hint", "Scroll down<br>⌄"],
+  [".hp-head b", "With Modni by your side"],
+  [".hp-flow > div:nth-of-type(1) .gt", "Before the trip"],
+  [".hp-flow > div:nth-of-type(2) b", "AI-tailored itinerary"],
+  [".hp-flow > div:nth-of-type(2) p", "Tell us your taste and budget — we draw the course"],
+  [".hp-flow > div:nth-of-type(3) b", "Hotels & bookings"],
+  [".hp-flow > div:nth-of-type(3) p", "Hotels within budget, filled in by date"],
+  [".hp-flow > div:nth-of-type(4) b", "Travel Market"],
+  [".hp-flow > div:nth-of-type(4) p", "Take a finished itinerary in one go"],
+  [".hp-flow > div:nth-of-type(5) .gt", "During the trip"],
+  [".hp-flow > div:nth-of-type(6) b", "A guide that follows you"],
+  [".hp-flow > div:nth-of-type(6) p", "Audio stories at every place"],
+  [".hp-flow > div:nth-of-type(7) b", "Memory film"],
+  [".hp-flow > div:nth-of-type(7) p", "Keep the trip as a film afterwards"],
+  ["#sect-plan .mock .mh .badge", "Planning"],
+  ["#sect-plan .mock .mh b", "Chat and a quick survey capture your taste"],
+  ["#sect-plan .mslot:nth-of-type(2) b", "Talk like you would to a friend"],
+  ["#sect-plan .mslot:nth-of-type(2) p", "\"Mostly hot springs\", \"less walking\" — your taste, straight from chat"],
+  ["#sect-plan .mslot:nth-of-type(3) b", "A few survey taps and done"],
+  ["#sect-plan .mslot:nth-of-type(3) p", "Companions, dates, budget and style sorted in a few taps"],
+  ["#sect-plan .mslot:nth-of-type(4) b", "Your travel taste at a glance"],
+  ["#sect-plan .mslot:nth-of-type(4) p", "Everything from chat and survey, tidied into one card"],
+  ["#sect-plan .mslot:nth-of-type(5) b", "Courses built from your taste"],
+  ["#sect-plan .mslot:nth-of-type(5) p", "Several trip courses drawn just for you"],
+  ["#sect-plan .mslot:nth-of-type(6) b", "Bucket list"],
+  ["#sect-plan .mslot:nth-of-type(6) p", "Save places and things to do — they blend into the plan"],
+  ["#sect-plan .mslot:nth-of-type(7) b", "Flights & hotels"],
+  ["#sect-plan .mslot:nth-of-type(7) p", "Flights and stays matched to your dates, budget and route"],
+  ["#sect-plan .mslot:nth-of-type(8) b", "Final plan — minute by minute"],
+  ["#sect-plan .mslot:nth-of-type(8) p", "A finished timetable with times, transport and durations"],
+  ["#sect-plan .foot-note", "Actual app itinerary screen"],
+  ["#sect-market .reveal:nth-of-type(2) .m-sub", "Browse by region"],
+  ["#sect-market .reveal:nth-of-type(3) .m-sub", "Top 5 popular courses"],
+  ["#contHint", "Spin the globe and tap a continent"],
+  ["#gsideT", "Editor's picks"],
+  ["#gsideX", "✕ Show all"],
+  ["#gsideD", "Courses hand-picked by Modni editors"],
+  ["#gsideMore", "Browse all courses ›"],
+  ["#chips button[data-filter=all]", "All"],
+  ["#chips button[data-filter=modni]", "Modni"],
+  ["#chips button[data-filter=short]", "Short trips"],
+  ["#chips button[data-filter=long]", "Long trips"],
+  [".at-t", "Browse all courses"],
+  [".at-s", "Every traveler's finished course at a glance"],
+  ["#allScope", "All courses"],
+  ["#allPanel button[data-sort=latest]", "Latest"],
+  ["#allPanel button[data-sort=downloads]", "Most taken"],
+  ["#allPanel button[data-sort=hearts]", "Most hearts"],
+  ["#sect-hotel .hcard .mh .badge", "Namba · Dotonbori"],
+  ["#sect-hotel .hcard .mh b", "Smart hotel picks"],
+  ["#sect-hotel .hcard .foot-note", "Example hotel card from the app"],
+  ["#sect-hotel .mock:not(.hcard) .mh .badge", "All in one place"],
+  ["#sect-hotel .mock:not(.hcard) .mh b", "Booking search, connected"],
+  ["#sect-hotel .mock:not(.hcard) .mslot:nth-of-type(2) b", "Flights"],
+  ["#sect-hotel .mock:not(.hcard) .mslot:nth-of-type(2) p", "Search pre-filled with your dates and airports"],
+  ["#sect-hotel .mock:not(.hcard) .mslot:nth-of-type(3) b", "Car rental"],
+  ["#sect-hotel .mock:not(.hcard) .mslot:nth-of-type(3) p", "Pick-up and return matched to your plan"],
+  ["#sect-hotel .mock:not(.hcard) .mslot:nth-of-type(4) b", "Tours · tickets"],
+  ["#sect-hotel .mock:not(.hcard) .mslot:nth-of-type(4) p", "Activities and admission tickets too"],
+  ["#sect-hotel .mock:not(.hcard) .mslot:nth-of-type(5) b", "Golf"],
+  ["#sect-hotel .mock:not(.hcard) .mslot:nth-of-type(5) p", "Overseas golf course bookings"],
+  ["#sect-prep .mock .mh .badge", "Before departure"],
+  ["#sect-prep .mock .mh b", "Nothing left behind"],
+  ["#sect-prep .mslot:nth-of-type(2) b", "Packing list, auto-generated"],
+  ["#sect-prep .mslot:nth-of-type(2) p", "What to pack, sorted by your travel style and the weather"],
+  ["#sect-prep .mslot:nth-of-type(3) b", "Booking confirmations in one place"],
+  ["#sect-prep .mslot:nth-of-type(3) p", "Flight and hotel confirmations right on the packing screen"],
+  ["#sect-prep .mslot:nth-of-type(4) b", "Departure countdown"],
+  ["#sect-prep .mslot:nth-of-type(4) p", "A D-day to departure — the trip feels closer"],
+  ["#sect-prep .mslot:nth-of-type(5) b", "Offline backup"],
+  ["#sect-prep .mslot:nth-of-type(5) p", "Save as HTML, PDF, KakaoTalk or email and open it anywhere"],
+  ["#sect-prep .foot-note", "Actual app packing screen"],
+  ["#sect-during .mock:first-of-type .mh .badge", "On the road"],
+  ["#sect-during .mock:first-of-type .mh b", "Modni on the road"],
+  ["#sect-during .mock:first-of-type .mslot:nth-of-type(2) b", "Restaurants by category"],
+  ["#sect-during .mock:first-of-type .mslot:nth-of-type(2) p", "Ramen, sushi, cafés, desserts — picked from right around you"],
+  ["#sect-during .mock:first-of-type .mslot:nth-of-type(3) b", "A guide that follows you"],
+  ["#sect-during .mock:first-of-type .mslot:nth-of-type(3) p", "A story at every place — no docent needed"],
+  ["#sect-during .mock:first-of-type .mslot:nth-of-type(4) b", "Works offline too"],
+  ["#sect-during .mock:first-of-type .mslot:nth-of-type(4) p", "Save ahead and keep guide and directions without signal"],
+  ["#sect-during .mock:last-of-type .mh .badge", "Expenses"],
+  ["#sect-during .mock:last-of-type .mh b", "Snap the receipt — that's it"],
+  ["#sect-during .mock:last-of-type .mslot:nth-of-type(2) .t", "Dinner"],
+  ["#sect-during .mock:last-of-type .mslot:nth-of-type(2) b", "Izakaya · ¥46,000"],
+  ["#sect-during .mock:last-of-type .mslot:nth-of-type(2) p", "Photograph the receipt → Modni reads and records it"],
+  ["#sect-during .mock:last-of-type .mslot:nth-of-type(3) .t", "Per person"],
+  ["#sect-during .mock:last-of-type .mslot:nth-of-type(3) b", "4 people · ¥11,500 each"],
+  ["#sect-during .mock:last-of-type .mslot:nth-of-type(3) p", "Splitting the bill, done for you"],
+  ["#sect-during .mock:last-of-type .mslot:nth-of-type(4) .t", "Total"],
+  ["#sect-during .mock:last-of-type .mslot:nth-of-type(4) b", "Trip expenses, tallied automatically"],
+  ["#sect-during .mock:last-of-type .mslot:nth-of-type(4) p", "Spending against budget at a glance"],
+  ["#sect-during .foot-note", "Example expense feature from the app"],
+  ["#sect-memory .mock .mh .badge", "After the trip"],
+  ["#sect-memory .mock .mh b", "Pick photos, get a film"],
+  ["#sect-memory .mslot:nth-of-type(2) b", "Edited automatically"],
+  ["#sect-memory .mslot:nth-of-type(2) p", "Choose your photos and Modni stitches the highlights together"],
+  ["#sect-memory .mslot:nth-of-type(3) b", "Place captions · music"],
+  ["#sect-memory .mslot:nth-of-type(3) p", "Captions say where each shot was taken, with music to match the mood"],
+  ["#sect-memory .mslot:nth-of-type(4) b", "Share the memory"],
+  ["#sect-memory .mslot:nth-of-type(4) p", "Send the finished film to the friends who traveled with you"],
+  ["#sect-memory .foot-note", "Example memory film from the app"],
+  ["#cta .store:nth-of-type(1) small", "coming soon"],
+  ["#cta .store:nth-of-type(2) small", "in preparation"],
+  ["#dwAuth u", "Sign in / Sign up"],
+  ["#ovDetail .backlink", "← Back"],
 ];
 let lang = "ko";
 const koStore = new Map();
