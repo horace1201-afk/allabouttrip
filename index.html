@@ -2856,7 +2856,7 @@ let hgHousesCity = null, hgNear = false;   // 🆕 #048 ④: 도시 집 · 지�
    · 핀 상자(얼굴 둘 + 「+N」)가 서로 닿으면 코스 많은 도시가 자리를 차지하고 닿는 도시는 그 안으로 — 얼굴 둘 + 「+N」(N = 묶음 전체 코스 − 2)
    · 묶음 핀을 누르면 그 도시들 가운데로 당겨 풀어 보인다(풀릴 만큼 당기면 저절로 다시 나뉜다) · 멀리 밀면 다시 묶인다
    · 앱 lib/globe/facePins 는 도시 단위까지만 묶는다 — 이 규칙은 대문 지구본이 작아서(폰 351px) 더 두는 것 · 앱 첫 화면도 같은 문제면 같은 셈을 옮긴다 */
-const HG_PIN_BOX = { face: [72, 28], sm: [34, 14] };   // 핀 상자 [가로, 세로] px — 얼굴 26 두 개(−8 겹침) + ✓ + 「+N」 ≈ 72 · 모드니 칸(9px 얼굴) ≈ 34
+const HG_PIN_BOX = { face: [72, 28], faceWide: [44, 28], sm: [34, 14] };   // 핀 상자 [가로, 세로] px — 얼굴 26 두 개(−8 겹침) + ✓ + 「+N」 ≈ 72 · 데스크톱(≥1200)은 얼굴 둘 44 만(「+N」 살짝 겹침 허용 · 얼굴 여럿 유지) · 모드니 칸(9px 얼굴) ≈ 34
 const HG_PIN_GAP = 6;
 function hgPxPerDeg(){
   const d = ($("hgStage") && $("hgStage").clientWidth) || hgSize();
@@ -2866,7 +2866,7 @@ function hgPxPerDeg(){
 }
 function hgCluster(pins){
   if (!pins || pins.length < 2) return pins || [];
-  const ppd = hgPxPerDeg(), box = hgTab === "modni" ? HG_PIN_BOX.sm : HG_PIN_BOX.face;
+  const ppd = hgPxPerDeg(), box = hgTab === "modni" ? HG_PIN_BOX.sm : window.innerWidth >= 1200 ? HG_PIN_BOX.faceWide : HG_PIN_BOX.face;
   const wDeg = (box[0] + HG_PIN_GAP) / ppd, hDeg = (box[1] + HG_PIN_GAP) / ppd;
   const out = [];
   for (const p of pins){   // hgPins 는 코스 많은 도시 순 — 앞 것이 자리를 차지한다
@@ -2922,18 +2922,20 @@ function hgPaint(){
   hgListRender();   // 🆕 10/4: 옆 목록 = 지금 칸 따라
 }
 /* 🆕 10/4 클로디 08:35(성훈 확정): 지구본 옆 목록 = 대륙 → 나라 → 코스
-   🔴 10/4 창4 ②(앱 첫 화면과 대조): 묶음 = 앱 lib/marketplace/marketRegions MARKET_REGIONS 와 **같은 7개·같은 차례**(국내 · 일본 · 아시아 · 유럽 · 미주 · 오세아니아 · 그 외)
-   — 앱은 나라(한글) → countries.ts 대륙 + COUNTRY_OVERRIDE(오세아니아 분리 · 북미+남미 = 미주 · 튀르키예 = 유럽 · 중동·아프리카·모르는 나라 = 그 외) 로 정하고,
-   대문은 city_coords 의 나라 코드(ISO-2)로 받으므로 그 표를 코드로 옮겨 적었다 · 아시아를 동북아/동남아/남·중앙아시아로 나눴던 것 ✗(앱에 없음) · 앱 표를 바꾸면 여기도 */
+   🔴 10/4 창4 ②(성훈 08:3x 확정 · 한 기준): 묶음 9개 · 차례 고정 = 국내 · 일본 · 동북아 · 동남아 · 남·중앙아 · 유럽 · 미주 · 오세아니아 · 중동·아프리카
+   — 앱 7묶음(아시아 하나) ✗ · 아시아 나눔 유지 · ISO-2 나라 → 묶음 표는 **여기 한 곳**(city_coords.country_code 로 받는다)
+   · 나라 배정은 앱 lib/marketplace/countries.ts + marketRegions COUNTRY_OVERRIDE 와 같다(오세아니아 = 호주·뉴질랜드·태평양 섬·괌·사이판 · 튀르키예 = 유럽 · 표에 없는 나라 = 중동·아프리카) */
 const HG_GROUPS = [
   ["국내", "KR"],
   ["일본", "JP"],
-  ["아시아", "KP CN TW HK MO MN TH VN PH ID SG MY KH LA MM BN TL IN PK BD NP LK BT MV AF KZ UZ TM KG TJ GE AM AZ"],
+  ["동북아", "KP CN TW HK MO MN"],
+  ["동남아", "TH VN PH ID SG MY KH LA MM BN TL"],
+  ["남·중앙아", "IN PK BD NP LK BT MV AF KZ UZ TM KG TJ GE AM AZ"],
   ["유럽", "FR DE GB IE NL BE LU CH AT LI MC ES PT IT GR MT SM VA AD CY SE NO DK FI IS EE LV LT PL CZ SK HU RO BG HR SI RS BA ME MK AL XK UA BY MD RU TR"],
   ["미주", "US CA MX GT BZ HN SV NI CR PA CU JM HT DO BS BB TT GD LC AG DM VC KN PR BR AR CL PE CO EC BO PY UY VE GY SR"],
   ["오세아니아", "AU NZ FJ PG WS TO VU SB PW MH FM KI NR TV GU MP"],
 ];
-const HG_GROUP_OTHER = "그 외";   // 중동 · 아프리카 · 표에 없는 나라(앱 regionOfCountry 의 other 와 같다)
+const HG_GROUP_OTHER = "중동·아프리카";   // 표에 없는 나라도 여기(앱 regionOfCountry 의 other 와 같은 자리)
 const HG_GROUP_OF = Object.fromEntries(HG_GROUPS.flatMap(([g, s]) => s.split(" ").map(a => [a, g])));
 const HG_LIST_W = 190, HG_LIST_GAP = 24;
 let hgCourseAt = {}, hgMineAt = [], hgListOpen = { ct: null, cn: null }, hgListHas = false;
@@ -2974,7 +2976,7 @@ function hgListTree(){
   for (const it of hgListItems()){ const g = HG_GROUP_OF[it.a2] || HG_GROUP_OTHER; const cn = A2_KO[it.a2] || it.a2 || "기타";
     ((t[g] = t[g] || {})[cn] = t[g][cn] || []).push(it); }
   return order.filter(g => t[g]).map(g => ({ g, n: Object.values(t[g]).reduce((a, l) => a + l.length, 0), cs: Object.entries(t[g]).map(([cn, items]) => ({ cn, items })).sort((a, b) => b.items.length - a.items.length || a.cn.localeCompare(b.cn)) }))
-  ;   // 🔴 10/4 창4 ②: 차례 = 표 차례 고정(앱 MARKET_REGIONS · 코스 수 순 ✗)
+  ;   // 🔴 10/4 창4 ②: 차례 = 표 차례 고정(코스 수 순 ✗)
 }
 /** 지구본을 그 항목들 가운데로(경도는 원 위 평균) */
 function hgFlyTo(items, alt){
