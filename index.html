@@ -300,6 +300,7 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .hero h1{font-size:clamp(36px,5.6vw,64px);line-height:1.3;color:var(--ink);font-weight:700;margin-top:16px;text-wrap:balance;word-break:keep-all}   /* 🔴 10/4 클라4 눈검: 1440·1760 「곳에 / 서」 한 글자 떨어짐 → 낱말 단위로만 줄바꿈 */
 .hero h1 .hl{color:var(--orange)}
 .hero h1 .h1-l2{white-space:nowrap}   /* 🔴 10/4 클로디 22:28: 제목 둘째 줄 한 줄 고정(세 줄 ✗ · 글자 크기 그대로) — ENG 는 EN_TEXTS 가 innerHTML 을 바꿔 영향 없음 */
+@media(max-width:1500px){.hero h1{font-size:clamp(36px,5.6vw,56px)}}   /* 🔴 10/4 클로디 23:00 ①: ≤1500 제목 최대 56px(1760↑ = 64 그대로) */
 .hero-intro{display:flex;align-items:center;gap:12px;margin-bottom:26px}
 .hero-right{display:flex;flex-direction:column;gap:14px}
 .hero-right .eyebrow{align-self:flex-start}
@@ -2990,8 +2991,11 @@ function hgListPlace(d){
   }
   hgListSide = side; hg.classList.toggle("hg-listside", side);
   if (shift) hg.style.transform = "translateX(-" + shift + "px)";
-  // 자리가 모자라 지구본 아래로 갈 때 — 두 칸 화면(1024↑)이면 목록 높이 180 안에서만 스크롤(펼쳐도 첫 화면·왼쪽 큰 제목이 안 밀림) · 한 칸 화면은 그대로 늘어남
-  if (!side){ sc.style.left = ""; sc.style.top = ""; sc.style.maxHeight = window.innerWidth >= 1024 ? "180px" : ""; sc.style.width = d + "px"; return false; }
+  // 자리가 모자라 지구본 아래로 갈 때 — 두 칸 화면(1024↑)이면 목록 높이 240 안에서만 스크롤(펼쳐도 첫 화면·왼쪽 큰 제목이 안 밀림) · 한 칸 화면은 그대로 늘어남
+  if (!side){ sc.style.left = ""; sc.style.top = ""; sc.style.maxHeight = window.innerWidth >= 1024 ? "240px" : "";   /* 🔴 10/4 클로디 23:00 ②: 180 → 240(첫 화면에 유럽·미주까지) */ sc.style.width = d + "px";
+    // 상태 줄(ⓘ·「지금 N개 여행」)은 첫 화면 접힘선 위 — 화면 높이가 모자라면 240 에서 줄이되 180 밑으로는 ✗
+    if (window.innerWidth >= 1024){ const stl = hg.querySelector(".hg-status"); if (stl){ const over = stl.getBoundingClientRect().bottom + window.scrollY + 8 - window.innerHeight; if (over > 0) sc.style.maxHeight = Math.max(180, 240 - Math.ceil(over)) + "px"; } }
+    return false; }
   if (help && help.parentNode !== sc) sc.insertBefore(help, sc.firstChild);
   hg.classList.remove("hg-side"); if (help){ help.style.left = ""; help.style.top = ""; help.style.width = ""; }
   const top = bar ? bar.offsetTop : st.offsetTop;
