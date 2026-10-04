@@ -7,6 +7,22 @@
 <meta name="description" content="AI 여행 플래닝 앱 여행의 모든것. 모드니가 그려주는 나만의 여행 — 여행 담기에서 완성된 일정을 구경하고 그대로 담아가세요.">
 <meta property="og:title" content="여행의 모든것 · 모드니">
 <meta property="og:description" content="계획부터 추억까지 — 여행의 모든 것을 한 곳에서.">
+<!-- 🆕 10/4 창4(feat/front-launch-ready ①): OG/SEO 보강 — 공유 카드(카톡·X·슬랙)에 그림·주소가 붙고, 홈 추가 시 이름·아이콘·색이 잡힌다.
+     og:image = assets/icon.png(1024 정사각 · 앱 아이콘과 같은 본) · 가로 1200×630 OG 전용 그림은 영아 몫(만들어지면 여기 한 줄만) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="여행의 모든것">
+<meta property="og:url" content="https://allabouttrip.app/">
+<meta property="og:image" content="https://allabouttrip.app/assets/icon.png">
+<meta property="og:image:width" content="1024"><meta property="og:image:height" content="1024">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="여행의 모든것 · 모드니">
+<meta name="twitter:description" content="계획부터 추억까지 — 여행의 모든 것을 한 곳에서.">
+<meta name="twitter:image" content="https://allabouttrip.app/assets/icon.png">
+<link rel="canonical" href="https://allabouttrip.app/">
+<meta name="theme-color" content="#F4581C">
+<link rel="apple-touch-icon" href="assets/icon.png">
+<link rel="manifest" href="site.webmanifest">
 <script>
 /* 카톡·라인 인앱 브라우저 자동 탈출 (2026-07-19)
    배경: 구글이 인앱 브라우저(WebView) OAuth를 차단 → 카톡 링크로 들어온 유저의
@@ -757,8 +773,8 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
     <p class="hero-sub" id="heroModni">떠나기 전 계획·예약부터, 여행 중 길잡이, 다녀온 뒤 추억까지<br>모드니가 처음부터 끝까지 함께 그려 드려요.</p>
     <div class="hero-cta">
       <div class="store-mini">
-        <a href="#cta">Google Play <span>곧 출시</span></a>
-        <a href="#cta">App Store <span>준비 중</span></a>
+        <a href="#cta" id="storePlayMini" data-store="play">Google Play <span>곧 출시</span></a>
+        <a href="#cta" id="storeAppMini" data-store="appstore">App Store <span>준비 중</span></a>
       </div>
     </div>
    </div>
@@ -1396,8 +1412,8 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
   <h2 id="ctaTitle">모드니와 첫 여행, 함께 그려볼까요?</h2>
   <p id="ctaP">Google Play 출시와 함께 만나요 — App Store도 준비 중이에요.</p>
   <div class="store-row">
-    <span class="store"><span>Google Play<small>곧 출시</small></span></span>
-    <span class="store"><span>App Store<small>준비 중</small></span></span>
+    <a class="store" id="storePlay" data-store="play"><span>Google Play<small>곧 출시</small></span></a>
+    <a class="store" id="storeApp" data-store="appstore"><span>App Store<small>준비 중</small></span></a>
   </div>
 </section>
 
@@ -1448,6 +1464,21 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
    여행의 모든것 웹 3차 — 풀스크린 랜딩 + 왼쪽 슬라이드 메뉴 + 스크롤 리빌 (트리플 스타일)
    보존: 마켓(라이브) · 코스 상세(지도·가이드·오디오) · Google 인증 · 내 여행 · 꿈조각
 ───────────────────────────────────────── */
+/* 🆕 10/4 창4(feat/front-launch-ready ③): 스토어 단추 링크 = **여기 한 곳**. Play 링크가 오면 url 값만 채우면
+   히어로 작은 단추 2 + CTA 큰 단추 2 가 그 주소로 열리고(새 탭) 글도 「곧 출시/준비 중」 → 「다운로드」(ENG 「Download」)로 바뀐다. 비어 있으면 지금처럼 #cta 로 내려가기만 */
+const STORE_LINKS = {
+  play:     { url: "", ko: "곧 출시", en: "coming soon",    liveKo: "다운로드", liveEn: "Download" },
+  appstore: { url: "", ko: "준비 중", en: "in preparation", liveKo: "다운로드", liveEn: "Download" },
+};
+function applyStoreLinks(lng){
+  document.querySelectorAll("[data-store]").forEach(a => {
+    const c = STORE_LINKS[a.dataset.store]; if (!c) return;
+    const live = !!c.url, mini = a.classList.contains("store") === false;
+    if (live){ a.href = c.url; a.target = "_blank"; a.rel = "noopener"; }
+    else { a.removeAttribute("target"); a.removeAttribute("rel"); if (mini) a.href = "#cta"; else a.removeAttribute("href"); }
+    const lab = a.querySelector(mini ? "span" : "small"); if (lab) lab.textContent = live ? (lng === "en" ? c.liveEn : c.liveKo) : (lng === "en" ? c.en : c.ko);
+  });
+}
 const SUPABASE_URL = "https://gecmrywieyntzzwthvlg.supabase.co";
 const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdlY21yeXdpZXludHp6d3RodmxnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0NzU0ODIsImV4cCI6MjA5NDA1MTQ4Mn0.Cakqtz_AOHgNIVWHXyl_v-Dj7bSIJKoPSNbkbAqRemg";
 /* ═══ 🆕 9/17 세션 쿠키 저장소 ═════════════════════════════════════
@@ -3175,6 +3206,7 @@ async function renderHeroGlobe(){
   hgPaint();
 }
 
+applyStoreLinks("ko");   // 🆕 10/4 창4 ③: 스토어 단추 = STORE_LINKS 한 곳
 boot();
 
 /* ── KOR/ENG 토글 (UI·마케팅 카피만 — 마켓 코스 데이터는 원문 유지) ── */
@@ -3243,6 +3275,7 @@ $("langBtn").addEventListener("click", () => {
     b.innerHTML = (lang === "en" ? dwEn[i] : dwKo[i]) ?? b.innerHTML;
   });
   if (!currentUser) $("tbLogin").textContent = (lang === "en") ? "Sign in" : "로그인";
+  applyStoreLinks(lang);   // 🆕 10/4 창4 ③: 스토어 단추 글(곧 출시/다운로드)도 같이 — STORE_LINKS 한 곳
 });
 
 /* ── 관리자 메뉴 조건부 노출 (2026-07-19) ──

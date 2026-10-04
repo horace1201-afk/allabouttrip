@@ -1,0 +1,15 @@
+{
+  "name": "여행의 모든것 — 모드니",
+  "short_name": "여행의 모든것",
+  "description": "AI 여행 플래닝 — 계획부터 추억까지, 모드니와 한 곳에서",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#F4581C",
+  "lang": "ko",
+  "icons": [
+    { "src": "/assets/icon.png", "sizes": "1024x1024", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/favicon.png", "sizes": "48x48", "type": "image/png" }
+  ]
+}

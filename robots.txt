@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /support-admin.html
+Disallow: /support-digest.html
+Disallow: /flights.html
+Sitemap: https://allabouttrip.app/sitemap.xml
