@@ -25,7 +25,7 @@
 })();
 </script>
 <link rel="icon" href="assets/favicon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap"><style>html,body,button,input,textarea,select{font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;letter-spacing:normal}html{font-synthesis:none;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}b,strong{font-weight:700}body{line-height:1.5}h1,h2,h3{line-height:1.3}</style><!-- 🆕 9/27 지시함 #100: Pretendard → Noto Sans KR(영아 확정 C안) -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap"></noscript><!-- 🆕 10/4 창4 ③ Lighthouse: 글꼴 CSS 비차단(렌더를 막던 것 · swap 이라 글자는 바로 뜸) --><style>html,body,button,input,textarea,select{font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;letter-spacing:normal}html{font-synthesis:none;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}b,strong{font-weight:700}body{line-height:1.5}h1,h2,h3{line-height:1.3}</style><!-- 🆕 9/27 지시함 #100: Pretendard → Noto Sans KR(영아 확정 C안) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/globe.gl@2.46.2/dist/globe.gl.min.js" defer></script>
 <style>
@@ -318,7 +318,7 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .store-mini{display:flex;gap:10px;flex-wrap:wrap}
 .store-mini a{display:inline-flex;align-items:baseline;gap:7px;font-size:13px;font-weight:500;color:var(--sub);
   border:1px solid var(--line);border-radius:999px;padding:9px 16px;background:#fff;transition:.15s}
-.store-mini a span{font-size:11px;font-weight:500;color:var(--faint)}
+.store-mini a span{font-size:11px;font-weight:500;color:var(--sub)}   /* 🆕 10/4 창4 ③: faint 2.3:1 → sub 5.4:1 */
 .store-mini a:hover{border-color:var(--orange);color:var(--orange-deep)}
 .scroll-hint{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);z-index:2;color:var(--sub);
   font-size:12px;opacity:.9;text-align:center;line-height:1.7;animation:hint 2s ease-in-out infinite}
@@ -582,6 +582,7 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .cta-band p{font-size:14.5px;color:var(--sub);margin-top:10px}
 .cta-band .store-row{justify-content:center;margin-top:30px}
 .cta-band .store{background:var(--ink);border-color:var(--ink);color:#fff;backdrop-filter:none}
+.cta-band .store small{color:rgba(255,255,255,.78)}   /* 🆕 10/4 창4 ③: 검정 바탕 위 sub 3.0:1 → 흰 78% 11:1 */
 .cta-band .store:hover{background:#000}
 
 /* ═══ 푸터 ═══ */
@@ -815,7 +816,7 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
   </div>
   <div class="duo">
     <div class="mock-shot reveal">
-      <div class="phone"><div class="app-rot" id="appRot"><div class="rot-frame" style="width:390px;height:844px;overflow:hidden;background:#ffffff;" data-screen-label="새 여행 서베이"><div style="display:flex;flex-direction:column;height:100%;"><div style="height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;flex-shrink:0;"><span style="font-size:16px;font-weight:700;color:#1d1b19;">1:00</span><div style="display:flex;align-items:center;gap:7px;"><svg width="18" height="12" viewBox="0 0 18 12" fill="#1d1b19"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="#1d1b19" stroke-width="1.6" stroke-linecap="round"><path d="M1 4.2C4.2 1.5 12.8 1.5 16 4.2"/><path d="M3.6 6.8C5.9 4.9 11.1 4.9 13.4 6.8"/><path d="M6.1 9.2C7.3 8.4 9.7 8.4 10.9 9.2"/></svg><div style="display:flex;align-items:center;gap:2px;"><div style="width:24px;height:12px;border-radius:3.5px;border:1.4px solid rgba(29,27,25,.85);padding:1.6px;"><div style="width:80%;height:100%;background:#1d1b19;border-radius:1.5px;"></div></div><div style="width:1.6px;height:4px;background:rgba(29,27,25,.85);border-radius:1px;"></div></div></div></div>
+      <div class="phone"><div class="app-rot" id="appRot" aria-hidden="true" inert><div class="rot-frame" style="width:390px;height:844px;overflow:hidden;background:#ffffff;" data-screen-label="새 여행 서베이"><div style="display:flex;flex-direction:column;height:100%;"><div style="height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;flex-shrink:0;"><span style="font-size:16px;font-weight:700;color:#1d1b19;">1:00</span><div style="display:flex;align-items:center;gap:7px;"><svg width="18" height="12" viewBox="0 0 18 12" fill="#1d1b19"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="#1d1b19" stroke-width="1.6" stroke-linecap="round"><path d="M1 4.2C4.2 1.5 12.8 1.5 16 4.2"/><path d="M3.6 6.8C5.9 4.9 11.1 4.9 13.4 6.8"/><path d="M6.1 9.2C7.3 8.4 9.7 8.4 10.9 9.2"/></svg><div style="display:flex;align-items:center;gap:2px;"><div style="width:24px;height:12px;border-radius:3.5px;border:1.4px solid rgba(29,27,25,.85);padding:1.6px;"><div style="width:80%;height:100%;background:#1d1b19;border-radius:1.5px;"></div></div><div style="width:1.6px;height:4px;background:rgba(29,27,25,.85);border-radius:1px;"></div></div></div></div>
 <div style="display:flex;align-items:center;gap:10px;padding:8px 20px 12px;flex-shrink:0;border-bottom:1px solid #f2f0ed;"><button style="width:34px;height:34px;border:none;background:transparent;display:flex;align-items:center;justify-content:center;margin-left:-8px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d1b19" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button><div style="flex:1;"></div><div style="position:absolute;left:0;right:0;text-align:center;font-size:16px;font-weight:700;color:#1d1b19;pointer-events:none;">새 여행 만들기</div><div style="display:flex;align-items:center;gap:5px;background:#fff;border:1px solid #eeece9;border-radius:999px;padding:6px 12px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="#e8a72c"><path d="M12 2.2 13.7 9.1 20.5 12 13.7 14.9 12 21.8 10.3 14.9 3.5 12 10.3 9.1Z"/></svg><span style="font-size:12.5px;font-weight:500;color:#3c3833;">200</span></div></div>
 <div style="flex:1;overflow:hidden;padding:20px 18px;display:flex;flex-direction:column;gap:14px;background:#faf9f7;">
  <div style="display:flex;gap:9px;align-items:flex-end;"><div style="width:34px;height:34px;border-radius:999px;background:#fff2ea;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg viewBox="0 0 100 100" fill="none" style="width:62%;height:62%;"><circle cx="50" cy="50" r="43" stroke="#f4581c" stroke-width="6"/><circle cx="41" cy="46" r="4.9" fill="#f4581c"/><circle cx="61" cy="41" r="4.1" fill="#f4581c"/></svg></div><div style="max-width:76%;background:#fff;border:1px solid #eeece9;border-radius:4px 16px 16px 16px;padding:12px 15px;"><div style="font-size:14px;font-weight:700;color:#1d1b19;">안녕하세요! 저는 모드니예요</div><div style="font-size:13px;color:#7a726c;margin-top:3px;line-height:1.5;">여행의 모든 것을 함께 준비해드릴게요</div></div></div>
@@ -1417,7 +1418,7 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
         문의 <a href="mailto:allabouttrip.cs@gmail.com" style="color:var(--orange)">allabouttrip.cs@gmail.com</a>
       </div>
     </div>
-    <div style="margin-top:12px;font-size:11px;color:var(--faint);line-height:1.6">※ ㈜하우스두둥은 통신판매중개자이며, 호텔 예약의 판매자·계약 당사자는 Nuitée Travel Limited(아일랜드)입니다. 당사는 통신판매의 당사자가 아닙니다.</div>
+    <div style="margin-top:12px;font-size:11px;color:var(--sub);line-height:1.6">※ ㈜하우스두둥은 통신판매중개자이며, 호텔 예약의 판매자·계약 당사자는 Nuitée Travel Limited(아일랜드)입니다. 당사는 통신판매의 당사자가 아닙니다.</div>
     <div class="foot-links">
       <a href="terms.html">서비스 이용약관</a>
       <a href="privacy.html"><b>개인정보 처리방침</b></a>
@@ -1425,7 +1426,7 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
       <a href="dispute.html">분쟁처리 기준</a>
     </div>
     <div class="en-box">
-      <h3>About All About Trip <span style="font-size:11px;color:var(--faint);font-weight:400">(for our global partners)</span></h3>
+      <h3>About All About Trip <span style="font-size:11px;color:var(--sub);font-weight:400">(for our global partners)</span></h3>
       <p><b>All About Trip</b> is an AI travel-planning app for the Korean market by House Dudung Inc. Our AI companion "Modni" builds each user's complete trip — optimal itinerary, optimal zones, and optimal hotels matched to budget and preferences — designed to maximize booking completion.</p>
       <p>We connect users directly to partner booking pages with dates and guests pre-filled. Partnership inquiries: <b><a href="mailto:allabouttrip.cs@gmail.com">allabouttrip.cs@gmail.com</a></b></p>
     </div>
@@ -2794,14 +2795,17 @@ function hgFaceEl(pin){
   w.className = "hg-face" + (sm ? " sm" : "");
   if (sm){ w.style.minWidth = HG_FACE_SM.hit + "px"; w.style.minHeight = HG_FACE_SM.hit + "px"; }
   w.setAttribute("role", "button");
-  w.setAttribute("aria-label", pin.city + " 여행 " + pin.courses.length + "개");
+  const cl = pin.members && pin.members.length > 1;
+  w.setAttribute("aria-label", pin.city + (cl ? " 외 " + (pin.members.length - 1) + "도시" : "") + " 여행 " + pin.courses.length + "개");
   w.dataset.face = pin.city;
+  if (cl){ w.classList.add("cl"); w.title = pin.members.map(m => m.city).join(" · "); }
   w.innerHTML = pin.faces.map(c => {
     const r = hgRing(c);
     const inner = c.is_sample ? '<img src="assets/modni_symbol.png" alt="모드니"' + (sm ? ' style="width:' + HG_FACE_SM.img + 'px;height:' + HG_FACE_SM.img + 'px"' : '') + '>' : esc(String(stripPrefix(c.market_title) || pin.city).trim().slice(0, 1));
     return '<i style="border:' + (sm ? 1 : 2) + 'px ' + (r === "planned" ? "dashed" : "solid") + ' ' + HG_RING[r] + (sm ? ';width:' + HG_FACE_SM.ring + 'px;height:' + HG_FACE_SM.ring + 'px;box-shadow:0 0 0 1px #fff' : '') + '">' + inner + '</i>';
   }).join("") + (pin.ring === "visited" ? '<span class="ok">✓</span>' : "") + (pin.extra ? '<span class="more">+' + pin.extra + '</span>' : "");
-  w.addEventListener("click", (e) => { e.stopPropagation(); hgFocusPin(pin); });
+  // 묶음 핀 = 그 도시들 가운데로 당겨 풀어 본다(지금 고도의 0.45배 · 0.03 아래 ✗) · 홑 핀 = 옆 목록 펼침
+  w.addEventListener("click", (e) => { e.stopPropagation(); if (cl){ let alt = 1.65; try { alt = hgGlobe.pointOfView().altitude; } catch(e2){} hgFlyTo(pin.members, Math.max(0.03, alt * 0.45)); } else hgFocusPin(pin); });
   return w;
 }
 /** 🔴 10/4 13:59 영아: 지구본 위 하얀 창(hgPop · 닫기 · 코스 줄) 삭제 — 핀 누름 = 옆 목록(ⓘ 밑 하나)에서 그 대륙·나라를 펼치고 그 줄이 보이게 */
@@ -2847,10 +2851,46 @@ function hgTripsHtml(){
 /* 🆕 #046: 지구본 위 요소 = 칸(집·얼굴) + 커서 나라 이름 한 개 */
 let hgHover = null;
 let hgHousesCity = null, hgNear = false;   // 🆕 #048 ④: 도시 집 · 지금 가까이(고도 < 0.85)인가
+/* 🆕 10/4 창4 13:46(390·948 실측: 유럽 핀이 겹겹이 몰려 「+1」 글이 옆 핀에 가림) — **좁은 폭 겹침 규칙 = 묶음 핀 + 수**
+   · 지구본 지름·고도로 1°가 몇 px 인지 셈(화면 가운데 기준 · globe.gl 카메라 fov 50° · 반지름 100 · 거리 100×(1+고도))
+   · 핀 상자(얼굴 둘 + 「+N」)가 서로 닿으면 코스 많은 도시가 자리를 차지하고 닿는 도시는 그 안으로 — 얼굴 둘 + 「+N」(N = 묶음 전체 코스 − 2)
+   · 묶음 핀을 누르면 그 도시들 가운데로 당겨 풀어 보인다(풀릴 만큼 당기면 저절로 다시 나뉜다) · 멀리 밀면 다시 묶인다
+   · 앱 lib/globe/facePins 는 도시 단위까지만 묶는다 — 이 규칙은 대문 지구본이 작아서(폰 351px) 더 두는 것 · 앱 첫 화면도 같은 문제면 같은 셈을 옮긴다 */
+const HG_PIN_BOX = { face: [72, 28], sm: [34, 14] };   // 핀 상자 [가로, 세로] px — 얼굴 26 두 개(−8 겹침) + ✓ + 「+N」 ≈ 72 · 모드니 칸(9px 얼굴) ≈ 34
+const HG_PIN_GAP = 6;
+function hgPxPerDeg(){
+  const d = ($("hgStage") && $("hgStage").clientWidth) || hgSize();
+  let alt = 1.65; try { const a = hgGlobe.pointOfView().altitude; if (Number.isFinite(a)) alt = a; } catch(e){}
+  // 투영된 구 반지름(px) = (지름/2) × (1 / (tan25° × (1+고도))) → 1° ≈ 반지름 × π/180
+  return (d / 2) * (1 / (Math.tan(25 * Math.PI / 180) * (1 + alt))) * Math.PI / 180;
+}
+function hgCluster(pins){
+  if (!pins || pins.length < 2) return pins || [];
+  const ppd = hgPxPerDeg(), box = hgTab === "modni" ? HG_PIN_BOX.sm : HG_PIN_BOX.face;
+  const wDeg = (box[0] + HG_PIN_GAP) / ppd, hDeg = (box[1] + HG_PIN_GAP) / ppd;
+  const out = [];
+  for (const p of pins){   // hgPins 는 코스 많은 도시 순 — 앞 것이 자리를 차지한다
+    const cos = Math.cos(p.lat * Math.PI / 180);
+    const hit = out.find(o => Math.abs(o.lat - p.lat) < hDeg && Math.abs((((o.lng - p.lng + 540) % 360) - 180) * cos) < wDeg);
+    if (!hit){ out.push(Object.assign({}, p, { members: [p] })); continue; }
+    hit.members.push(p);
+    const list = hit.courses.concat(p.courses).map((c, i) => ({ c, i })).sort((a, b) => (HG_RANK[hgRing(a.c)] - HG_RANK[hgRing(b.c)]) || (a.i - b.i)).map(x => x.c);
+    hit.courses = list; hit.faces = list.slice(0, 2); hit.extra = Math.max(0, list.length - 2); hit.ring = hgRing(list[0]);
+  }
+  return out;
+}
+let hgClusterSig = "";
+const hgSigOf = pins => pins.map(p => p.city + ":" + (p.members ? p.members.length : 1)).join("|");
 function hgPushData(){
   if (!hgGlobe) return;
-  const base = hgTab === "mine" ? ((hgNear ? hgHousesCity : hgHouses) || []) : hgTab === "modni" ? hgModniPins() : hgPins;
+  const base = hgTab === "mine" ? ((hgNear ? hgHousesCity : hgHouses) || []) : hgCluster(hgTab === "modni" ? hgModniPins() : hgPins);
+  if (hgTab !== "mine") hgClusterSig = hgSigOf(base);
   hgGlobe.htmlElementsData(hgHover ? base.concat([hgHover]) : base);
+}
+/** 고도·지름이 바뀐 뒤 — 묶음이 달라졌을 때만 다시 그린다(매 프레임 새로 그리면 핀이 깜빡인다) */
+function hgRecluster(){
+  if (!hgGlobe || hgTab === "mine") return;
+  if (hgSigOf(hgCluster(hgTab === "modni" ? hgModniPins() : hgPins)) !== hgClusterSig) hgPushData();
 }
 function hgHoverEl(h){ const w = document.createElement("div"); w.className = "hg-hover"; w.textContent = h.name; return w; }
 /** 나라 가운데 — 가장 큰 고리 꼭짓점 평균(표시용 · 대략이면 된다) */
@@ -2882,18 +2922,18 @@ function hgPaint(){
   hgListRender();   // 🆕 10/4: 옆 목록 = 지금 칸 따라
 }
 /* 🆕 10/4 클로디 08:35(성훈 확정): 지구본 옆 목록 = 대륙 → 나라 → 코스
-   대륙 나누기 = 앱 마켓 지역 알약과 한 기준 — 원천 앱 lib/marketplace/countries.ts(COUNTRY_DATA) + marketRegions.ts(regionOfCountry:
-   국내·일본 따로 · 오세아니아 = 호주·뉴질랜드·태평양 섬·괌·사이판 · 튀르키예 = 유럽 · 중동·아프리카 = 그 외) 를 나라 코드(ISO-2)로 옮긴 것 ·
-   아시아만 동북아(국내·일본 포함) · 동남아 · 남·중앙아시아로 나눔 — 앱 표를 바꾸면 여기도 */
+   🔴 10/4 창4 ②(앱 첫 화면과 대조): 묶음 = 앱 lib/marketplace/marketRegions MARKET_REGIONS 와 **같은 7개·같은 차례**(국내 · 일본 · 아시아 · 유럽 · 미주 · 오세아니아 · 그 외)
+   — 앱은 나라(한글) → countries.ts 대륙 + COUNTRY_OVERRIDE(오세아니아 분리 · 북미+남미 = 미주 · 튀르키예 = 유럽 · 중동·아프리카·모르는 나라 = 그 외) 로 정하고,
+   대문은 city_coords 의 나라 코드(ISO-2)로 받으므로 그 표를 코드로 옮겨 적었다 · 아시아를 동북아/동남아/남·중앙아시아로 나눴던 것 ✗(앱에 없음) · 앱 표를 바꾸면 여기도 */
 const HG_GROUPS = [
-  ["동북아", "KR KP JP CN TW HK MO MN"],
-  ["동남아", "TH VN PH ID SG MY KH LA MM BN TL"],
-  ["남·중앙아시아", "IN PK BD NP LK BT MV AF KZ UZ TM KG TJ GE AM AZ"],
+  ["국내", "KR"],
+  ["일본", "JP"],
+  ["아시아", "KP CN TW HK MO MN TH VN PH ID SG MY KH LA MM BN TL IN PK BD NP LK BT MV AF KZ UZ TM KG TJ GE AM AZ"],
   ["유럽", "FR DE GB IE NL BE LU CH AT LI MC ES PT IT GR MT SM VA AD CY SE NO DK FI IS EE LV LT PL CZ SK HU RO BG HR SI RS BA ME MK AL XK UA BY MD RU TR"],
-  ["미주", "US CA MX GT BZ HN SV NI CR PA CU JM HT DO BS BB TT GD LC AG DM VC KN BR AR CL PE CO EC BO PY UY VE GY SR"],
+  ["미주", "US CA MX GT BZ HN SV NI CR PA CU JM HT DO BS BB TT GD LC AG DM VC KN PR BR AR CL PE CO EC BO PY UY VE GY SR"],
   ["오세아니아", "AU NZ FJ PG WS TO VU SB PW MH FM KI NR TV GU MP"],
 ];
-const HG_GROUP_OTHER = "중동·아프리카";
+const HG_GROUP_OTHER = "그 외";   // 중동 · 아프리카 · 표에 없는 나라(앱 regionOfCountry 의 other 와 같다)
 const HG_GROUP_OF = Object.fromEntries(HG_GROUPS.flatMap(([g, s]) => s.split(" ").map(a => [a, g])));
 const HG_LIST_W = 190, HG_LIST_GAP = 24;
 let hgCourseAt = {}, hgMineAt = [], hgListOpen = { ct: null, cn: null }, hgListHas = false;
@@ -2934,7 +2974,7 @@ function hgListTree(){
   for (const it of hgListItems()){ const g = HG_GROUP_OF[it.a2] || HG_GROUP_OTHER; const cn = A2_KO[it.a2] || it.a2 || "기타";
     ((t[g] = t[g] || {})[cn] = t[g][cn] || []).push(it); }
   return order.filter(g => t[g]).map(g => ({ g, n: Object.values(t[g]).reduce((a, l) => a + l.length, 0), cs: Object.entries(t[g]).map(([cn, items]) => ({ cn, items })).sort((a, b) => b.items.length - a.items.length || a.cn.localeCompare(b.cn)) }))
-    .sort((a, b) => b.n - a.n || order.indexOf(a.g) - order.indexOf(b.g));
+  ;   // 🔴 10/4 창4 ②: 차례 = 표 차례 고정(앱 MARKET_REGIONS · 코스 수 순 ✗)
 }
 /** 지구본을 그 항목들 가운데로(경도는 원 위 평균) */
 function hgFlyTo(items, alt){
@@ -2943,6 +2983,7 @@ function hgFlyTo(items, alt){
   const sx = items.reduce((a, x) => a + Math.sin(x.lng * Math.PI / 180), 0), cx = items.reduce((a, x) => a + Math.cos(x.lng * Math.PI / 180), 0);
   try { hgGlobe.controls().autoRotate = false; } catch(e){}
   hgGlobe.pointOfView({ lat, lng: Math.atan2(sx, cx) * 180 / Math.PI, altitude: alt }, 900);
+  setTimeout(hgRecluster, 950);   // 🆕 10/4 창4: 당긴 뒤 묶음 핀 다시 셈
 }
 function hgListRender(){
   const box = $("hgList"); if (!box) return;
@@ -2997,6 +3038,7 @@ function hgResize(){
   hgFitBar(d);
   if (!$("hgTrips").hidden) $("hgTrips").style.width = d + "px";
   hgHelpPlace(d);
+  hgRecluster();   // 🆕 10/4 창4: 지름이 바뀌면 묶음 핀 다시 셈
 }
 function hgInit(){
   const box = $("hgBox");
@@ -3030,7 +3072,7 @@ function hgInit(){
     controls.autoRotate = false;
     hgGlobe.pointOfView({ lat: pov.lat, lng: pov.lng, altitude: hgAlt }, 0);
     const near = hgAlt < 0.85;   // plan ZOOM_DETAIL_ALTITUDE 와 같은 문턱
-    if (near !== hgNear){ hgNear = near; hgPushData(); }
+    if (near !== hgNear){ hgNear = near; hgPushData(); } else hgRecluster();   // 🆕 10/4 창4: 고도가 바뀌면 묶음 핀 다시 셈
   };
   box.addEventListener("wheel", (e) => {
     const inward = e.deltaY < 0;
@@ -3060,7 +3102,7 @@ function hgInit(){
   { let last = null, since = 0, fired = true; hgViewTimer = setInterval(() => { if (!hgGlobe || document.hidden) return; const p = hgGlobe.pointOfView(); const now = Date.now();
     // 관성(감속)으로 아주 천천히 도는 것 = 멈춘 셈(0.25초에 0.3° 아래)
     const moved = !last || Math.hypot(p.lat - last.lat, (((p.lng - last.lng + 540) % 360) - 180)) >= 0.3 || Math.abs(p.altitude - last.altitude) >= 0.02; last = p;
-    if (moved){ since = now; fired = false; return; } if (!fired && now - since >= 700){ fired = true; hgAutoOpen(p); } }, 250); }
+    if (moved){ since = now; fired = false; hgRecluster(); return; } if (!fired && now - since >= 700){ fired = true; hgAutoOpen(p); } }, 250); }
   hgGlobe.onPolygonHover((f) => {
     const a2 = f && f.properties ? String(f.properties.ISO_A2 || "") : "";
     const name = A2_KO[a2] || "";
