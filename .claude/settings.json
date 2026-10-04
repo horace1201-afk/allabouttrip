@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Supabase__execute_sql",
+      "mcp__Supabase__list_tables",
+      "mcp__Supabase__get_advisors",
+      "mcp__Supabase__query_logs",
+      "mcp__Supabase__list_edge_functions",
+      "Bash(git fetch:*)",
+      "Bash(git switch:*)",
+      "Bash(git push:*)",
+      "Bash(git worktree:*)",
+      "Bash(node:*)",
+      "Bash(npx lighthouse:*)",
+      "Bash(python3 -m http.server:*)",
+      "Bash(python3:*)",
+      "Bash(curl -s:*)",
+      "Bash(timeout:*)"
+    ]
+  }
+}
