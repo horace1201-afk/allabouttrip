@@ -166,8 +166,8 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .hg-info[aria-expanded="true"]{background:#FFF2EA;color:#C6431F}
 .hg-infopanel{width:100%;padding:0 0 0 4px;text-align:left;overflow:hidden}
 .hg-infopanel[hidden]{display:none}
-.hg-infopanel h5{margin:0 0 2px;font-size:13px;font-weight:500;line-height:1.5;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hg-infopanel p{margin:0;font-size:12.5px;font-weight:400;line-height:1.5;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hg-infopanel h5{margin:0 0 2px;font-size:13px;font-weight:500;line-height:1.5;color:var(--ink);white-space:normal;word-break:keep-all;overflow-wrap:break-word}
+.hg-infopanel p{margin:0;font-size:12.5px;font-weight:400;line-height:1.5;color:var(--ink);white-space:normal;word-break:keep-all;overflow-wrap:break-word}   /* 🔴 10/4 13:58 영아: 칸 폭 안 줄바꿈 · 「…」 자르기 ✗ · 글 전부(S5 ③ 「한 줄」 규칙 폐기) */
 .hg-infopanel p .ic{display:inline-block;width:20px;font-style:normal}
 /* 🆕 10/3: globe.gl 자체 툴팁(회색 상자 + 검은 알약 두 겹) ✗ — 상자 없는 회색 글씨만(.hg-hover 와 같은 모양) */
 .float-tooltip-kap,.scene-tooltip{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;border-radius:0!important;color:rgba(33,27,49,.58)!important;font:400 11px 'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif!important;letter-spacing:normal!important;white-space:nowrap}
@@ -210,6 +210,10 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .hg-face{display:flex;align-items:center;transform:translate(-50%,-50%);cursor:pointer;pointer-events:auto}
 .hg-face i{width:26px;height:26px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font:500 11px 'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;font-style:normal;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.18);overflow:hidden}
 .hg-face i+i{margin-left:-8px}
+/* 🔴 10/4 13:57 영아(지시서_모드니지구본_얼굴통일 §1): 「모드니 지구본」 칸 얼굴 = 1/3 · 누르는 영역 24px↑ 투명 · 크기 = HG_FACE_SM 상수(아래 스크립트 · 앱 lib/globe 얼굴 핀 상수와 같은 값) */
+.hg-face.sm{justify-content:center}
+.hg-face.sm i+i{margin-left:-3px}
+.hg-face.sm .more{margin-left:2px;padding:0 3px;font-size:9px}
 .hg-face i img{width:20px;height:20px}
 .hg-face .ok{margin:-16px 0 0 -6px;width:14px;height:14px;border-radius:50%;background:#2E9E5B;color:#fff;font:500 9px 'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;display:flex;align-items:center;justify-content:center}
 .hg-face .more{margin-left:4px;padding:1px 6px;border-radius:999px;background:rgba(255,255,255,.95);border:1px solid var(--line);font:500 10px 'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:var(--ink)}
@@ -784,7 +788,7 @@ footer{background:#fff;border-top:1px solid var(--hair);padding:48px 30px 64px}
      </div>
      <!-- 🆕 10/4 클로디 08:35: 지구본 + 옆 목록(대륙 → 나라 → 코스) — 948↑ 한 줄 · 좁으면 지구본 아래 -->
      <div class="hg-main" id="hgMain">
-     <div class="hg-stage" id="hgStage"><div id="hgBox"></div><div class="hg-pop" id="hgPop" hidden></div>
+     <div class="hg-stage" id="hgStage"><div id="hgBox"></div>
        <button type="button" class="hg-cta" id="hgCta">여행 담기로 가기 ›</button>
        <div class="hg-play" id="hgPlay" hidden><img src="assets/modni_symbol.png" alt=""><span id="hgPlayT">마카오 퀴즈 · 모드니 도슨트</span><button type="button" id="hgStop">그만 듣기</button></div>
      </div>
@@ -2782,30 +2786,46 @@ function hgHouseEl(h){
   w.addEventListener("click", (e) => { e.stopPropagation(); openMyTripsApp(); });
   return w;
 }
+/* 🔴 10/4 13:57: 모드니 칸 얼굴 핀 크기 — 원 9 · 얼굴 7(26·20 의 1/3) · 누르는 곳 24 — 앱 lib/globe 얼굴 핀 상수(클라우드2 feat/modni-face-pins)와 같은 값 */
+const HG_FACE_SM = { ring: 9, img: 7, hit: 24 };
 function hgFaceEl(pin){
   const w = document.createElement("div");
-  w.className = "hg-face";
+  const sm = hgTab === "modni";
+  w.className = "hg-face" + (sm ? " sm" : "");
+  if (sm){ w.style.minWidth = HG_FACE_SM.hit + "px"; w.style.minHeight = HG_FACE_SM.hit + "px"; }
   w.setAttribute("role", "button");
   w.setAttribute("aria-label", pin.city + " 여행 " + pin.courses.length + "개");
   w.dataset.face = pin.city;
   w.innerHTML = pin.faces.map(c => {
     const r = hgRing(c);
-    const inner = c.is_sample ? '<img src="assets/modni_symbol.png" alt="모드니">' : esc(String(stripPrefix(c.market_title) || pin.city).trim().slice(0, 1));
-    return '<i style="border:2px ' + (r === "planned" ? "dashed" : "solid") + ' ' + HG_RING[r] + '">' + inner + '</i>';
+    const inner = c.is_sample ? '<img src="assets/modni_symbol.png" alt="모드니"' + (sm ? ' style="width:' + HG_FACE_SM.img + 'px;height:' + HG_FACE_SM.img + 'px"' : '') + '>' : esc(String(stripPrefix(c.market_title) || pin.city).trim().slice(0, 1));
+    return '<i style="border:' + (sm ? 1 : 2) + 'px ' + (r === "planned" ? "dashed" : "solid") + ' ' + HG_RING[r] + (sm ? ';width:' + HG_FACE_SM.ring + 'px;height:' + HG_FACE_SM.ring + 'px;box-shadow:0 0 0 1px #fff' : '') + '">' + inner + '</i>';
   }).join("") + (pin.ring === "visited" ? '<span class="ok">✓</span>' : "") + (pin.extra ? '<span class="more">+' + pin.extra + '</span>' : "");
-  w.addEventListener("click", (e) => { e.stopPropagation(); hgOpen(pin); });
+  w.addEventListener("click", (e) => { e.stopPropagation(); hgFocusPin(pin); });
   return w;
 }
-function hgOpen(pin){
-  const pop = $("hgPop");
-  pop.innerHTML = '<h4><span>' + esc(pin.city) + ' 여행 ' + pin.courses.length + '개</span><button type="button" class="hg-x">닫기</button></h4>' +
-    pin.courses.map(c => {
-      const r = hgRing(c);
-      return '<div class="hg-row" role="button" data-id="' + esc(c.id) + '"><span class="rk" style="color:' + (r === "planned" ? "var(--ink)" : HG_RING[r]) + '">' + HG_LABEL[r] + '</span><b>' + esc(stripPrefix(c.market_title)) + '</b>›</div>';
-    }).join("");
-  pop.querySelector(".hg-x").addEventListener("click", () => { pop.hidden = true; });
-  pop.querySelectorAll(".hg-row").forEach(r => r.addEventListener("click", () => selectCourse(r.dataset.id)));
-  pop.hidden = false;
+/** 🔴 10/4 13:59 영아: 지구본 위 하얀 창(hgPop · 닫기 · 코스 줄) 삭제 — 핀 누름 = 옆 목록(ⓘ 밑 하나)에서 그 대륙·나라를 펼치고 그 줄이 보이게 */
+function hgFocusPin(pin){
+  const at = (pin.courses ?? []).map(c => hgCourseAt[c.id]).find(Boolean); if (!at) return;
+  const g = HG_GROUP_OF[at.a2] || HG_GROUP_OTHER, cn = A2_KO[at.a2] || at.a2 || "기타";
+  hgListOpen = { ct: g, cn }; hgListRender(); hgListScrollTo(g);
+}
+/** 펼친 대륙 줄이 목록 칸 안에서 보이게(칸 안 스크롤만 · 페이지는 안 움직임) */
+function hgListScrollTo(g){
+  const box = $("hgList"); const row = box && [...box.querySelectorAll(".hg-ct")].find(b => b.dataset.ct === g); if (!row) return;
+  box.scrollTop = Math.max(0, row.offsetTop - box.offsetTop - 4);
+}
+/** 🔴 10/4 13:59 영아: 지구본 ↔ 목록 양방향 — 돌려 멈추면(0.7초) 지금 향한 대륙 줄 자동 펼침(다른 대륙 접힘) · 판정 = 앱 regionAtView 와 같은 셈(가운데 시점에서 가장 가까운 핀 · 반경 = 고도×32° · 4~60°) · 바다 한가운데 = 그대로 */
+let hgViewTimer = null;
+function hgAutoOpen(pov){
+  if (!pov || hgTab === "mine" || !hgListHas) return;
+  const items = hgListItems(); if (!items.length) return;
+  const rDeg = Math.min(60, Math.max(4, (pov.altitude ?? 1.6) * 32)), cos = Math.cos(pov.lat * Math.PI / 180);
+  let best = null, bd = Infinity;
+  for (const it of items){ const dLng = ((it.lng - pov.lng + 540) % 360) - 180; const d = Math.hypot(it.lat - pov.lat, dLng * cos); if (d < bd){ bd = d; best = it; } }
+  if (!best || bd > rDeg) return;
+  const g = HG_GROUP_OF[best.a2] || HG_GROUP_OTHER; if (hgListOpen.ct === g) return;
+  hgListOpen = { ct: g, cn: null }; hgListRender(); hgListScrollTo(g);
 }
 function hgShortDate(d){ const x = new Date(d + "T00:00:00"); return (x.getMonth() + 1) + "." + x.getDate() + "(" + ["일","월","화","수","목","금","토"][x.getDay()] + ")"; }
 function hgTripsHtml(){
@@ -2858,7 +2878,6 @@ function hgPaint(){
   if (mine) line.textContent = currentUser ? (hgMine.rows.length ? "내 여행 " + hgMine.rows.length + "개" : "첫 여행을 세우면 여기에 집이 생겨요") : "로그인하면 내 여행이 여기에 집으로 쌓여요";
   else if (hgTab === "modni"){ const mp = hgModniPins(); const mc = mp.reduce((a, p) => a + p.courses.length, 0); line.textContent = mc ? "모드니 추천 " + mc + "개 · " + mp.length + "도시" : "모드니 추천 일정을 준비 중이에요"; }
   else { const v = all.filter(c => hgRing(c) === "visited").length, pl = n - v; line.textContent = n ? ["지금 " + n + "개 여행", v ? "✓다녀옴 " + v : "", pl ? "계획 중 " + pl : ""].filter(Boolean).join(" · ") : "아직 올라온 여행이 없어요"; }
-  $("hgPop").hidden = true;
   if (!$("hgInfoPanel").hidden) hgInfoShow(true, hgInfoPinned);   // 🆕 10/3: 칸을 바꾸면 열린 채로 글만 바뀐다
   hgListRender();   // 🆕 10/4: 옆 목록 = 지금 칸 따라
 }
@@ -2904,7 +2923,7 @@ function hgListPlace(d){
 }
 /** 지금 칸의 항목 — { key, title, a2, lat, lng, open } */
 function hgListItems(){
-  if (hgTab === "mine") return hgMineAt.map(x => ({ key: x.t.id, title: (x.t.title || x.t.region || "여행") + (x.t.nights && !/박/.test(String(x.t.title || "")) ? " " + x.t.nights + "박" : ""), a2: x.a2, lat: x.lat, lng: x.lng, open: () => openTrip(x.t.id) }));
+  if (hgTab === "mine") return [];   // 🔴 10/4 13:59: 내 지구본 칸 = 옆 목록 없음
   const cs = hgTab === "modni" ? hgMarket().filter(c => c.is_sample) : hgMarket();
   return cs.map(c => { const p = hgCourseAt[c.id]; return p ? { key: c.id, title: String(stripPrefix(c.market_title) || "").trim() || hgPinCity(c), a2: p.a2, lat: p.lat, lng: p.lng, open: () => selectCourse(c.id) } : null; }).filter(Boolean);
 }
@@ -3035,6 +3054,13 @@ function hgInit(){
   }, { passive: false });
   box.addEventListener("touchend", (e) => { if (e.touches.length < 2) pinch = null; });
   /* 🆕 #046 ②: 커서를 올린 나라 이름 — 그 나라 위에 회색 작은 글씨(상자·툴팁 ✗ · 채움색 안 바뀜 · 손모양 ✗) · plan #043 과 같은 규칙 */
+  // 🔴 10/4 13:59: 돌려 멈추면(시점이 0.7초 그대로) 그 대륙 줄 펼침 — onZoom 은 그릴 때마다 불려서(감속 포함) 타이머가 안 끝남 → 0.25초마다 시점을 읽어 멈춤을 봄
+  // 손을 뗀 때(controls end) = 0.7초 뒤 판정(관성으로 도는 몇 초를 기다리지 않음) · 아래 시점 감시는 휠·핀치 등 그 밖의 멈춤용
+  { let tEnd = null; controls.addEventListener('end', () => { clearTimeout(tEnd); tEnd = setTimeout(() => hgAutoOpen(hgGlobe.pointOfView()), 700); }); }
+  { let last = null, since = 0, fired = true; hgViewTimer = setInterval(() => { if (!hgGlobe || document.hidden) return; const p = hgGlobe.pointOfView(); const now = Date.now();
+    // 관성(감속)으로 아주 천천히 도는 것 = 멈춘 셈(0.25초에 0.3° 아래)
+    const moved = !last || Math.hypot(p.lat - last.lat, (((p.lng - last.lng + 540) % 360) - 180)) >= 0.3 || Math.abs(p.altitude - last.altitude) >= 0.02; last = p;
+    if (moved){ since = now; fired = false; return; } if (!fired && now - since >= 700){ fired = true; hgAutoOpen(p); } }, 250); }
   hgGlobe.onPolygonHover((f) => {
     const a2 = f && f.properties ? String(f.properties.ISO_A2 || "") : "";
     const name = A2_KO[a2] || "";
