@@ -221,10 +221,14 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .hg-hover{transform:translate(-50%,-50%);font:400 11px 'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:rgba(33,27,49,.58);white-space:nowrap;pointer-events:none}   /* 🆕 #046: 커서 올린 나라 이름 — 상자·툴팁 ✗ */
 /* 🆕 10/4 클로디 08:35(성훈 확정): 지구본 옆 목록 = 대륙 → 나라 → 코스 칩 · 948↑ = 지구본 오른쪽 칸(ⓘ 도 이 칸 맨 위) · 좁으면 지구본 아래 같은 목록
    · 숫자 = 그 칸(내/모두의/모드니)의 코스 수 · 대륙 누름 = 지구본이 그 대륙으로 돌고 나라 펼침 · 나라 누름 = 코스 칩 · 다시 누르면 접힘 · 13px 이하 굵게 ✗ */
+/* 🔴 10/4 12:55 영아(목업_대문지구본_옆목록_바깥): 지구본 크기·자리 = 옆 목록 넣기 전 그대로(줄이기 ✗) · ⓘ + 목록 = 지구본 박스 **바깥 오른쪽**(24px · 폭 190 · 위 = 칸 줄 높이)
+   · 배경·테두리·그림자 없이 글씨만 · ⓘ 설명은 ⓘ 바로 밑 · 목록은 늘 떠 있고 설명만큼 밀림 · 자리가 모자라면 지구본 묶음을 왼쪽으로(큰 제목과 24px↑) → 그래도 모자라면 목록 = 지구본 아래 */
 .hg-main{display:flex;flex-direction:column;align-items:center;width:100%}
 .hg-sidecol{display:flex;flex-direction:column;align-items:flex-start;min-width:0}
-.hg-main.has-list .hg-sidecol .hg-list{overflow-y:auto;min-height:0;flex:1 1 auto;scrollbar-width:thin}
 .hg-sidecol[hidden]{display:none}
+.hero-globe.hg-listside .hg-sidecol{position:absolute;z-index:3;background:none;border:0;box-shadow:none}
+.hg-sidecol .hg-list{overflow-y:auto;min-height:0;flex:1 1 auto;scrollbar-width:thin}
+.hero-globe.hg-listside .hg-help{position:static;margin:0;width:100%!important}
 .hg-list{width:100%;margin-top:6px;text-align:left}
 .hg-list[hidden]{display:none}
 .hg-ct{display:flex;align-items:baseline;gap:6px;width:100%;border:0;background:none;font-family:inherit;padding:7px 2px;cursor:pointer;color:var(--ink);font-size:14.5px;font-weight:700;text-align:left;border-top:1px solid var(--hair)}
@@ -236,16 +240,10 @@ body.menu-open .drawer{transform:none;box-shadow:8px 0 40px rgba(29,27,25,.16)}
 .hg-cns{padding:0 0 6px 10px}
 .hg-cn{display:flex;align-items:baseline;gap:6px;width:100%;border:0;background:none;font-family:inherit;padding:5px 2px;cursor:pointer;color:var(--ink);font-size:13.5px;font-weight:400;text-align:left}
 .hg-cn[aria-expanded="true"]{color:#C6431F}
-.hg-chips{display:flex;flex-wrap:wrap;gap:6px;padding:2px 0 8px 4px}
-.hg-cchip{border:1px solid var(--line);background:#fff;color:var(--ink);font-family:inherit;font-size:12.5px;font-weight:400;border-radius:999px;padding:5px 10px;cursor:pointer;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
-.hg-cchip:hover{border-color:#C6431F;color:#C6431F}
+.hg-chips{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:0 0 8px 10px}
+.hg-cchip{border:0;background:none;color:#5b5466;font-family:inherit;font-size:12.5px;font-weight:400;padding:2px 0;cursor:pointer;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;text-align:left}   /* 목업: 칩도 글씨만(테두리·배경 ✗) */
+.hg-cchip:hover{color:#C6431F;text-decoration:underline}
 .hg-tab{white-space:nowrap}
-@media (min-width:948px){
-  .hg-main.has-list{flex-direction:row;align-items:flex-start;justify-content:center;gap:18px}
-  .hg-main.has-list .hg-sidecol{flex:0 0 190px;width:190px}
-  .hero-globe.hg-listside .hg-help{position:static;margin:0;width:100%!important}
-}
-@media (max-width:947px){.hg-sidecol{width:100%}}
 @media (max-width:1023px){.hero-in.has-globe{grid-template-columns:1fr}}
 @media (max-width:600px){.hg-bar{flex-wrap:wrap;gap:6px}.hg-doc{position:static}}   /* 폰: 링크가 토글을 덮지 않게 한 줄 아래로 */
 @media (max-width:900px){.hg-pop{left:10px;right:10px;width:auto;top:auto;bottom:10px;max-height:60%}}
@@ -2723,8 +2721,7 @@ const hgMarket = () => (courses || []).filter(c => !(currentUser && c.publisher_
 const hgPinCity = c => String(c.first_city || "").trim() || cityOfCourse(c);
 /** 지름 — hero 높이 80%(≤ 칸 폭) · ≤1023 은 폭 90% */
 function hgSize(){
-  // 🆕 10/4: 948↑ 이고 옆 목록이 있으면 목록 칸(220 + 사이 18)만큼 지구본을 줄인다
-  const col = ($("heroGlobe").clientWidth || 480) - (hgListRow() ? HG_LIST_W + 18 : 0);
+  const col = $("heroGlobe").clientWidth || 480;   // 🔴 10/4 12:55 영아: 옆 목록 때문에 지구본을 줄이지 않는다(옆 목록 = 지구본 바깥)
   // 폰·태블릿: 화면 폭 90% — 단 칸(여백 안쪽)을 넘지 않게(넘으면 가로 스크롤이 생긴다)
   if (window.innerWidth <= 1023) return Math.round(Math.min(col, window.innerWidth * 0.9));
   const hero = document.querySelector(".hero");
@@ -2879,10 +2876,32 @@ const HG_GROUPS = [
 ];
 const HG_GROUP_OTHER = "중동·아프리카";
 const HG_GROUP_OF = Object.fromEntries(HG_GROUPS.flatMap(([g, s]) => s.split(" ").map(a => [a, g])));
-const HG_LIST_W = 190;
+const HG_LIST_W = 190, HG_LIST_GAP = 24;
 let hgCourseAt = {}, hgMineAt = [], hgListOpen = { ct: null, cn: null }, hgListHas = false;
-/** 948↑ 이고 목록에 줄이 있으면 = 지구본 옆 칸 */
-const hgListRow = () => hgListHas && window.innerWidth >= 948;
+let hgListSide = false;   // 지금 옆 목록이 지구본 바깥 오른쪽에 섰나(hgListPlace 가 정함)
+const hgListRow = () => hgListSide;
+/** 왼쪽 큰 제목·글의 실제 글자 오른쪽 끝(블록 폭이 아니라 글자) */
+function hgTextRight(){ let m = 0; for (const id of ["heroTitle", "heroModni", "heroEyebrow", "hpSub"]){ const el = $(id); if (!el || !el.offsetParent) continue; const rg = document.createRange(); rg.selectNodeContents(el); for (const rc of rg.getClientRects()) m = Math.max(m, rc.right); } return m; }
+/** 🔴 10/4 12:55 영아: 옆 목록 = 지구본 박스 바깥 오른쪽(24px · 폭 190 · 위 = 칸 줄) — 자리가 모자라면 지구본 묶음을 왼쪽으로(큰 제목과 24px↑) · 그래도 모자라면 지구본 아래 · 지구본 줄이기 ✗ */
+function hgListPlace(d){
+  const hg = $("heroGlobe"), st = $("hgStage"), sc = $("hgSideCol"), help = $("hgHelp"), bar = document.querySelector("#heroGlobe .hg-bar"); if (!hg || !st || !sc) return false;
+  hg.style.transform = "";
+  let side = false, shift = 0;
+  if (hgListHas && window.innerWidth >= 948){
+    const r = st.getBoundingClientRect(); const need = HG_LIST_GAP + HG_LIST_W + 16; const room = window.innerWidth - r.right;
+    if (room >= need) side = true;
+    else { const allowed = r.left - (hgTextRight() + 24); if (allowed >= need - room){ shift = Math.ceil(need - room); side = true; } }
+  }
+  hgListSide = side; hg.classList.toggle("hg-listside", side);
+  if (shift) hg.style.transform = "translateX(-" + shift + "px)";
+  // 자리가 모자라 지구본 아래로 갈 때 — 두 칸 화면(1024↑)이면 목록 높이 180 안에서만 스크롤(펼쳐도 첫 화면·왼쪽 큰 제목이 안 밀림) · 한 칸 화면은 그대로 늘어남
+  if (!side){ sc.style.left = ""; sc.style.top = ""; sc.style.maxHeight = window.innerWidth >= 1024 ? "180px" : ""; sc.style.width = d + "px"; return false; }
+  if (help && help.parentNode !== sc) sc.insertBefore(help, sc.firstChild);
+  hg.classList.remove("hg-side"); if (help){ help.style.left = ""; help.style.top = ""; help.style.width = ""; }
+  const top = bar ? bar.offsetTop : st.offsetTop;
+  sc.style.left = (st.offsetLeft + d + HG_LIST_GAP) + "px"; sc.style.top = top + "px"; sc.style.width = HG_LIST_W + "px"; sc.style.maxHeight = (st.offsetTop + d - top) + "px";
+  return true;
+}
 /** 지금 칸의 항목 — { key, title, a2, lat, lng, open } */
 function hgListItems(){
   if (hgTab === "mine") return hgMineAt.map(x => ({ key: x.t.id, title: (x.t.title || x.t.region || "여행") + (x.t.nights && !/박/.test(String(x.t.title || "")) ? " " + x.t.nights + "박" : ""), a2: x.a2, lat: x.lat, lng: x.lng, open: () => openTrip(x.t.id) }));
@@ -2936,9 +2955,8 @@ function hgListRender(){
 const HG_HELP_GAP = 14, HG_HELP_MIN = 230, HG_HELP_MAX = 300;
 function hgHelpPlace(d){
   const hg = $("heroGlobe"), help = $("hgHelp"), st = $("hgStage"); if (!hg || !help || !st) return;
-  // 🆕 10/4: 옆 목록 칸이 서면(948↑) ⓘ = 그 칸 맨 위 · 아니면 원래 자리(지구본 아래 · 넓으면 원 바깥 오른쪽 위)
-  const row = hgListRow(); hg.classList.toggle("hg-listside", row);
-  if (row){ const sc = $("hgSideCol"); if (help.parentNode !== sc) sc.insertBefore(help, sc.firstChild); hg.classList.remove("hg-side"); help.style.left = ""; help.style.top = ""; help.style.width = ""; return; }
+  // 🔴 10/4 12:55: 옆 목록 칸이 지구본 바깥에 서면 ⓘ = 그 칸 맨 위(칸 줄 높이) · 아니면 예전 자리(지구본 아래 · 넓으면 원 바깥 오른쪽 위)
+  if (hgListPlace(d)) return;
   if (help.parentNode !== hg) hg.insertBefore(help, $("hgBelow"));
   const room = Math.floor(window.innerWidth - st.getBoundingClientRect().right - HG_HELP_GAP - 8);
   const side = room >= HG_HELP_MIN;
@@ -2948,7 +2966,7 @@ function hgHelpPlace(d){
 }
 /* 🆕 #048 ①: 토글 줄 = 지구본 폭 — 토글은 지구본 가운데, 도슨트는 지구본 오른쪽 끝선 · 아래 칸도 같은 폭 */
 function hgFitBar(d){
-  const bar = document.querySelector("#heroGlobe .hg-bar"); if (bar) bar.style.width = Math.max(d, 360) + "px";   // 🆕 10/4: 지구본이 작아도 세 칸 글씨가 안 꺾이게
+  const bar = document.querySelector("#heroGlobe .hg-bar"); if (bar) bar.style.width = d + "px";   // 칸 줄 가운데 = 지구본 가운데(10/4 12:55 영아)
   const below = $("hgBelow"); if (below) below.style.width = d + "px";
 }
 function hgResize(){
@@ -2959,7 +2977,6 @@ function hgResize(){
   hgGlobe.width(d).height(d);
   hgFitBar(d);
   if (!$("hgTrips").hidden) $("hgTrips").style.width = d + "px";
-  const sc = $("hgSideCol"); if (sc) { sc.style.width = hgListRow() ? "" : d + "px"; sc.style.maxHeight = hgListRow() ? d + "px" : ""; }   // 🆕 10/4: 좁으면 목록 = 지구본 폭으로 아래 · 넓으면 칸 높이 = 지구본(펼쳐도 첫 화면이 안 밀림 · 칸 안 스크롤)
   hgHelpPlace(d);
 }
 function hgInit(){
