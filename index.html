@@ -1149,7 +1149,7 @@ function drawPins(){
       const c = S.city, [hx, hy] = cityProj(c.at);
       // 🆕 10/11 모드니 01:05(Codex 00:32 ✗ 375 뉴욕 나무 3 중 2): 집·칸 밖·다른 나무와 겹치면 **빼지 않고** 잔디 안 다른 자리로 결정론 재배치(각도 ±30°·±60°·±90° · 반지름 0.62→0.78→0.45 순 · 크기·배치 규칙 그대로) → 늘 3그루
       const spotOf = (deg, rf) => { const a = deg * Math.PI / 180, r = CITY_GRASS_DEG * rf; const at = [c.at[0] + r * Math.sin(a) / Math.cos(c.at[1] * Math.PI / 180), c.at[1] + r * Math.cos(a)]; const [x, y] = cityProj(at); return { x, y }; };
-      const hitsHouse = (p) => Math.abs(p.x - hx) < 26 + 16 && p.y - 28 < hy + 10 && p.y + 4 > hy - 42;
+      const hitsHouse = (p) => Math.abs(p.x - hx) < 26 + 16 + 8 && p.y - 28 < hy + 14 + 8 && p.y + 4 > hy - 60 - 8;   // 🆕 10/11 창4 01:40 △(375 나무 1 이 집 왼쪽 위 모서리에 맞닿음): 집 상자 = 그림 52 + 이름표(≈ hy-60 ~ hy+14) · 여유 8px
       const trees = [];
       for (const deg of TREE_ANGLES){
         let pick = null;
