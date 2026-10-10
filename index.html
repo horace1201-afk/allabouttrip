@@ -1147,8 +1147,20 @@ function drawPins(){
     if (S.city && cityProj){
       // 도시 보기: 집 한 채(도시 중심) + 이름표 + 나무 3(잔디 원 위 · 집 상자와 안 겹치는 것만) · 「← 나라 보기」(보완)
       const c = S.city, [hx, hy] = cityProj(c.at);
-      const trees = TREE_ANGLES.map(deg => { const a = deg * Math.PI / 180, r = CITY_GRASS_DEG * 0.62; const at = [c.at[0] + r * Math.sin(a) / Math.cos(c.at[1] * Math.PI / 180), c.at[1] + r * Math.cos(a)]; const [x, y] = cityProj(at); return { x, y }; })
-        .filter(p => !(Math.abs(p.x - hx) < 26 + 16 && p.y - 28 < hy + 10 && p.y + 4 > hy - 42) && inBox(p.x, p.y, 20));
+      // 🆕 10/11 모드니 01:05(Codex 00:32 ✗ 375 뉴욕 나무 3 중 2): 집·칸 밖·다른 나무와 겹치면 **빼지 않고** 잔디 안 다른 자리로 결정론 재배치(각도 ±30°·±60°·±90° · 반지름 0.62→0.78→0.45 순 · 크기·배치 규칙 그대로) → 늘 3그루
+      const spotOf = (deg, rf) => { const a = deg * Math.PI / 180, r = CITY_GRASS_DEG * rf; const at = [c.at[0] + r * Math.sin(a) / Math.cos(c.at[1] * Math.PI / 180), c.at[1] + r * Math.cos(a)]; const [x, y] = cityProj(at); return { x, y }; };
+      const hitsHouse = (p) => Math.abs(p.x - hx) < 26 + 16 && p.y - 28 < hy + 10 && p.y + 4 > hy - 42;
+      const trees = [];
+      for (const deg of TREE_ANGLES){
+        let pick = null;
+        outer: for (const rf of [0.62, 0.78, 0.45]) for (const dd of [0, 30, -30, 60, -60, 90, -90, 120, -120, 150, -150, 180]) {
+          const p = spotOf(deg + dd, rf);
+          if (!inBox(p.x, p.y, 20) || hitsHouse(p)) continue;
+          if (trees.some(t => Math.abs(t.x - p.x) < 30 && Math.abs(t.y - p.y) < 30)) continue;
+          pick = p; break outer;
+        }
+        trees.push(pick || spotOf(deg, 0.62));   // 자리가 정 없으면 원래 자리(겹침 허용 · 3그루 유지)
+      }
       box.innerHTML = `<button type="button" class="city-back" id="city-back" aria-label="나라 보기로 돌아가기">← 나라 보기</button>`
         + trees.map(p => `<img class="gtree" src="assets/home/tree.png" alt="" aria-hidden="true" style="left:${p.x}px;top:${p.y}px">`).join("")
         + `<button type="button" class="gpin city-home" data-pin-city="${esc(c.key)}" style="left:${hx}px;top:${hy}px" aria-label="${esc(c.name)}의 집 한 채 · ${esc(c.name)} 여행 ${c.n}개 보기"><img src="${esc(HOUSE_URI)}" alt=""><span>${esc(c.name)}</span></button>`;
