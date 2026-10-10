@@ -301,7 +301,7 @@ img{max-width:100%}
 .up-band-wrap{border-bottom:1px solid var(--line);background:var(--panel)}
 .up-band{display:flex;align-items:center;gap:10px;min-height:48px;text-decoration:none;color:var(--ink);font-size:15px;font-weight:500}
 .up-band b{color:var(--green);font-weight:600}
-.up-band .go{margin-left:auto;color:var(--green);font-weight:600}
+.up-band .up-go{margin-left:auto;align-self:center;color:var(--green);font-weight:600;white-space:nowrap}   /* 10/10 창4 덤: 찾기 단추 .go(높이 56)와 이름이 겹쳐 오른쪽 위로 붙던 것 → 따로 이름 · 한 줄 세로 가운데 */
 #myworld .myworld-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:20px}
 #myworld-globe-slot:empty{display:none}
 @media (min-width:1450px){.wrap{max-width:1376px}}
@@ -880,7 +880,7 @@ function renderBand(){
   wrap.hidden = !up;
   if (!up){ a.innerHTML = ""; return; }
   a.href = WEB_APP_URL + "/mytrips?openTripId=" + encodeURIComponent(up.id);
-  a.innerHTML = `<b>${esc(up.st)}</b><span>${esc(up.title)}</span><span class="go">열기 →</span>`;
+  a.innerHTML = `<b>${esc(up.st)}</b><span>${esc(up.title)}</span><span class="up-go">열기 →</span>`;
 }
 function renderContinue(){
   const slot = $("#continue-slot");
