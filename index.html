@@ -297,6 +297,13 @@ img{max-width:100%}
 /* 검토 메모(제품 화면 아님) */
 
 /* 폭 */
+/* 🆕 10/10 창2 (모드니 08:35·08:36 영아 결정 · 대문 순서) — 뼈대만: ① 다가오는 여행 띠 · ④ my 월드 · 모바일 = 지구본을 my 월드 안으로(안 모양·색 = 지피 v2 시안 뒤) */
+.up-band-wrap{border-bottom:1px solid var(--line);background:var(--panel)}
+.up-band{display:flex;align-items:center;gap:10px;min-height:48px;text-decoration:none;color:var(--ink);font-size:15px;font-weight:500}
+.up-band b{color:var(--green);font-weight:600}
+.up-band .go{margin-left:auto;color:var(--green);font-weight:600}
+#myworld .myworld-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:20px}
+#myworld-globe-slot:empty{display:none}
 @media (min-width:1450px){.wrap{max-width:1376px}}
 @media (max-width:1287px){
   .ways{display:none}
@@ -369,11 +376,14 @@ img{max-width:100%}
   </header>
 
   <main id="top">
+    <!-- ① 다가오는 여행 띠 한 줄(로그인 + 여행 있을 때만 · 「D-12 타이베이 → 열기」 · 영아 10/10 08:35) -->
+    <div class="up-band-wrap" id="up-band-wrap" hidden><div class="wrap"><a class="up-band" id="up-band" href="#"></a></div></div>
+    <!-- ② 어디로 떠나고 싶어요? — PC = 검색 + 지구본 · 모바일 = 검색(대화창)만 · 지구본은 ④ my 월드 안으로 -->
     <section class="hero">
       <div class="wrap hero-grid">
         <div class="search-col">
           <p class="modni-line"><i class="face" aria-hidden="true"></i><span id="modni-line-t">모든이의 꿈을 위해 제가 있어요</span></p>
-          <label class="h-title" for="q">어디로 갈까요?</label>
+          <label class="h-title" for="q">어디로 떠나고 싶어요?</label>
           <p class="h-sub" id="q-help">도시 하나만 적어도 괜찮아요. 일정·예약부터 여행 중 길잡이까지 모드니가 이어 드려요.</p>
           <form class="search" id="search-form" role="search" aria-label="여행지 찾기">
             <div class="searchbox">
@@ -392,7 +402,6 @@ img{max-width:100%}
             <button type="button" class="chip" data-example="런던 혼자 5박">런던 혼자 5박</button>
           </div>
           <div id="answer-slot"></div>
-          <div id="continue-slot"></div>
           <p class="store"><span id="store-lbl">앱</span> <a data-store="play" href="#app">Google Play <span>곧 출시</span></a> · <a data-store="appstore" href="#app">App Store <span>준비 중</span></a></p>
           <ul class="ways" id="ways" aria-label="이렇게 시작해요">
             <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg><span><b>도시만 적어도</b> 모드니가 일정부터 그려요</span></li>
@@ -431,14 +440,14 @@ img{max-width:100%}
       <div class="wrap">
         <div class="sec-head">
           <div>
-            <h2 id="market-h">코스 구경하기</h2>
-            <p class="sec-sub" id="market-sub">여행자와 모드니가 만든 일정이에요. 날짜·인원만 바꿔 그대로 담을 수 있어요.</p>
+            <h2 id="market-h">모드니픽</h2>
+            <p class="sec-sub" id="market-sub">모드니가 준비해 둔 코스예요. 날짜·인원만 바꿔 그대로 담을 수 있어요.</p>
           </div>
           <a class="more" id="market-more" href="https://plan.allabouttrip.app/market">전체 코스 보기 ›</a>
         </div>
         <div class="filters" role="group" aria-label="코스 거르기">
-          <button type="button" class="fchip" data-filter="all" aria-pressed="true">전체</button>
-          <button type="button" class="fchip" data-filter="modni" aria-pressed="false">모드니</button>
+          <button type="button" class="fchip" data-filter="all" aria-pressed="false">전체</button>
+          <button type="button" class="fchip" data-filter="modni" aria-pressed="true">모드니</button>
           <button type="button" class="fchip" data-filter="short" aria-pressed="false">짧은 여행 · 5박까지</button>
           <button type="button" class="fchip" data-filter="long" aria-pressed="false">긴 여행 · 8박부터</button>
           <label class="sort"><span id="sort-lbl">정렬</span>
@@ -454,6 +463,21 @@ img{max-width:100%}
       </div>
     </section>
 
+    <!-- ④ my 월드 — 내 여행(이어서 할 여행) · 모바일은 지구본도 여기(JS 가 폭 따라 옮김 · 지구본 한 벌) -->
+    <section class="section" id="myworld" aria-labelledby="myworld-h">
+      <div class="wrap">
+        <div class="sec-head"><div>
+          <h2 id="myworld-h">my 월드</h2>
+          <p class="sec-sub" id="myworld-sub">내가 세운 여행과 다녀온 곳이 지구본에 쌓여요.</p>
+        </div></div>
+        <div class="myworld-grid">
+          <div id="myworld-globe-slot"></div>
+          <div id="continue-slot"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ⑤ 부가 설명(도슨트·여행 일기·추억영상 · 앱 안내) — 맨 아래 -->
     <section class="section" id="features" aria-labelledby="feat-h">
       <div class="wrap">
         <div class="sec-head"><div>
@@ -700,7 +724,7 @@ const HG_DOCENT = { city: "마카오", title: "마카오 퀴즈", lat: 22.1987, 
 /* ── 상태 ── */
 let currentUser = null;
 let courses = [];
-const S = { auth: "guest", tripsLoad: "ok", tab: "market", tabTouched: false, load: "loading", answer: null, removed: new Set(), open: {}, openK: {}, info: false, rot: [-131, -31, 0], zoom: 1, filter: "all", sort: "saves", hitK: null };
+const S = { auth: "guest", tripsLoad: "ok", tab: "market", tabTouched: false, load: "loading", answer: null, removed: new Set(), open: {}, openK: {}, info: false, rot: [-131, -31, 0], zoom: 1, filter: "modni", sort: "saves", hitK: null };
 let MY = [];            // 내 여행 [{ id, title, g, k, at, st, sub, act, visited, upcoming, planning }]
 let PINS = [], MODNI_PINS = [], TREE_ALL = [], TREE_MODNI = [], CITY_DICT = [];
 let lastFocus = null;
@@ -810,7 +834,7 @@ function interpret(q){
 }
 
 /* ── 그리기 ── */
-function renderAll(){ renderHeader(); renderSearch(); renderContinue(); renderTabs(); layoutGlobe(); renderSide(); renderStatus(); renderCards(); renderPopular(); }
+function renderAll(){ renderHeader(); renderBand(); renderSearch(); renderContinue(); renderTabs(); layoutGlobe(); renderSide(); renderStatus(); renderCards(); renderPopular(); }
 function userName(){ const m = currentUser && currentUser.user_metadata || {}; return m.full_name || m.name || ((currentUser && currentUser.email) || "").split("@")[0]; }
 function renderHeader(){
   const member = !!currentUser;
@@ -850,10 +874,19 @@ function renderSearch(){
     </div></section>`;
   paintFaces(slot);
 }
+/** ① 다가오는 여행 띠 — 로그인 + 다가오는 여행 있을 때만(없으면 띠 ✗ · 영아 10/10 08:35) */
+function renderBand(){
+  const wrap = $("#up-band-wrap"), a = $("#up-band"), up = currentUser && S.tripsLoad === "ok" ? MY.find(t => t.upcoming) : null;
+  wrap.hidden = !up;
+  if (!up){ a.innerHTML = ""; return; }
+  a.href = WEB_APP_URL + "/mytrips?openTripId=" + encodeURIComponent(up.id);
+  a.innerHTML = `<b>${esc(up.st)}</b><span>${esc(up.title)}</span><span class="go">열기 →</span>`;
+}
 function renderContinue(){
   const slot = $("#continue-slot");
   $("#ways").hidden = !(!currentUser && !S.answer);
-  if (!currentUser || S.answer){ slot.innerHTML = ""; return; }
+  // ④ my 월드 칸 — 게스트 = 로그인 안내(지구본 「내 지구본」 칸과 같은 말)
+  if (!currentUser){ slot.innerHTML = `<div class="side-empty"><b>로그인하면 my 월드가 보여요</b><span>계획한 도시에 집이 생기고, 다녀오면 자라요.</span></div><button type="button" class="secondary" data-act="login">로그인</button>`; return; }
   if (S.tripsLoad === "loading"){ slot.innerHTML = ""; return; }
   // 🔴 지피 ✗(10/9 22:18): 저장본 오류 ≠ 여행 없음 — 못 읽었으면 「없어요」 ✗ · 다시 시도
   if (S.tripsLoad === "error"){
@@ -1186,6 +1219,16 @@ function submitSearch(){
 $("#search-form").addEventListener("submit", (e) => { e.preventDefault(); submitSearch(); });
 $("#q").addEventListener("input", () => { $("#q-clear").hidden = !$("#q").value; });
 $("#sort").addEventListener("change", (e) => { S.sort = e.target.value; renderCards(); });
+/* 🆕 10/10 영아 08:36: 모바일(<840) = 지구본을 ④ my 월드 안으로 · PC = ② 자리(검색 옆) — 지구본 한 벌을 옮김 */
+const MQ_MOBILE = window.matchMedia("(max-width:839px)");
+function placeGlobe(){
+  const area = $(".globe-area"), slot = $("#myworld-globe-slot"), grid = $(".hero-grid");
+  if (!area || !slot || !grid) return;
+  const want = MQ_MOBILE.matches ? slot : grid;
+  if (area.parentElement !== want){ want.appendChild(area); if (MQ_MOBILE.matches && !S.tabTouched && currentUser) S.tab = "mine"; }
+  layoutGlobe(); layoutListHeight(); renderTabs(); renderSide(); renderStatus();
+}
+if (MQ_MOBILE.addEventListener) MQ_MOBILE.addEventListener("change", placeGlobe); else MQ_MOBILE.addListener(placeGlobe);
 let rT = null; window.addEventListener("resize", () => { clearTimeout(rT); rT = setTimeout(() => { layoutGlobe(); layoutListHeight(); }, 80); });
 
 /* ── 내 여행(로그인) — 지구본 집 · 「이어서 할 여행」 · 옆 목록 ── */
@@ -1269,8 +1312,10 @@ const EN_TEXTS = [
 ],
 [
 ".h-title",
-"Where to?"
+"Where would you like to go?"
 ],
+["#myworld-h", "My world"],
+["#myworld-sub", "The trips you plan and the places you visit build up on your globe."],
 [
 "#q-help",
 "Even one city is enough. Modni carries you from itinerary and bookings to on-the-road guidance."
@@ -1313,11 +1358,11 @@ const EN_TEXTS = [
 ],
 [
 "#market-h",
-"Browse courses"
+"Modni picks"
 ],
 [
 "#market-sub",
-"Itineraries made by travelers and Modni. Change only the dates and party and take them as they are."
+"Courses Modni has prepared. Change only the dates and party and take them as they are."
 ],
 [
 "#market-more",
@@ -1500,6 +1545,7 @@ $$("#drawer .dmenu button.dw-item").forEach(b => b.addEventListener("click", () 
 
 paintFaces();
 applyStoreLinks("ko");
+placeGlobe();
 boot();
 </script>
 <!-- 호텔 예약 국외이전 고지 모달 (2026-07-18 신설 · 2026-08-23 스크롤 게이트 개정 — 대륙아주 최종의견서 Q10 권고) -->
