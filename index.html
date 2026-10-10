@@ -46,7 +46,7 @@
 <style>
 
 /* 🎨 대문 v1 꾸밈 토큰(10/10 창2 · 모드니 07:3x 「구조·칸·흐름 먼저 · 색·마커·질감은 변수로」) — 지피 v1b(색·마커·옆 목록 꾸밈)는 아래 :root 값만 덮어쓰면 된다 · 핀 크기·묶음 거리·집 그림도 여기(--pin-* · --house-*) · 화면 구조(칸·흐름)는 그대로 */
-:root{--bg:#faf8f5;--ink:#292724;--sub:#706b65;--green:#286044;--green-h:#21523a;--line:#e8e3dc;--orange:#d96332;--soft:#f3f6f2;--panel:#fff;--subtle:#f2eee8;--land:#e9efdf;--sea:#d9e9e5;--warn-t:#79570d;--warn-b:#fbf2da;--err-t:#8e302f;--err-b:#fbedeb;--on-primary:#fff;--focus:#89ad99;--line-strong:#c9c2b8;--green-line:#9fb5a7;--green-line-soft:#c7d6cb;--green-hover:#e3ece5;--placeholder:#8f8a84;--chev:#a39d96;--skel:#ece7df;--skel-card:#f1ece5;--header-bg:rgba(250,248,245,.92);--glass:rgba(255,255,255,.94);--scrim:rgba(41,39,36,.32);--shadow-pop:0 16px 48px rgba(32,61,45,.16);--globe-border:#fff;--globe-hover:#dfe8d2;--globe-shade-hi:#fff;--globe-shade-edge:#4d6b5c;--pin-bg:#fff;--pin-ring-w:2.5;--pin-plan:#9a958e;--pin-more-bg:#fff;--pin-more-line:#cfc8bf;--pin-more-text:#4a4642;--pin-r:15;--pin-r-sm:11;--pin-merge:56;--pin-merge-sm:34;--house-size:46;--house-url:"assets/home/house.svg"}
+:root{--bg:#faf8f5;--ink:#292724;--sub:#706b65;--green:#286044;--green-h:#21523a;--line:#e8e3dc;--orange:#d96332;--soft:#f3f6f2;--panel:#fff;--subtle:#f2eee8;--land:#E9EEDB;--sea:#91B6A4;--sea-0:#C9DCD0;--sea-1:#91B6A4;--sea-2:#456F60;--warn-t:#79570d;--warn-b:#fbf2da;--err-t:#8e302f;--err-b:#fbedeb;--on-primary:#fff;--focus:#89ad99;--line-strong:#c9c2b8;--green-line:#9fb5a7;--green-line-soft:#c7d6cb;--green-hover:#e3ece5;--placeholder:#8f8a84;--chev:#a39d96;--skel:#ece7df;--skel-card:#f1ece5;--header-bg:rgba(250,248,245,.92);--glass:rgba(255,255,255,.94);--scrim:rgba(41,39,36,.32);--shadow-pop:0 16px 48px rgba(32,61,45,.16);--globe-border:#829F89;--globe-hover:#dfe8d2;--globe-shade-hi:#FFFFFF;--globe-shade-edge:#173C2D;--pin-bg:#fff;--pin-ring-w:2.5;--pin-plan:#9a958e;--pin-more-bg:#fff;--pin-more-line:#cfc8bf;--pin-more-text:#4a4642;--pin-r:15;--pin-r-sm:11;--pin-merge:56;--pin-merge-sm:34;--house-size:46;--house-url:"assets/home/house.svg"}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Apple SD Gothic Neo','Noto Sans KR',sans-serif;font-size:16px;line-height:26px;word-break:keep-all;overflow-wrap:break-word;font-synthesis:none}
@@ -124,7 +124,7 @@ img{max-width:100%}
 /* 지구본 — 확정 모양(10/4) : 지름 561 · 칸 줄 가운데 · ⓘ·목록 = 바깥 오른쪽 · 배경 없음 */
 .sphere{fill:var(--sea)}
 .land{fill:var(--land)}
-.borders{fill:none;stroke:var(--globe-border);stroke-width:.7}
+.borders{fill:none;stroke:var(--globe-border);stroke-width:.45}
 .c-hover{fill:var(--globe-hover)}
 .shade{pointer-events:none}
 .ctip{position:absolute;pointer-events:none;font-size:13px;line-height:19px;color:var(--sub);background:rgba(255,255,255,.9);border-radius:6px;padding:1px 6px;white-space:nowrap;transform:translate(-50%,-140%)}
@@ -345,9 +345,8 @@ img{max-width:100%}
   #home4 .chat-bubble strong{display:block;margin-bottom:6px;font-size:18px;line-height:26px;font-weight:500;letter-spacing:-.5px}
   #home4 .chat-bubble span{font-size:13px;line-height:20px;color:var(--sub)}
   #home4 .search4{padding:10px 6px 6px 12px;border-radius:15px}
-  #home4 .search-row input::placeholder{font-size:12px}
   #home4 .go4{padding:0 12px}
-  #home4 .examples .chip{min-height:40px;padding:0 8px;font-size:11px}
+  #home4 .examples .chip{min-height:40px;padding:0 10px;font-size:12px}
   #home4 .tabs{gap:22px}
   #home4 .country-list{grid-template-columns:minmax(0,1fr)}
   #home4 .course-grid{grid-template-columns:minmax(0,1fr);gap:9px}
@@ -357,7 +356,6 @@ img{max-width:100%}
   #home4 .course-grid > li:nth-child(n+5){display:none}
   #home4 .picks-heading{display:block}
   #home4 .picks-note{margin-top:4px}
-  #home4 .world-summary{display:none}
   #home4 .my-world{margin-top:24px;padding-top:16px}
   #home4 .feature-grid{grid-template-columns:minmax(0,1fr);gap:24px}
   #home4 .diary-feature{max-width:none}
@@ -376,6 +374,70 @@ img{max-width:100%}
 @media (max-width:359px){.wrap{padding:0 16px}.brand{font-size:15px}}
 @media (max-width:1023px){.wrap{padding:0 24px}}
 @media (max-width:699px){.wrap{padding:0 20px}}
+/* 🆕 대문 v4.1(영아 10/10 16:44 「목업과 달라」 · 지피 v5 보강 지시서 A~K · 목업 VIS/home-structure-v5.html SHA256 052007B4…CC79) — v4 규칙 위에 덮음 */
+#home4 .page{max-width:1380px;padding:22px 34px 32px}
+#home4 .hero4{grid-template-columns:minmax(0,.92fr) minmax(0,1.22fr);gap:48px;align-items:center}
+#home4 .intro{padding:38px 0 24px;align-self:center}
+/* G: 두 줄 입력 */
+#home4 .search-row{align-items:flex-end}
+#home4 .search-row textarea{flex:1;width:0;min-width:0;min-height:44px;resize:none;border:0;outline:0;background:transparent;padding:8px 0;font:inherit;font-size:16px;line-height:1.55;color:var(--ink)}
+#home4 .search-row textarea::placeholder{font-size:13px;line-height:1.55;color:#767f75}
+/* A: 다가오는 여행 카드(입력 아래 · PC 폭 = 왼쪽 입력 폭) */
+#home4 .resume4{display:flex;gap:18px;align-items:center;margin:24px 0 0;padding:17px 18px;border:1px solid #dce6db;border-radius:14px;background:#f0f4eb}
+#home4 .resume-copy{flex:1;min-width:0}
+#home4 .resume4 small{display:flex;gap:12px;margin-bottom:5px;font-size:12px;line-height:18px;color:#285B46}
+#home4 .resume4 small .dd{font-variant-numeric:tabular-nums}
+#home4 .resume4 strong{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:14px;font-weight:500;line-height:1.6;word-break:keep-all}
+#home4 .resume4 p{margin:4px 0 0;font-size:12px;line-height:18px;color:var(--sub)}
+#home4 .resume4 .up-open{flex:none;display:inline-flex;align-items:center;min-height:44px;font-size:12px;font-weight:500;color:#285B46;text-decoration:none}
+/* B·C: 지구본 칸 최대 610 × 610 · 확대 단추 */
+#home4 .globe-box{max-width:610px;aspect-ratio:1;margin:4px auto 0;overflow:hidden;min-height:0}
+#home4 .zoom-tools{position:absolute;right:10px;bottom:10px;display:flex;align-items:center;gap:3px;padding:3px;border-radius:25px;background:var(--panel);box-shadow:0 3px 13px #285b4618}
+#home4 .zoom-tools button{min-width:40px;min-height:40px;padding:0;border:0;border-radius:50%;background:none;font-size:20px;font-weight:400;line-height:1;color:#285B46;cursor:pointer}
+#home4 .zoom-tools button:disabled{opacity:.3;cursor:default}
+#home4 .zoom-level{min-width:40px;text-align:center;font-size:11px;line-height:16px;color:var(--sub);font-variant-numeric:tabular-nums;white-space:nowrap}
+/* J: 얼굴 = 승인 원본(modni-a.png) · 172% 자르기 · contrast 1.5 saturate 1.2 · ±.25px 선 */
+.face-shell{position:relative;display:inline-block;flex:none;width:var(--face-size,28px);height:var(--face-size,28px);overflow:hidden}
+.face-shell img{position:absolute;left:50%;top:50%;width:172%;height:172%;max-width:none;transform:translate(-50%,-50%);object-fit:contain;filter:contrast(1.5) saturate(1.2) drop-shadow(.25px 0 0 #e86636) drop-shadow(-.25px 0 0 #e86636)}
+.brand .face-shell{--face-size:28px}
+#home4 .chat-face{--face-size:28px;margin-top:12px}
+#home4 .pin4 .pin-face{border-radius:50%;background:#fffdf9;box-shadow:0 3px 12px #274f3b22;transition:transform .15s}
+#home4 .pin4:hover .pin-face,#home4 .pin4:focus-visible .pin-face{transform:scale(1.07)}
+#home4 .pin4.selected .pin-face{outline:3px solid #ffffffb0;outline-offset:3px}
+/* K: 내 여행 = 도시당 한 집 + 잔디 터 */
+#home4 .house-pin{position:absolute;transform:translate(-50%,-50%);min-width:72px;min-height:72px;padding:0;border:0;background:none;pointer-events:auto;cursor:pointer}
+#home4 .house-pin::before{content:'';position:absolute;left:3px;right:3px;bottom:1px;height:26px;border-radius:50%;background:#9bad74;box-shadow:0 3px 9px #274f3b22}
+#home4 .house-pin img{position:relative;display:block;width:72px;height:72px;object-fit:contain}
+/* D·E: 대륙 탭 7 · 목록 3열 ≤240 · 간격 28 · 더보기/접기 */
+#home4 .discovery{margin-top:18px;padding-bottom:10px}
+#home4 .regions{gap:2px 22px}
+#home4 .country-list{grid-template-columns:repeat(3,minmax(0,240px));gap:12px 28px;min-height:54px}
+#home4 .region-more{display:block;min-height:44px;margin-top:2px;padding:6px 0;border:0;background:none;font-size:12px;font-weight:500;color:#285B46;cursor:pointer}
+/* F: my 월드 머리 = 제목 · 오른쪽 「내 여행 지구본 →」 / 설명 2줄 · 오른쪽 「나의 여행 펼치기 →」 */
+#home4 .my-world .section-head{align-items:center}
+#home4 .my-world .section-head .more,#home4 .world-summary .more{min-height:44px;border:0;background:none;padding:0;font-size:12px;font-weight:500;color:#285B46;cursor:pointer;white-space:nowrap}
+#home4 .world-summary{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:0 0 14px}
+#home4 .world-summary p{margin:0;font-size:13px;line-height:1.65;color:var(--sub)}
+@container home4 (min-width:621px) and (max-width:850px){
+  #home4 .hero4{gap:24px;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr)}
+  #home4 .intro{padding-top:20px}
+  #home4 .resume4{padding:13px 14px;gap:8px}
+  #home4 .resume4 strong{font-size:13px}
+  #home4 .regions{gap:1px 16px}
+}
+@container home4 (max-width:620px){
+  #home4 .page{padding:16px 20px 24px}
+  #home4 .resume4{margin-top:18px;padding:14px;gap:10px}
+  #home4 .resume4 strong{font-size:13px}
+  #home4 .globe-box{max-width:100%}
+  #home4 .discovery{margin-top:14px}
+  #home4 .country-list{grid-template-columns:minmax(0,1fr);gap:10px}
+  #home4 .world-summary{gap:12px;align-items:flex-start}
+  #home4 .zoom-tools{right:3px;bottom:3px}
+  #home4 .regions{gap:1px 14px}
+  #home4 .zoom-tools button{min-width:44px;min-height:44px}
+}
+@media (pointer:coarse){#home4 .zoom-tools button{min-width:44px;min-height:44px}}
 </style>
 </head>
 <body>
@@ -385,7 +447,7 @@ img{max-width:100%}
       <button type="button" class="icon-btn" id="menu-btn" aria-label="메뉴 열기" aria-haspopup="dialog">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
       </button>
-      <a class="brand" href="#top" aria-label="모드니 대문 맨 위로"><i class="face" aria-hidden="true"></i><span class="word">여행의 모든것</span></a>
+      <a class="brand" href="#top" aria-label="모드니 대문 맨 위로"><span class="face-shell brand-face" aria-hidden="true"><img src="assets/home/modni-a.png" alt=""></span><span class="word">여행의 모든것</span></a>
       <nav class="nav" aria-label="주 메뉴">
         <a id="nav-market" href="https://plan.allabouttrip.app/market">여행 찾기</a>
         <a id="nav-trips" href="#">내 여행</a>
@@ -401,18 +463,17 @@ img{max-width:100%}
 
   <main id="top">
     <!-- ① 다가오는 여행 띠 한 줄(로그인 + 여행 있을 때만 · 「D-12 타이베이 → 열기」 · 영아 10/10 08:35) -->
-    <div class="up-band-wrap" id="up-band-wrap" hidden><div class="wrap"><a class="up-band" id="up-band" href="#"></a></div></div>
     <!-- 🆕 대문 v4(영아 10/10 14:5x 승인 · 창2) — 폭 기준 = 이 칸(#home4)의 CSS 폭 · 620 이하 = 지구본·지역 목록이 my 월드 안으로(JS 가 한 벌을 옮김) -->
     <div id="home4"><div class="page">
       <div class="hero4" id="hero4">
         <section class="intro" aria-labelledby="h-title">
           <p class="eyebrow" id="eyebrow">계획은 크게, 여행은 가볍게</p>
           <h1 class="h-title" id="h-title">어디로 떠나고 싶어요?</h1>
-          <div class="mobile-chat"><i class="face" aria-hidden="true"></i><div class="chat-bubble"><strong id="chat-q">어디로 가고 싶어요?</strong><span id="chat-sub">도시만 적어도 괜찮아요. 원하는 여행을 함께 찾아봐요.</span></div></div>
+          <div class="mobile-chat"><span class="face-shell chat-face" aria-hidden="true"><img src="assets/home/modni-a.png" alt=""></span><div class="chat-bubble"><strong id="chat-q">어디로 떠나고 싶어요?</strong><span id="chat-sub">도시만 적어도 괜찮아요. 원하는 여행을 함께 찾아봐요.</span></div></div>
           <form class="search4" id="search-form" role="search" aria-labelledby="q-label">
             <label class="input-label" for="q" id="q-label">모드니와 여행 만들기</label>
             <div class="search-row">
-              <input id="q" name="q" type="search" autocomplete="off" placeholder="예: 스페인 10박, 여유롭게">
+              <textarea id="q" name="q" rows="2" autocomplete="off" enterkeyhint="go" placeholder="내년 5월에 친구들과 총 네명이서 남프랑스 렌터카 자유롭게"></textarea>
               <button type="button" class="icon-btn" id="q-clear" aria-label="입력 지우기" hidden>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
               </button>
@@ -420,10 +481,11 @@ img{max-width:100%}
             </div>
           </form>
           <div class="examples" id="examples" aria-label="여행 입력 예시">
-            <button type="button" class="chip" data-example="스페인 10박">스페인 10박</button>
+            <button type="button" class="chip" data-example="내년 5월에 친구들과 총 네명이서 남프랑스 렌터카 자유롭게">남프랑스 친구들과 렌터카</button>
             <button type="button" class="chip" data-example="부모님과 교토 3박">부모님과 교토 3박</button>
-            <button type="button" class="chip" data-example="아직 고민 중">아직 고민 중</button>
           </div>
+          <!-- 🆕 v4.1 A: 다가오는 여행 = 입력·예시 아래 카드 하나(손님·여행 없음 = 숨김 · 실제 여행 조회·열기 길) -->
+          <section class="resume4" id="up-card" aria-label="다가오는 여행" hidden><div class="resume-copy"><small><span id="up-k">다가오는 여행</span><span class="dd" id="up-dday"></span></small><strong id="up-title"></strong><p id="up-sub"></p></div><a class="up-open" id="up-open" href="#" aria-label="다가오는 여행 일정 열기">열기 →</a></section>
           <div id="answer-slot"></div>
         </section>
         <section class="explorer" id="explorer" aria-label="지구본으로 여행 찾기">
@@ -438,6 +500,7 @@ img{max-width:100%}
             <div class="pins4" id="pins4"></div>
             <div class="ctip" id="ctip" hidden></div>
             <div class="globe-loading" id="globe-loading">지구본을 불러오는 중이에요</div>
+            <div class="zoom-tools" role="group" aria-label="지구본 확대"><button type="button" data-zoom="out" aria-label="지구본 축소" disabled>−</button><output class="zoom-level" id="zoom-level" aria-live="polite">100%</output><button type="button" data-zoom="in" aria-label="지구본 확대">＋</button></div>
           </div>
           <div class="my-empty" id="my-empty" hidden></div>
         </section>
@@ -445,6 +508,7 @@ img{max-width:100%}
       <section class="discovery" id="discovery" aria-label="대륙별 여행">
         <div class="regions" id="regions" role="group" aria-label="대륙 고르기"></div>
         <div class="country-list" id="country-list" aria-live="polite"></div>
+        <button type="button" class="region-more" id="region-more" aria-expanded="false" aria-controls="country-list" hidden></button>
       </section>
 
       <section class="courses4" id="market" aria-labelledby="market-h">
@@ -453,13 +517,13 @@ img{max-width:100%}
           <a class="more" id="market-more" href="https://plan.allabouttrip.app/market">추천 코스 모두 보기 →</a>
         </div>
         <ul class="course-grid" id="cards" aria-live="polite"></ul>
-        <p class="notice-line" id="mktNotice">마켓의 코스는 여행자가 직접 만들어 올린 일정이에요 · (주)하우스두둥은 내용의 정확성·안전을 보증하지 않아요 · 떠나기 전 운영시간·현지 사정을 꼭 확인하세요. 코스 소개 글 일부는 AI가 정리했어요 · 정확한 내용은 직접 확인해 주세요.</p>
+        <p class="notice-line" id="mktNotice">여행자 코스는 여행자가 직접 만들어 올린 일정이에요 · (주)하우스두둥은 내용의 정확성·안전을 보증하지 않아요 · 떠나기 전 운영시간·현지 사정을 꼭 확인하세요. 코스 소개 글 일부는 AI가 정리했어요 · 정확한 내용은 직접 확인해 주세요.</p>
       </section>
 
       <!-- ④ my 월드 — 이어서 할 여행 · 추천코드(로그인 뒤) · 620 이하 = 지구본·지역 목록도 여기 -->
       <section class="my-world" id="myworld" aria-labelledby="myworld-h">
-        <div class="section-head"><h2 id="myworld-h">my 월드</h2></div>
-        <p class="world-summary" id="myworld-sub">다녀온 곳도, 가고 싶은 곳도. 나의 여행이 지구 위에 차곡차곡 쌓여요.</p>
+        <div class="section-head"><h2 id="myworld-h">my 월드</h2><button type="button" class="more" data-act="world-globe" id="world-globe-btn">내 여행 지구본 →</button></div>
+        <div class="world-summary"><p id="myworld-sub">다녀온 곳도, 가고 싶은 곳도.<br>나의 여행이 지구 위에 차곡차곡 쌓여요.</p><button type="button" class="more" data-act="world-list" id="world-list-btn">나의 여행 펼치기 →</button></div>
         <div class="world-slot" id="world-slot"></div>
         <div id="continue-slot"></div>
         <div class="referral" id="referral">
@@ -559,7 +623,7 @@ img{max-width:100%}
 
 <div class="drawer-wrap" id="drawer" hidden>
   <div class="drawer" role="dialog" aria-modal="true" aria-label="메뉴">
-    <div class="drawer-top"><a class="brand" href="#top" data-close><i class="face" aria-hidden="true"></i><span class="word">여행의 모든것</span></a><button type="button" class="icon-btn" data-close aria-label="메뉴 닫기"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <div class="drawer-top"><a class="brand" href="#top" data-close><span class="face-shell brand-face" aria-hidden="true"><img src="assets/home/modni-a.png" alt=""></span><span class="word">여행의 모든것</span></a><button type="button" class="icon-btn" data-close aria-label="메뉴 닫기"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
     <div class="acct" id="acct"></div>
     <ul class="dmenu">
       <li><a class="dw-item" id="dw-create" href="#">새 여행 만들기<span class="chev">›</span></a></li>
@@ -667,7 +731,8 @@ const MODNI_IMAGE = "assets/home/modni-a.png";   // 모드니 얼굴(승인 A) �
 const cssVar = (n, d) => { const v = getComputedStyle(document.documentElement).getPropertyValue(n).trim().replace(/^["']|["']$/g, ""); return v || d; };
 const cssNum = (n, d) => { const v = parseFloat(cssVar(n, "")); return Number.isFinite(v) ? v : d; };
 const THEME = { pinR: cssNum("--pin-r", 15), pinRsm: cssNum("--pin-r-sm", 11), merge: cssNum("--pin-merge", 56), mergeSm: cssNum("--pin-merge-sm", 34), house: cssNum("--house-size", 46),
-  shadeHi: cssVar("--globe-shade-hi", "#fff"), shadeEdge: cssVar("--globe-shade-edge", "#4d6b5c") };
+  shadeHi: cssVar("--globe-shade-hi", "#FFFFFF"), shadeEdge: cssVar("--globe-shade-edge", "#173C2D"),
+  sea0: cssVar("--sea-0", "#C9DCD0"), sea1: cssVar("--sea-1", "#91B6A4"), sea2: cssVar("--sea-2", "#456F60") };
 const HOUSE_URI = cssVar("--house-url", "assets/home/house.svg");   // 집 그림 = 파일 하나(바꾸려면 파일만 · 또는 --house-url)
 
 /* ── 이동(종전 목적지 그대로) ── */
@@ -714,7 +779,7 @@ const HG_DOCENT = { city: "마카오", title: "마카오 퀴즈", lat: 22.1987, 
 /* ── 상태 ── */
 let currentUser = null;
 let courses = [];
-const S = { auth: "guest", tripsLoad: "ok", tab: "modni", region: null, tabTouched: false, load: "loading", answer: null, removed: new Set(), open: {}, openK: {}, info: false, rot: [-131, -31, 0], zoom: 1, filter: "modni", sort: "saves", hitK: null };
+const S = { auth: "guest", tripsLoad: "ok", tab: "modni", region: null, expanded: false, tabTouched: false, load: "loading", answer: null, removed: new Set(), open: {}, openK: {}, info: false, rot: [-18, -17, 0], zoom: 1, filter: "modni", sort: "saves", hitK: null };
 let MY = [];            // 내 여행 [{ id, title, g, k, at, st, sub, act, visited, upcoming, planning }]
 let PINS = [], MODNI_PINS = [], TREE_ALL = [], TREE_MODNI = [], CITY_DICT = [];
 let lastFocus = null;
@@ -864,11 +929,12 @@ function renderSearch(){
 }
 /** ① 다가오는 여행 띠 — 로그인 + 다가오는 여행 있을 때만(없으면 띠 ✗ · 영아 10/10 08:35) */
 function renderBand(){
-  const wrap = $("#up-band-wrap"), a = $("#up-band"), up = currentUser && S.tripsLoad === "ok" ? MY.find(t => t.upcoming) : null;
-  wrap.hidden = !up;
-  if (!up){ a.innerHTML = ""; return; }
-  a.href = WEB_APP_URL + "/mytrips?openTripId=" + encodeURIComponent(up.id);
-  a.innerHTML = `<b>${esc(up.st)}</b><span>${esc(up.title)}</span><span class="up-go">열기 →</span>`;
+  // 🆕 v4.1 A: 입력 아래 카드 — D-day · 전체 여행명(2줄) · 출발일·박수 · 「열기 →」(종전 openTripId 길 그대로)
+  const card = $("#up-card"), up = currentUser && S.tripsLoad === "ok" ? MY.find(t => t.upcoming) : null;
+  card.hidden = !up;
+  if (!up) return;
+  $("#up-dday").textContent = up.st; $("#up-title").textContent = up.title; $("#up-sub").textContent = up.sub;
+  $("#up-open").href = WEB_APP_URL + "/mytrips?openTripId=" + encodeURIComponent(up.id);
 }
 function renderContinue(){
   const slot = $("#continue-slot");
@@ -912,7 +978,7 @@ const REGIONS = [
   { id: "eu", name: "유럽", en: "Europe", groups: ["유럽"], at: [14, 47] },
   { id: "ea", name: "동아시아", en: "East Asia", groups: ["국내", "일본", "동북아"], at: [128, 35] },
   { id: "sea", name: "동남아", en: "Southeast Asia", groups: ["동남아"], at: [106, 12] },
-  { id: "sa", name: "남·중앙아", en: "South & Central Asia", groups: ["남·중앙아"], at: [74, 28] },
+  { id: "sa", name: "남·중앙아시아", en: "South & Central Asia", groups: ["남·중앙아"], at: [74, 26] },
   { id: "mea", name: "중동·아프리카", en: "Middle East & Africa", groups: ["중동·아프리카"], at: [36, 18] },
   { id: "oc", name: "오세아니아", en: "Oceania", groups: ["오세아니아"], at: [146, -28] },
   { id: "am", name: "미주", en: "Americas", groups: ["미주"], at: [-96, 32] },
@@ -926,102 +992,127 @@ const CAPTION = {
 const svg = d3.select("#globe");
 const defs = svg.append("defs");
 const clip = defs.append("clipPath").attr("id", "globe-clip").append("circle");
-const grad = defs.append("radialGradient").attr("id", "globe-shade").attr("cx", "36%").attr("cy", "30%").attr("r", "75%");
-grad.append("stop").attr("offset", "0%").attr("stop-color", THEME.shadeHi).attr("stop-opacity", 0.42);
-grad.append("stop").attr("offset", "62%").attr("stop-color", THEME.shadeHi).attr("stop-opacity", 0);
-grad.append("stop").attr("offset", "100%").attr("stop-color", THEME.shadeEdge).attr("stop-opacity", 0.1);
+/* 🆕 v4.1 I(지피 v5 지시서 · 목업 v5 색 그대로 · 비슷한 초록 ✗): 바다 = radialGradient cx31% cy24% r82% · 그늘 = cx28% cy24% r80% */
+const ocean = defs.append("radialGradient").attr("id", "globe-ocean").attr("cx", "31%").attr("cy", "24%").attr("r", "82%");
+ocean.append("stop").attr("offset", "0").attr("stop-color", THEME.sea0);
+ocean.append("stop").attr("offset", ".63").attr("stop-color", THEME.sea1);
+ocean.append("stop").attr("offset", "1").attr("stop-color", THEME.sea2);
+const grad = defs.append("radialGradient").attr("id", "globe-shade").attr("cx", "28%").attr("cy", "24%").attr("r", "80%");
+grad.append("stop").attr("offset", ".4").attr("stop-color", THEME.shadeHi).attr("stop-opacity", 0.02);
+grad.append("stop").attr("offset", "1").attr("stop-color", THEME.shadeEdge).attr("stop-opacity", 0.29);
 const gBase = svg.append("g").attr("clip-path", "url(#globe-clip)");
-const pSphere = gBase.append("path").attr("class", "sphere");
+const pSphere = gBase.append("path").attr("class", "sphere").attr("fill", "url(#globe-ocean)");
 const pLand = gBase.append("path").attr("class", "land");
 const pHover = gBase.append("path").attr("class", "c-hover");
 const pBorders = gBase.append("path").attr("class", "borders");
 const pShade = gBase.append("circle").attr("class", "shade").attr("fill", "url(#globe-shade)");
 const proj = d3.geoOrthographic().clipAngle(90).precision(0.5);
 const geoPath = d3.geoPath(proj);
-let GW = 470, GH = 379, GR = 172, GCX = 235, GCY = 186;
+/* 🆕 v4.1 B: 칸 최대 610×610 · aspect 1 · 구 지름 = 짧은 변 94%(r = .47 × min(W,H)) · C: 확대 100~240% 는 같은 projection 에 */
+let GW = 560, GH = 560, GR = 263, GCX = 280, GCY = 280;
+const ZOOM_MIN = 1, ZOOM_MAX = 2.4;
 function layoutGlobe(){
   const box = $("#globe-box"); if (!box) return;
-  GW = Math.max(200, Math.round(box.clientWidth)); GH = Math.max(160, Math.round(box.clientHeight));
-  GR = Math.min(GW * 0.455, GH * 0.46); GCX = GW / 2; GCY = GH * 0.49;
+  GW = Math.max(200, Math.round(box.clientWidth)); GH = Math.max(200, Math.round(box.clientHeight));
+  GCX = GW / 2; GCY = GH / 2;
   svg.attr("viewBox", `0 0 ${GW} ${GH}`);
-  clip.attr("cx", GCX).attr("cy", GCY).attr("r", GR - 0.5);
-  pShade.attr("cx", GCX).attr("cy", GCY).attr("r", GR);
   draw();
 }
 function draw(){
+  GR = Math.min(GW, GH) * 0.47 * S.zoom;
+  clip.attr("cx", GCX).attr("cy", GCY).attr("r", GR - 0.5);
+  pShade.attr("cx", GCX).attr("cy", GCY).attr("r", GR);
   proj.translate([GCX, GCY]).scale(GR - 1).rotate(S.rot);
   pSphere.attr("d", geoPath({ type: "Sphere" }));
   pLand.attr("d", LAND ? geoPath(LAND) : null);
   pBorders.attr("d", COUNTRIES ? geoPath(COUNTRIES) : null);
+  const lv = $("#zoom-level"); if (lv) lv.textContent = Math.round(S.zoom * 100) + "%";
+  const zo = $('[data-zoom="out"]'), zi = $('[data-zoom="in"]');
+  if (zo) zo.disabled = S.zoom <= ZOOM_MIN + 1e-6; if (zi) zi.disabled = S.zoom >= ZOOM_MAX - 1e-6;
   drawPins();
 }
+function setZoom(z){ const v = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, Math.round(z * 100) / 100)); if (v === S.zoom) return false; S.zoom = v; draw(); return true; }
 const visible = (at) => d3.geoDistance(at, [-S.rot[0], -S.rot[1]]) < Math.PI / 2 - 0.08;
+const inBox = (x, y, m) => x >= m && x <= GW - m && y >= m && y <= GH - m;   // 확대하면 구가 칸 밖으로 나감 — 칸 안 핀만
 /** 이 탭에 보일 것 = [{ id(코스/여행), label, region, country, city, at, trip? }] — 탭마다 따로(목업 예시 목록 복제 ✗) */
 function tabItems(){
   if (S.tab === "mine"){
     if (!currentUser || S.tripsLoad !== "ok") return [];
-    return MY.map(t => ({ trip: t.id, label: `${t.title} · ${t.st}`, region: REGION_OF_GROUP[t.g] || "mea", country: t.country || t.k, city: t.title, at: t.at, visited: t.visited }));
+    // Codex 17:32: 명시 도시·나라 값으로만 묶음 · 나라 코드 없음 = 지역 미확인(목록·지구본에서 뺌 · 중동·아프리카 기본 배정 ✗ · 제목으로 도시 ✗)
+    return MY.filter(t => t.a2 && t.country && t.city && t.at).map(t => ({ trip: t.id, label: `${t.title} · ${t.st}`, region: REGION_OF_GROUP[t.g] || null, country: t.country, city: t.city, at: t.at, visited: t.visited })).filter(t => t.region);
   }
   if (S.load !== "ok") return [];
   const list = marketCourses().filter(c => S.tab === "modni" ? c.is_sample : !c.is_sample);
-  return list.map(c => { const p = coursePlace[c.id]; if (!p) return null;
-    return { id: c.id, label: titleOf(c), region: REGION_OF_GROUP[p.g] || "mea", country: A2_KO[p.a2] || p.k, city: p.city, at: p.at, n: c.download_count || 0 }; }).filter(Boolean);
+  return list.map(c => { const p = coursePlace[c.id]; if (!p || !p.a2 || !A2_KO[p.a2]) return null;   // 나라 값 없음 = 지역 미확인
+    return { id: c.id, label: titleOf(c), region: REGION_OF_GROUP[p.g] || null, country: A2_KO[p.a2], city: p.city, at: p.at, n: c.download_count || 0 }; }).filter(it => it && it.region);
 }
 function regionCounts(items){ const m = {}; items.forEach(it => { m[it.region] = (m[it.region] || 0) + 1; }); return m; }
-/** 정면(지구본 가운데)에 가장 가까운 대륙 — 그 탭에 있는 대륙만 */
-function frontRegion(items){
+/** 정면(지구본 가운데)에 가장 가까운 대륙 — onlyWithData = 처음 고를 때(데이터 있는 대륙 먼저) · 돌릴 때는 7개 전부 */
+function frontRegion(items, onlyWithData){
   const have = regionCounts(items), c = [-S.rot[0], -S.rot[1]];
   let best = null, bd = 9;
-  REGIONS.filter(r => have[r.id]).forEach(r => { const d = d3.geoDistance(c, r.at); if (d < bd){ bd = d; best = r.id; } });
+  REGIONS.filter(r => !onlyWithData || have[r.id]).forEach(r => { const d = d3.geoDistance(c, r.at); if (d < bd){ bd = d; best = r.id; } });
   return best;
 }
+const FACE_SRC = MODNI_IMAGE;
 function drawPins(){
   const box = $("#pins4"); if (!box) return;
   const items = tabItems();
   if (S.tab === "mine"){
-    // 내 여행 = 집(도시마다 한 채 · 다녀온 곳은 ✓) — 얼굴 ✗
-    const seen = new Set();
-    box.innerHTML = items.filter(t => t.at && visible(t.at) && !seen.has(t.city) && seen.add(t.city)).map(t => { const [x, y] = proj(t.at);
-      return `<button type="button" class="pin4" data-pin-trip="${esc(t.trip)}" style="left:${x}px;top:${y - THEME.house * 0.35}px" aria-label="${esc(t.city)} 내 여행${t.visited ? " · 다녀옴" : " · 계획 중"}"><img class="house" src="${esc(HOUSE_URI)}" alt="" style="--house-size-px:${THEME.house}px"></button>`; }).join("");
+    // 🆕 v4.1 K: 도시당 한 집(실제 첫 도시 이름 + 좌표로 묶음 · 여행 제목·대륙으로 도시 만들지 않음) + 잔디 터 · 누르면 아래 목록만(여행 열기 ✗)
+    const byCity = new Map();
+    items.forEach(t => { if (!t.at) return; const key = t.city + "@" + t.at.map(v => v.toFixed(2)).join(","); const g = byCity.get(key) || { ...t, n: 0, visited: false }; g.n++; g.visited = g.visited || t.visited; byCity.set(key, g); });
+    box.innerHTML = [...byCity.values()].filter(t => visible(t.at)).map(t => { const [x, y] = proj(t.at); if (!inBox(x, y, 35)) return "";
+      return `<button type="button" class="house-pin" data-pin-house="${esc(t.region)}" style="left:${x}px;top:${y}px" aria-label="${esc(t.city)} · 내 여행 ${t.n}개${t.visited ? " · 다녀옴" : ""}"><img src="${esc(HOUSE_URI)}" alt=""></button>`; }).join("");
     return;
   }
   const counts = regionCounts(items), max = Math.max(1, ...Object.values(counts));
-  box.innerHTML = REGIONS.filter(r => counts[r.id] && visible(r.at)).map(r => { const [x, y] = proj(r.at), n = counts[r.id];
-    const size = Math.round(26 + Math.sqrt(n / max) * 22);   // 많은 곳 = 얼굴이 큼(26~48px · 단추 칸은 44 이상)
-    return `<button type="button" class="pin4${S.region === r.id ? " selected" : ""}" data-pin-region="${r.id}" style="left:${x}px;top:${y}px;--face-size:${size}px" aria-label="${esc(lang === "en" ? r.en : r.name)} ${n}${lang === "en" ? " trips" : "개 여행 보기"}"><i class="face" aria-hidden="true"></i></button>`; }).join("");
-  paintFaces(box);
+  box.innerHTML = REGIONS.filter(r => counts[r.id] && visible(r.at)).map(r => { const [x, y] = proj(r.at), n = counts[r.id]; if (!inBox(x, y, 16)) return "";
+    const size = Math.round((31 + Math.sqrt(n / max) * 24) * 1.08);   // 많은 곳 = 얼굴이 큼(지역마다 하나 · +숫자 ✗)
+    return `<button type="button" class="pin4${S.region === r.id ? " selected" : ""}" data-pin-region="${r.id}" style="left:${x}px;top:${y}px;--face-size:${size}px" aria-label="${esc(lang === "en" ? r.en : r.name)} ${n}${lang === "en" ? " trips" : "개 여행 보기"}"><span class="face-shell pin-face" aria-hidden="true"><img src="${esc(FACE_SRC)}" alt=""></span></button>`; }).join("");
 }
-/* 끌어 돌리기(마우스·손가락 · 가로 = 경도 · 마우스는 세로도) — 돌리는 동안 정면 대륙의 탭·목록이 따라옴 */
-let dragging = false, dragFrom = null;
+/* 끌어 돌리기(마우스·손가락 · 가로 = 경도 · 마우스는 세로도) + 두 손가락 확대 — 돌리는 동안 정면 대륙의 탭·목록이 따라옴 · 끌기 끝은 누름이 아님 */
+let dragging = false, dragFrom = null, lastDragEnd = 0;
+const touches = new Map(); let pinch = null;
 const globeEl = document.getElementById("globe");
-globeEl.addEventListener("pointerdown", (e) => { dragFrom = { x: e.clientX, y: e.clientY, rot: S.rot.slice(), moved: false, mouse: e.pointerType === "mouse" }; });
+globeEl.addEventListener("pointerdown", (e) => {
+  if (e.pointerType === "touch"){ touches.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (touches.size === 2){ const [a, b] = [...touches.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y) || 1, z: S.zoom }; dragFrom = null; return; } }
+  dragFrom = { x: e.clientX, y: e.clientY, rot: S.rot.slice(), moved: false, mouse: e.pointerType === "mouse" };
+});
 window.addEventListener("pointermove", (e) => {
+  if (touches.has(e.pointerId)) touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pinch && touches.size >= 2){ const [a, b] = [...touches.values()]; setZoom(pinch.z * (Math.hypot(a.x - b.x, a.y - b.y) / pinch.d)); lastDragEnd = Date.now(); return; }
   if (!dragFrom) return;
   const dx = e.clientX - dragFrom.x, dy = e.clientY - dragFrom.y;
   if (!dragFrom.moved){ if (Math.abs(dx) < 8 && !(dragFrom.mouse && Math.abs(dy) >= 8)) return; if (!dragFrom.mouse && Math.abs(dy) > Math.abs(dx)){ dragFrom = null; return; } dragFrom.moved = true; dragging = true; svg.classed("dragging", true); }
-  const k = 0.3;
+  const k = 0.3 / S.zoom;
   S.rot = [dragFrom.rot[0] + dx * k, dragFrom.mouse ? Math.max(-60, Math.min(60, dragFrom.rot[1] - dy * k)) : dragFrom.rot[1], 0];
   draw();
-  const front = frontRegion(tabItems());
-  if (front && front !== S.region){ S.region = front; renderDiscovery(); }
+  const front = frontRegion(tabItems(), false);
+  if (front && front !== S.region){ S.region = front; S.expanded = false; renderDiscovery(); }
 });
-const dragEnd = () => { if (!dragFrom) return; dragFrom = null; if (dragging){ dragging = false; svg.classed("dragging", false); } };
+const dragEnd = (e) => { if (e && touches.has(e.pointerId)){ touches.delete(e.pointerId); if (touches.size < 2) pinch = null; }
+  if (!dragFrom) return; if (dragFrom.moved) lastDragEnd = Date.now(); dragFrom = null; if (dragging){ dragging = false; svg.classed("dragging", false); } };
 window.addEventListener("pointerup", dragEnd); window.addEventListener("pointercancel", dragEnd);
+/* PC 휠 = 지구본 안에서만 확대·축소(한계에 닿으면 페이지 스크롤 그대로) */
+$("#globe-box").addEventListener("wheel", (e) => { if (e.ctrlKey && !e.deltaY) return; const next = S.zoom * (e.deltaY < 0 ? 1.12 : 1 / 1.12); if (setZoom(next)) e.preventDefault(); }, { passive: false });
 function rotateTo(at){
   const target = [-at[0], -Math.max(-50, Math.min(50, at[1])), 0];
   if (reduceMotion){ S.rot = target; draw(); return; }
   const it = d3.interpolate(S.rot.slice(), target);
   d3.select({}).transition().duration(650).ease(d3.easeCubicInOut).tween("rot", () => (t) => { S.rot = it(t); draw(); });
 }
-/** 대륙 고르기 — 지구본을 그 대륙으로 돌리고 목록을 바꿈 */
+/** 대륙 고르기 — 지구본을 그 대륙으로 돌리고 목록을 바꿈(0개여도 그 대륙 그대로 · 다른 대륙으로 안 돌려보냄) */
 function chooseRegion(id, rotate = true){
   const r = regionById(id); if (!r) return;
+  if (S.region !== id) S.expanded = false;
   S.region = id; if (rotate) rotateTo(r.at); else draw();
   renderDiscovery();
 }
 /** 그룹(국내·일본…) → 대륙 · 검색에서 씀 */
 function focusArea(g, k, at, animate = true){
   const id = REGION_OF_GROUP[g] || null; if (!id) return;
+  if (S.region !== id) S.expanded = false;
   S.region = id; S.hitK = k || null;
   const target = at || regionById(id).at;
   if (animate) rotateTo(target); else { S.rot = [-target[0], -Math.max(-50, Math.min(50, target[1])), 0]; draw(); }
@@ -1037,43 +1128,47 @@ svg.on("mousemove", (e) => {
   tip.textContent = KO[f.properties.name] || f.properties.name; tip.style.left = x + "px"; tip.style.top = y + "px"; tip.hidden = false;
 }).on("mouseleave", () => { $("#ctip").hidden = true; pHover.attr("d", null); });
 
-/* ── 대륙 탭 + 지역 목록(글씨만 · 항상 펼침) ── */
-const PER_COUNTRY = 4;   // 나라마다 코스 넷 + 「N개 더 보기」(목록은 보조 탐색 · 주인공 ✗)
+/* ── 대륙 탭(7개 항상) + 지역 목록(처음 = 대륙 전체에서 3개 · 나라별로 나눠 · 「더보기 · N개 →」/「접기 ↑」) ── */
+const FIRST_N = 3;
+const EMPTY_REGION = {
+  ko: { mine: "이 지역에 담은 여행이 아직 없어요. 모드니 추천에서 여행을 찾아보세요.", market: "이 지역에는 아직 여행자 코스가 없어요.", modni: "이 지역에는 아직 모드니 추천이 없어요." },
+  en: { mine: "No saved trips in this region yet. Try Modni picks.", market: "No traveler courses in this region yet.", modni: "No Modni picks in this region yet." },
+};
 function renderDiscovery(){
-  const cap = $("#mode-caption"); if (cap) cap.textContent = CAPTION[lang === "en" ? "en" : "ko"][S.tab];
-  const regionsEl = $("#regions"), listEl = $("#country-list"), empty = $("#my-empty");
+  const L = lang === "en" ? "en" : "ko";
+  const cap = $("#mode-caption"); if (cap) cap.textContent = CAPTION[L][S.tab];
+  const regionsEl = $("#regions"), listEl = $("#country-list"), empty = $("#my-empty"), more = $("#region-more");
   const loading = S.tab === "mine" ? (currentUser && S.tripsLoad === "loading") : S.load === "loading";
   const failed = S.tab === "mine" ? (currentUser && S.tripsLoad === "error") : S.load === "error";
-  empty.hidden = true;
-  if (loading){ regionsEl.innerHTML = ""; listEl.setAttribute("aria-busy", "true"); listEl.innerHTML = '<p class="sr">목록을 불러오는 중이에요</p><div class="skel" style="width:70%"></div><div class="skel" style="width:55%"></div>'; return; }
+  const items = loading || failed ? [] : tabItems();
+  if (!S.region) S.region = frontRegion(items, true) || frontRegion(items, false) || "eu";
+  // D: 7개 항상(로딩·실패·0개여도 골격 그대로)
+  regionsEl.innerHTML = REGIONS.map(r => `<button type="button" data-region="${r.id}" aria-pressed="${S.region === r.id}">${esc(L === "en" ? r.en : r.name)}</button>`).join("");
+  empty.hidden = true; more.hidden = true;
+  if (loading){ listEl.setAttribute("aria-busy", "true"); listEl.innerHTML = '<p class="sr">목록을 불러오는 중이에요</p><div class="skel" style="width:70%"></div><div class="skel" style="width:55%"></div>'; drawPins(); return; }
   listEl.removeAttribute("aria-busy");
-  if (failed){ regionsEl.innerHTML = ""; listEl.innerHTML = `<div class="err-box"><b>목록을 불러오지 못했어요</b><span>잠시 뒤 다시 시도해 주세요. 지구본은 그대로 돌려 볼 수 있어요.</span><button type="button" class="secondary" data-act="${S.tab === "mine" ? "retry-trips" : "retry"}">다시 시도</button></div>`; return; }
-  const items = tabItems(), counts = regionCounts(items);
-  if (!items.length){
-    regionsEl.innerHTML = "";
-    if (S.tab === "mine"){
-      empty.hidden = false;
-      empty.innerHTML = !currentUser
-        ? `나의 여행이 이곳에 차곡차곡 쌓여요.<br><button type="button" data-act="login">로그인하고 내 여행 지구본 →</button>`
-        : `아직 담은 여행이 없어요. 모드니 추천에서 여행을 찾아보세요.<br><button type="button" data-tab-go="modni">모드니 추천 보기 →</button>`;
-      listEl.innerHTML = "";
-    } else listEl.innerHTML = '<p class="empty-world">아직 공개된 코스가 없어요.</p>';
-    return;
+  if (failed){ listEl.innerHTML = `<div class="err-box"><b>목록을 불러오지 못했어요</b><span>잠시 뒤 다시 시도해 주세요. 지구본은 그대로 돌려 볼 수 있어요.</span><button type="button" class="secondary" data-act="${S.tab === "mine" ? "retry-trips" : "retry"}">다시 시도</button></div>`; drawPins(); return; }
+  if (S.tab === "mine" && !currentUser){
+    empty.hidden = false; empty.innerHTML = `나의 여행이 이곳에 차곡차곡 쌓여요.<br><button type="button" data-act="login">로그인하고 내 여행 지구본 →</button>`;
+    listEl.innerHTML = ""; drawPins(); return;
   }
-  if (!S.region || !counts[S.region]) S.region = frontRegion(items) || REGIONS.find(r => counts[r.id]).id;
-  regionsEl.innerHTML = REGIONS.filter(r => counts[r.id]).map(r => `<button type="button" data-region="${r.id}" aria-pressed="${S.region === r.id}">${esc(lang === "en" ? r.en : r.name)}</button>`).join("");
-  const byCountry = {};
-  items.filter(it => it.region === S.region).forEach(it => { (byCountry[it.country] = byCountry[it.country] || []).push(it); });
-  const countries = Object.entries(byCountry).sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0]));
-  listEl.innerHTML = countries.map(([name, list]) => {
-    const rows = list.slice().sort((a, b) => (b.n || 0) - (a.n || 0)).slice(0, PER_COUNTRY).map(it => it.trip
+  const inRegion = items.filter(it => it.region === S.region);
+  if (!inRegion.length){ listEl.innerHTML = `<p class="empty-world">${esc(EMPTY_REGION[L][S.tab])}</p>`; drawPins(); return; }
+  const byCountry = new Map();
+  inRegion.slice().sort((a, b) => (b.n || 0) - (a.n || 0)).forEach(it => { if (!byCountry.has(it.country)) byCountry.set(it.country, []); byCountry.get(it.country).push(it); });
+  const countries = [...byCountry.entries()].sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0]));
+  // E: 처음 3개 = 나라를 돌아가며(예: 미국·캐나다·멕시코 열) · 펼치면 전부
+  let pick;
+  if (S.expanded) pick = new Set(inRegion);
+  else { pick = new Set(); for (let round = 0; pick.size < FIRST_N; round++){ let added = false; for (const [, list] of countries){ if (pick.size >= FIRST_N) break; if (list[round]){ pick.add(list[round]); added = true; } } if (!added) break; } }
+  listEl.innerHTML = countries.map(([name, list]) => { const rows = list.filter(it => pick.has(it)); if (!rows.length) return "";
+    return `<section data-country="${esc(name)}"><h3>${esc(name)}</h3>${rows.map(it => it.trip
       ? `<button type="button" data-trip="${esc(it.trip)}">${esc(it.label)} →</button>`
-      : `<a href="${courseHref(it.id)}">${esc(it.label)} →</a>`).join("");
-    const more = list.length > PER_COUNTRY ? (S.tab === "mine"
-      ? `<a class="more-k" href="${WEB_APP_URL}/mytrips">${list.length - PER_COUNTRY}개 더 보기 ›</a>`
-      : `<a class="more-k" href="${WEB_APP_URL}/market?q=${encodeURIComponent(name)}">${list.length - PER_COUNTRY}개 더 보기 ›</a>`) : "";
-    return `<section data-country="${esc(name)}"><h3>${esc(name)}</h3>${rows}${more}</section>`;
-  }).join("");
+      : `<a href="${courseHref(it.id)}">${esc(it.label)} →</a>`).join("")}</section>`; }).join("");
+  if (inRegion.length > FIRST_N){
+    more.hidden = false; more.setAttribute("aria-expanded", String(!!S.expanded));
+    more.textContent = S.expanded ? (L === "en" ? "Collapse ↑" : "접기 ↑") : (L === "en" ? `More · ${inRegion.length - FIRST_N} →` : `더보기 · ${inRegion.length - FIRST_N}개 →`);
+  }
   drawPins();
 }
 function renderGlobeState(){ $("#globe-loading").hidden = !!LAND; }
@@ -1095,7 +1190,7 @@ function renderCards(){
   if (S.load === "loading"){ ul.setAttribute("aria-busy", "true"); ul.innerHTML = '<li class="sr">코스를 불러오고 있어요</li>' + Array.from({ length: 3 }, () => '<li><div class="skel-card"></div></li>').join(""); return; }
   ul.removeAttribute("aria-busy");
   if (S.load === "error"){ ul.innerHTML = '<li class="state-box err"><div><b>코스를 불러오지 못했어요</b><span>연결이 잠시 끊긴 것 같아요. 다시 시도해 주세요.</span></div><button type="button" class="secondary" data-act="retry">다시 시도</button></li>'; return; }
-  const list = marketCourses().filter(c => c.is_sample).sort((a, b) => (b.download_count || 0) - (a.download_count || 0) || (b.hearts || 0) - (a.hearts || 0)).slice(0, 6);
+  const list = marketCourses().filter(c => c.is_sample).sort((a, b) => (b.download_count || 0) - (a.download_count || 0) || (b.hearts || 0) - (a.hearts || 0)).slice(0, 3);
   if (!list.length){ ul.innerHTML = '<li class="state-box"><div><b>준비된 코스가 아직 없어요</b><span>곧 모드니 코스가 올라와요.</span></div></li>'; return; }
   ul.innerHTML = list.map(c => { const reason = courseReason(c);
     return `<li><a class="course" href="${courseHref(c.id)}">${cardArtHtml(c, "art")}<span class="tx"><strong>${esc(titleOf(c))}</strong><small>${esc(courseMeta(c))}</small>${reason ? `<span class="course-reason">${esc(reason)}</span>` : ""}</span></a></li>`; }).join("");
@@ -1177,7 +1272,7 @@ function toast(msg){ const t = $("#toast"); t.textContent = msg; t.hidden = fals
 
 /* ── 행동 연결 ── */
 document.addEventListener("click", (e) => {
-  const el = e.target.closest("[data-act],[data-unchip],[data-example],[data-tab],[data-tab-go],[data-region],[data-pin-region],[data-pin-trip],[data-close],[data-goto-group],[data-trip],#menu-btn,#q-clear,#lang-btn,#lang-item,#me-btn,#login-btn,#nav-trips,#dw-trips,#dw-create,#ref-open,#diary-open,#diary-close");
+  const el = e.target.closest("[data-act],[data-unchip],[data-example],[data-tab],[data-tab-go],[data-region],[data-pin-region],[data-pin-house],[data-pin-trip],[data-zoom],#region-more,[data-close],[data-goto-group],[data-trip],#menu-btn,#q-clear,#lang-btn,#lang-item,#me-btn,#login-btn,#nav-trips,#dw-trips,#dw-create,#ref-open,#diary-open,#diary-close");
   if (!el) return;
   if (el.matches("#menu-btn")){ openDrawer(); return; }
   if (el.matches("#q-clear")){ $("#q").value = ""; S.answer = null; S.removed = new Set(); S.hitK = null; renderSearch(); $("#q").focus(); return; }
@@ -1192,13 +1287,22 @@ document.addEventListener("click", (e) => {
   if (el.dataset.close !== undefined && el.matches("[data-close]")){ closeAll(); return; }
   if (el.dataset.example){ $("#q").value = el.dataset.example; submitSearch(); return; }
   if (el.dataset.unchip){ S.removed.add(el.dataset.unchip); if (el.dataset.unchip === "city") S.hitK = null; renderSearch(); return; }
+  if (el.dataset.zoom){ setZoom(S.zoom * (el.dataset.zoom === "in" ? 1.2 : 1 / 1.2)); return; }
+  if (el.matches("#region-more")){ S.expanded = !S.expanded; renderDiscovery(); if (!S.expanded){ const d = $("#discovery"); if (d) d.scrollIntoView({ block: "nearest", behavior: reduceMotion ? "auto" : "smooth" }); } return; }
+  // C: 끌기 끝은 누름이 아님(돌리다 손 뗀 자리가 얼굴·집이어도 아무 일 ✗)
+  if ((el.dataset.pinRegion || el.dataset.pinHouse) && Date.now() - lastDragEnd < 350) return;
+  // K: 집 누름 = 그 대륙 목록만(여행 열기·담기 ✗)
+  if (el.dataset.pinHouse){ chooseRegion(el.dataset.pinHouse, false); const d = $("#discovery"); if (d) d.scrollIntoView({ block: "nearest", behavior: reduceMotion ? "auto" : "smooth" }); return; }
   if (el.dataset.trip || el.dataset.pinTrip){ openTrip(el.dataset.trip || el.dataset.pinTrip); return; }
-  if (el.dataset.tab || el.dataset.tabGo){ S.tab = el.dataset.tab || el.dataset.tabGo; S.tabTouched = true; S.region = null; renderTabs(); renderDiscovery(); draw(); return; }
+  if (el.dataset.tab || el.dataset.tabGo){ S.tab = el.dataset.tab || el.dataset.tabGo; S.tabTouched = true; S.expanded = false; renderTabs(); renderDiscovery(); draw(); return; }   // D: 탭 바꿔도 대륙 그대로(같은 선택 상태)
   if (el.dataset.region){ chooseRegion(el.dataset.region, true); return; }
   if (el.dataset.pinRegion){ chooseRegion(el.dataset.pinRegion, true); const d = $("#discovery"); if (d) d.scrollIntoView({ block: "nearest", behavior: reduceMotion ? "auto" : "smooth" }); return; }
   if (el.dataset.gotoGroup){ focusArea(el.dataset.gotoGroup, null, null, true); renderDiscovery(); return; }
   if (el.dataset.act === "login"){ closeAll(true); if (el.closest("#login-overlay")) login("newTrip"); else login(); return; }
   if (el.dataset.act === "create"){ goCreate(); return; }
+  // F: my 월드 두 단추 = 상단 「내 여행」과 같은 권한(손님 = 로그인)
+  if (el.dataset.act === "world-globe"){ if (!currentUser){ login(); return; } S.tab = "mine"; S.tabTouched = true; S.expanded = false; renderTabs(); renderDiscovery(); draw(); const ex = $("#explorer"); if (ex) ex.scrollIntoView({ block: "center", behavior: reduceMotion ? "auto" : "smooth" }); return; }
+  if (el.dataset.act === "world-list"){ openMyTrips(); return; }
   if (el.dataset.act === "revise"){ S.answer = null; S.removed = new Set(); renderSearch(); const q = $("#q"); q.focus(); q.setSelectionRange(q.value.length, q.value.length); return; }   // 입력 수정 = 적은 글 그대로 두고 입력칸으로(여행 데이터 초기화·재생성 ✗)
   if (el.dataset.act === "retry"){ loadMarket(); return; }
   if (el.dataset.act === "retry-trips"){ loadTrips(); return; }
@@ -1213,6 +1317,8 @@ function submitSearch(){
 }
 $("#search-form").addEventListener("submit", (e) => { e.preventDefault(); submitSearch(); });
 $("#q").addEventListener("input", () => { $("#q-clear").hidden = !$("#q").value; });
+// G: 두 줄 입력 — Enter = 시작하기(Shift+Enter = 줄바꿈 · 한글 조합 중 ✗)
+$("#q").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing){ e.preventDefault(); submitSearch(); } });
 $("#ref-form").addEventListener("submit", (e) => { e.preventDefault(); submitReferral(); });
 $("#diary-dialog").addEventListener("close", () => { const b = $("#diary-open"); if (b) b.focus(); });
 /* 🆕 v4: 대문 칸(#home4) CSS 폭 620 이하 = 지구본·지역 목록을 my 월드 안으로 · 그 위 = 입력 옆(지구본) + 아래 전폭(목록) — 한 벌을 옮김 */
@@ -1254,7 +1360,7 @@ async function loadTrips(){
       const visited = !!(t.depart_date && t.depart_date < today);
       const title = t.title || t.region || "여행";
       const isUp = !!(upcoming && upcoming.id === t.id), isPl = !!(planning && planning.id === t.id);
-      return { id: t.id, title, g, country: A2_KO[a2] || "기타", k: SINGLE.has(g) ? (cityOf(t)[0] || title) : (A2_KO[a2] || "기타"), at: r ? [r.lng, r.lat] : null, visited,
+      return { id: t.id, title, g, a2, country: A2_KO[a2] || null, city: r ? (cityOf(t)[0] || null) : null, k: SINGLE.has(g) ? (cityOf(t)[0] || title) : (A2_KO[a2] || "기타"), at: r ? [r.lng, r.lat] : null, visited,
         st: isUp ? ddayOf(t.depart_date) : visited ? "✓ 다녀옴" : "계획 중",
         sub: isUp ? depLabel(t.depart_date) + (t.nights ? ` · ${t.nights}박` : "") : (t.depart_date ? depLabel(t.depart_date) : "날짜 미정") + (t.updated_at ? ` · ${agoOf(t.updated_at)}` : ""),
         act: isUp ? "일정 보기" : visited ? "여행 보기" : "이어서", upcoming: isUp, planning: isPl };
@@ -1314,7 +1420,7 @@ const EN_TEXTS = [
 ],
 [
 "#myworld-sub",
-"Places you have been and places you want to go — your trips build up on the globe."
+"Places you have been, places you want to go.<br>Your trips build up on the globe."
 ],
 [
 "#go-btn",
@@ -1346,7 +1452,7 @@ const EN_TEXTS = [
 ],
 [
 "#mktNotice",
-"Courses in the Market are itineraries made and posted by travelers · HouseDoodung Inc. does not guarantee their accuracy or safety · Check opening hours and local conditions before you go. Parts of course descriptions were summarized by AI · please verify details yourself."
+"Traveler courses are itineraries made and posted by travelers · HouseDoodung Inc. does not guarantee their accuracy or safety · Check opening hours and local conditions before you go. Parts of course descriptions were summarized by AI · please verify details yourself."
 ],
 [
 "#feat-h",
@@ -1503,6 +1609,18 @@ const EN_TEXTS = [
 [
 "#diary-close",
 "Close"
+],
+[
+"#up-k",
+"Upcoming trip"
+],
+[
+"#world-globe-btn",
+"My trips globe →"
+],
+[
+"#world-list-btn",
+"Open my trips →"
 ]
 ];
 let lang = "ko";
@@ -1520,7 +1638,7 @@ function toggleLang(){
   const dwEn = ["New trip<span class=\"chev\">›</span>", "My Trips<span class=\"chev\">›</span>", "<span>Find trips<small>take a course</small></span><span class=\"chev\">›</span>", "<span>Hotel Booking<small>member rates</small></span><span class=\"chev\">›</span>", "Get the App<span class=\"chev\">›</span>", "Customer Support<span class=\"chev\">›</span>", "Company · Partners<span class=\"chev\">⌄</span>", "<span>한국어<small>KOR/ENG</small></span><span class=\"chev\">›</span>", "Admin<span class=\"chev\">›</span>", "<span>Flights<small>pilot</small></span><span class=\"chev\">›</span>"];
   $$("#drawer .dw-item").forEach((b, i) => { b.innerHTML = (lang === "en" ? dwEn[i] : dwKo[i]) ?? b.innerHTML; });
   if (!currentUser) $("#login-btn").textContent = (lang === "en") ? "Sign in" : "로그인";
-  $("#q").placeholder = lang === "en" ? "e.g. Spain 10 nights, relaxed" : "예: 스페인 10박, 여유롭게";
+  $("#q").placeholder = lang === "en" ? "e.g. Next May, four friends, a free road trip by rental car in Southern France" : "내년 5월에 친구들과 총 네명이서 남프랑스 렌터카 자유롭게";
   renderDiscovery(); renderReferral();
   applyStoreLinks(lang);
 }
