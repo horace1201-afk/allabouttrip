@@ -306,13 +306,10 @@ img{max-width:100%}
 #home4 .world-slot:empty{display:none}
 #home4 .world-slot .explorer{margin-top:10px}
 #home4 .referral{margin-top:18px;font-size:12px;line-height:18px;color:var(--sub)}
-#home4 .share-row{margin-top:8px}   /* 🆕 10/11 창3 ③: 공유코드 줄 = 추천코드 줄 바로 밑 · 같은 작은 글 */
 #home4 .referral button{min-height:44px;border:0;background:none;color:var(--green);font-size:12px;padding:0 4px}
 #home4 .referral form{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:8px}
 #home4 .referral input{min-width:0;max-width:220px;min-height:44px;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);font-size:16px}
 #home4 .referral form button{border:1px solid var(--green-line);border-radius:10px;padding:0 14px;background:var(--panel)}
-#home4 .referral-status{margin:6px 0 0;color:var(--green)}
-#home4 .referral-status:empty{display:none}
 #home4 .travel-preview{margin-top:28px;padding-top:22px;border-top:1px solid var(--line)}
 #home4 .travel-preview .section-head .btn-go{margin-left:auto;white-space:nowrap}
 #home4 .feature-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:18px;align-items:start}
@@ -552,13 +549,7 @@ img{max-width:100%}
         <div class="world-summary"><p id="myworld-sub">다녀온 곳도, 가고 싶은 곳도.<br>나의 여행이 차곡차곡 쌓여요.</p><div class="world-links"><button type="button" class="more" data-act="world-list" id="world-list-btn">나의 여행 펼치기 →</button><span class="count" id="world-count" hidden></span></div></div>
         <div class="world-slot" id="world-slot"></div>
         <div id="continue-slot"></div>
-        <div class="referral" id="referral">
-          <span id="ref-q">추천코드가 있나요?</span>
-          <button type="button" id="ref-open" aria-expanded="false" aria-controls="ref-form">→ 입력</button>
-          <form id="ref-form" hidden><input id="ref-code" aria-label="추천코드" placeholder="추천코드 입력" maxlength="30" autocomplete="off"><button type="submit" id="ref-submit">확인</button></form>
-          <p class="referral-status" id="ref-status" role="status"></p>
-        </div>
-        <!-- 🆕 10/11 창3(영아 20:03~20:08 ③ · 목업 v8): 「공유코드를 받았나요? → 입력」 작은 줄 = 추천코드 줄 밑 · 코드 = 앱 /shared?code= 로(로그인 안 묻음) -->
+        <!-- 🆕 10/11 창3(영아 20:03~20:08 ③ · 20:19~20:20 · 목업 v9): my 월드 아래 = 「공유코드를 받았나요? → 입력」 작은 줄만 · 추천코드 줄 삭제(앱·웹 같게) · 코드 = 앱 /shared?code= 로(로그인 안 묻음) -->
         <div class="referral share-row" id="share-row">
           <span id="share-q">공유코드를 받았나요?</span>
           <button type="button" id="share-open" aria-expanded="false" aria-controls="share-form">→ 입력</button>
@@ -922,7 +913,7 @@ function interpret(q){
 /* ── 그리기 ── */
 // 🆕 창3 10/10 (대문 v4.2 캡처 시뮬 전용 · localhost 만 · 배포 주소에선 없음): 로그인 없이 내 여행 그림(나라 집·도시 잔디·이어서 칸)을 그려 보는 훅 — 저장 ✗ · 데이터 ✗
 if (location.hostname === "localhost") window.__home4 = { S, renderAll, draw, setUser: (u) => { currentUser = u; }, setMy: (v) => { MY = v; } };
-function renderAll(){ renderHeader(); renderBand(); renderSearch(); renderContinue(); renderTabs(); renderDiscovery(); draw(); renderGlobeState(); renderCards(); renderPopular(); renderReferral(); }
+function renderAll(){ renderHeader(); renderBand(); renderSearch(); renderContinue(); renderTabs(); renderDiscovery(); draw(); renderGlobeState(); renderCards(); renderPopular(); }
 function userName(){ const m = currentUser && currentUser.user_metadata || {}; return m.full_name || m.name || ((currentUser && currentUser.email) || "").split("@")[0]; }
 function renderHeader(){
   const member = !!currentUser;
@@ -1331,26 +1322,7 @@ function renderSchedule(){
   $("#schedule-rows").innerHTML = rows.slice(0, 4).join("");
   $("#schedule-rest").innerHTML = rows.slice(4).join("");
 }
-/* ── 추천코드(앱 lib/cookies/referralStorage redeemReferralCode 와 같은 RPC · 서버가 보너스 결정 · 로그인 뒤만) ── */
-const REF_MSG = { invalid_code: "코드를 찾을 수 없어요. 다시 확인해 주세요", self_referral: "내 코드는 입력할 수 없어요", already_redeemed: "이미 추천코드를 입력했어요", no_code_yet: "잠시 후 다시 시도해 주세요", not_authenticated: "로그인이 필요해요" };
-function renderReferral(){
-  const open = $("#ref-open"), form = $("#ref-form");
-  if (!currentUser){ open.textContent = lang === "en" ? "→ Sign in to enter" : "→ 로그인하고 입력"; form.hidden = true; open.setAttribute("aria-expanded", "false"); }
-  else open.textContent = lang === "en" ? "→ Enter" : "→ 입력";
-}
-async function submitReferral(){
-  const code = $("#ref-code").value.trim(), st = $("#ref-status");
-  if (!code){ st.textContent = "추천코드를 적어 주세요."; $("#ref-code").focus(); return; }
-  if (!currentUser){ login(); return; }
-  const btn = $("#ref-submit"); btn.disabled = true; st.textContent = "확인 중이에요…";
-  try {
-    const { data, error } = await sb.rpc("referral_redeem", { p_code: code.toUpperCase() });
-    if (error || !data) throw error || new Error("empty");
-    if (data.success === true){ st.textContent = "추천코드가 등록됐어요!"; $("#ref-code").value = ""; }
-    else st.textContent = "추천코드 · " + (REF_MSG[data.reason] || "등록하지 못했어요. 다시 시도해 주세요");
-  } catch(e){ st.textContent = "추천코드 · 등록하지 못했어요. 다시 시도해 주세요"; }
-  btn.disabled = false;
-}
+/* 🆕 10/11 창3(목업 v9 · 영아 20:19): 추천코드 입력 줄(문구 표 · 그리기 · 보내기 · referral_redeem RPC 호출) 삭제 — 앱·웹 같게 · 공유코드 줄만 남김 */
 /* ── 일기 시안 크게 보기(닫기 · Esc · 연 단추로 초점 복귀) ── */
 function openDiary(){ const d = $("#diary-dialog"); if (d && d.showModal){ d.showModal(); $("#diary-close").focus(); } else window.open("assets/home/diary-barcelona-concept.jpg", "_blank", "noopener"); }
 function closeDiary(){ const d = $("#diary-dialog"); if (d && d.open) d.close(); }
@@ -1393,7 +1365,7 @@ function toast(msg){ const t = $("#toast"); t.textContent = msg; t.hidden = fals
 
 /* ── 행동 연결 ── */
 document.addEventListener("click", (e) => {
-  const el = e.target.closest("[data-act],[data-unchip],[data-tab],[data-tab-go],[data-region],[data-pin-region],[data-pin-house],[data-pin-country],[data-pin-city],#city-back,[data-pin-trip],[data-zoom],#region-more,[data-close],[data-goto-group],[data-trip],#menu-btn,#q-clear,#lang-btn,#lang-item,#me-btn,#login-btn,#nav-trips,#dw-trips,#dw-create,#ref-open,#diary-open,#diary-close");
+  const el = e.target.closest("[data-act],[data-unchip],[data-tab],[data-tab-go],[data-region],[data-pin-region],[data-pin-house],[data-pin-country],[data-pin-city],#city-back,[data-pin-trip],[data-zoom],#region-more,[data-close],[data-goto-group],[data-trip],#menu-btn,#q-clear,#lang-btn,#lang-item,#me-btn,#login-btn,#nav-trips,#dw-trips,#dw-create,#share-open,#diary-open,#diary-close");
   if (!el) return;
   if (el.matches("#menu-btn")){ openDrawer(); return; }
   if (el.matches("#q-clear")){ $("#q").value = ""; S.answer = null; S.removed = new Set(); S.hitK = null; renderSearch(); $("#q").focus(); return; }
@@ -1402,7 +1374,6 @@ document.addEventListener("click", (e) => {
   if (el.matches("#login-btn")){ login(); return; }
   if (el.matches("#nav-trips") || el.matches("#dw-trips")){ e.preventDefault(); openMyTrips(); return; }
   if (el.matches("#dw-create")){ e.preventDefault(); closeAll(true); goCreate(); return; }
-  if (el.matches("#ref-open")){ if (!currentUser){ login(); return; } const f = $("#ref-form"); f.hidden = !f.hidden; el.setAttribute("aria-expanded", String(!f.hidden)); if (!f.hidden) $("#ref-code").focus(); return; }
   if (el.matches("#share-open")){ const f = $("#share-form"); f.hidden = !f.hidden; el.setAttribute("aria-expanded", String(!f.hidden)); if (!f.hidden) $("#share-code").focus(); return; }   // 🆕 10/11 창3 ③ 공유코드
   if (el.matches("#diary-open")){ openDiary(); return; }
   if (el.matches("#diary-close")){ closeDiary(); return; }
@@ -1442,7 +1413,6 @@ $("#search-form").addEventListener("submit", (e) => { e.preventDefault(); submit
 $("#q").addEventListener("input", () => { $("#q-clear").hidden = !$("#q").value; });
 // G: 두 줄 입력 — Enter = 시작하기(Shift+Enter = 줄바꿈 · 한글 조합 중 ✗)
 $("#q").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing){ e.preventDefault(); submitSearch(); } });
-$("#ref-form").addEventListener("submit", (e) => { e.preventDefault(); submitReferral(); });
 $("#share-form").addEventListener("submit", (e) => { e.preventDefault(); const c = $("#share-code").value.trim().toUpperCase(); if (!c){ $("#share-code").focus(); return; } location.href = WEB_APP_URL + "/shared?code=" + encodeURIComponent(c); });   // 🆕 10/11 창3 ③: 공유코드 → 앱 공유 일정 보기(app/shared.tsx)
 $("#diary-dialog").addEventListener("close", () => { const b = $("#diary-open"); if (b) b.focus(); });
 /* 🆕 v4: 대문 칸(#home4) CSS 폭 620 이하 = 지구본·지역 목록을 my 월드 안으로 · 그 위 = 입력 옆(지구본) + 아래 전폭(목록) — 한 벌을 옮김 */
@@ -1659,15 +1629,11 @@ const EN_TEXTS = [
 "Plan a trip with Modni"
 ],
 [
-"#ref-q",
-"Have a referral code?"
-],
-[
 "#share-q",
 "Got a share code?"
 ],
 [
-"#ref-submit",
+"#share-submit",
 "Confirm"
 ],
 [
@@ -1763,7 +1729,7 @@ function toggleLang(){
   $$("#drawer .dw-item").forEach((b, i) => { b.innerHTML = (lang === "en" ? dwEn[i] : dwKo[i]) ?? b.innerHTML; });
   if (!currentUser) $("#login-btn").textContent = (lang === "en") ? "Sign in" : "로그인";
   $("#q").placeholder = lang === "en" ? "e.g. Next May, four friends, a free road trip by rental car in Southern France" : "내년 5월에 친구들과 총 네명이서 남프랑스 렌터카 자유롭게";
-  renderDiscovery(); renderReferral();
+  renderDiscovery();
   applyStoreLinks(lang);
 }
 
