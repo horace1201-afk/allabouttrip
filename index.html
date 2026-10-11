@@ -401,7 +401,7 @@ img{max-width:100%}
 #home4 .search-row textarea{flex:1;width:0;min-width:0;min-height:44px;resize:none;border:0;outline:0;background:transparent;padding:8px 0;font:inherit;font-size:16px;line-height:1.55;color:var(--ink)}
 #home4 .search-row textarea::placeholder{font-size:13px;line-height:1.55;color:#9A948D;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}   /* 🆕 10/11 창3(영아 20:09 · 목업 v8): 예시 글 한 줄 · 회색 · 줄바꿈 ✗ */
 /* A: 다가오는 여행 카드(입력 아래 · PC 폭 = 왼쪽 입력 폭) */
-#home4 .resume4{display:flex;gap:18px;align-items:center;margin:24px 0 0;padding:17px 18px;border:1px solid #dce6db;border-radius:14px;background:#f0f4eb}
+#home4 .resume4{display:flex;gap:18px;align-items:center;margin:96px 0 0;padding:17px 18px;border:1px solid #dce6db;border-radius:14px;background:#f0f4eb}
 #home4 .resume-copy{flex:1;min-width:0}
 #home4 .resume4 small{display:flex;gap:12px;margin-bottom:5px;font-size:12px;line-height:18px;color:#285B46}
 #home4 .resume4 small .dd{font-variant-numeric:tabular-nums}
@@ -436,6 +436,11 @@ img{max-width:100%}
 @media (max-width:430px){ #home4 .gpin img{width:34px;height:34px} #home4 .gpin.city-home img{width:48px;height:48px} }
 /* D·E: 대륙 탭 7 · 목록 3열 ≤240 · 간격 28 · 더보기/접기 */
 #home4 .discovery{margin-top:18px;padding-bottom:10px}
+#home4 .explorer > .discovery{margin:12px auto 0;text-align:left}   /* 🆕 10/12 창6: 지구본 칸 아래 · 원 폭 안 · 왼쪽 맞춤 */
+#home4 .explorer > .discovery .country-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 20px}
+#home4 .explorer > .discovery .regions{flex-wrap:nowrap;overflow-x:auto;gap:2px 16px;scrollbar-width:none;white-space:nowrap}   /* 🆕 10/12 창6: 원 폭 안 한 줄(넘치면 가로로 · 목업 .ctabs) */
+#home4 .explorer > .discovery .regions::-webkit-scrollbar{display:none}
+#home4 .explorer > .discovery .regions button{flex:none}
 #home4 .regions{gap:2px 22px}
 #home4 .country-list{grid-template-columns:repeat(3,minmax(0,240px));gap:12px 28px;min-height:54px}
 #home4 .region-more{display:block;min-height:44px;margin-top:2px;padding:6px 0;border:0;background:none;font-size:12px;font-weight:500;color:#285B46;cursor:pointer}
@@ -523,7 +528,7 @@ img{max-width:100%}
             <div class="pins4" id="pins4"></div>
             <div class="ctip" id="ctip" hidden></div>
             <div class="globe-loading" id="globe-loading">지구본을 불러오는 중이에요</div>
-            <div class="zoom-tools" role="group" aria-label="지구본 확대"><button type="button" data-zoom="out" aria-label="지구본 축소" disabled>−</button><output class="zoom-level" id="zoom-level" aria-live="polite">100%</output><button type="button" data-zoom="in" aria-label="지구본 확대">＋</button></div>
+            <!-- 🆕 10/12 창6(모드니 08:17 ③ · 영아 07:29~07:54): 「− 100% +」 확대 단추 삭제 · 휠·두 손가락 확대 그대로 · 도시 보기 나가기 = 「← 나라 보기」 -->
           </div>
           <div class="my-empty" id="my-empty" hidden></div>
         </section>
@@ -1043,6 +1048,8 @@ function layoutGlobe(){
   GW = Math.max(200, Math.round(box.clientWidth)); GH = Math.max(200, Math.round(box.clientHeight));
   GCX = GW / 2; GCY = GH / 2;
   svg.attr("viewBox", `0 0 ${GW} ${GH}`);
+  // 🆕 10/12 창6: 지구본 칸 아래 지역 목록 폭 = 원 지름(짧은 변 94% · 확대 100% 기준) — 칸 밖으로 안 나가고 지구본을 안 가림
+  const disc = $("#discovery"); if (disc) disc.style.maxWidth = disc.parentElement === $("#explorer") ? Math.round(Math.min(GW, GH) * 0.94) + "px" : "";
   draw();
 }
 function draw(){
@@ -1189,6 +1196,7 @@ window.addEventListener("pointermove", (e) => {
 });
 /** 🆕 v4.2 ④(창3 · 영아 「캐나다 전면인데 유럽 목록」): 보이는 대륙 = 목록 — 회전이 바뀌는 모든 길(끌기·rotateTo 끝·loadTrips·처음)이 이 한 함수 · 빈 대륙도 그 대륙 빈 상태 그대로(「빈 면 회전 OK」) */
 function syncFrontRegion(){
+  if (S.region === "all") return;   // 🆕 10/12 창6 ②: 「전체」 = 돌려도 그대로(대륙을 고른 뒤엔 종전처럼 정면 대륙을 따라감)
   const front = frontRegion(tabItems(), false);
   if (front && front !== S.region){ S.region = front; S.expanded = false; renderDiscovery(); }
 }
@@ -1205,6 +1213,7 @@ function rotateTo(at){
 }
 /** 대륙 고르기 — 지구본을 그 대륙으로 돌리고 목록을 바꿈(0개여도 그 대륙 그대로 · 다른 대륙으로 안 돌려보냄) */
 function chooseRegion(id, rotate = true){
+  if (id === "all"){ if (S.city){ S.city = null; cityProj = null; } if (S.region !== "all") S.expanded = false; S.region = "all"; draw(); renderDiscovery(); return; }   // 🆕 10/12 창6 ②: 「전체」
   const r = regionById(id); if (!r) return;
   if (S.city){ S.city = null; cityProj = null; }   // 🆕 v4.2 ③: 대륙 고르면 도시 보기 끝
   if (S.region !== id) S.expanded = false;
@@ -1219,6 +1228,19 @@ function focusArea(g, k, at, animate = true){
   const target = at || regionById(id).at;
   if (animate) rotateTo(target); else { S.rot = [-target[0], -Math.max(-50, Math.min(50, target[1])), 0]; draw(); }
 }
+/* 🆕 10/12 창6 ②(모드니 08:17): 땅 누름 = 그 대륙 탭 켜짐(가장 가까운 대륙 · 끌기 끝·도시 보기·바다 ✗) */
+svg.on("click", (e) => {
+  if (S.city || !COUNTRIES || Date.now() - lastDragEnd < 350) return;
+  const [x, y] = d3.pointer(e), ll = proj.invert([x, y]);
+  if (!ll || Math.hypot(x - GCX, y - GCY) > GR) return;
+  const f = COUNTRIES.features.find(c => d3.geoContains(c, ll)); if (!f) return;
+  // 나라 → 대륙 = 대문의 나라 묶음 표(groupOf · 영문 이름 → 한글 → 나라 코드) · 표에 없으면 가장 가까운 대륙
+  const ko = KO[f.properties.name] || f.properties.name, a2 = Object.keys(A2_KO).find(k => A2_KO[k] === ko);
+  let best = a2 ? (REGION_OF_GROUP[groupOf(a2)] || null) : null;
+  if (!best){ const [lng, lat] = ll; best = lng < -30 ? "am" : (lat < 36 && lng > -20 && lng < 60) ? "mea" : (lat < -10 && lng > 110) ? "oc" : null; }
+  if (!best){ let bd = 9; REGIONS.forEach(r => { const d = d3.geoDistance(ll, r.at); if (d < bd){ bd = d; best = r.id; } }); }
+  if (best) chooseRegion(best, false);
+});
 /* 나라 이름(호버 · 회색) */
 svg.on("mousemove", (e) => {
   if (dragging || !COUNTRIES || S.city) return;   // 🆕 v4.2 ③: 도시 보기(평면)엔 나라 이름 호버 ✗
@@ -1243,9 +1265,9 @@ function renderDiscovery(){
   const loading = S.tab === "mine" ? (currentUser && S.tripsLoad === "loading") : S.load === "loading";
   const failed = S.tab === "mine" ? (currentUser && S.tripsLoad === "error") : S.load === "error";
   const items = loading || failed ? [] : tabItems();
-  if (!S.region) S.region = frontRegion(items, false) || "eu";   // 🆕 v4.2 ④(창3): 처음도 정면 대륙 그대로(데이터 있는 대륙으로 안 보냄 · 빈 면 = 빈 상태 문구)
+  if (!S.region) S.region = "all";   // 🆕 10/12 창6 ②(모드니 08:17 · 목업 v11): 처음 = 「전체」(전대륙)   // 🆕 v4.2 ④(창3): 처음도 정면 대륙 그대로(데이터 있는 대륙으로 안 보냄 · 빈 면 = 빈 상태 문구)
   // D: 7개 항상(로딩·실패·0개여도 골격 그대로)
-  regionsEl.innerHTML = REGIONS.map(r => `<button type="button" data-region="${r.id}" aria-pressed="${S.region === r.id}">${esc(L === "en" ? r.en : r.name)}</button>`).join("");
+  regionsEl.innerHTML = `<button type="button" data-region="all" aria-pressed="${S.region === "all"}">${L === "en" ? "All" : "전체"}</button>` + REGIONS.map(r => `<button type="button" data-region="${r.id}" aria-pressed="${S.region === r.id}">${esc(L === "en" ? r.en : r.name)}</button>`).join("");
   empty.hidden = true; more.hidden = true;
   if (loading){ listEl.setAttribute("aria-busy", "true"); listEl.innerHTML = '<p class="sr">목록을 불러오는 중이에요</p><div class="skel" style="width:70%"></div><div class="skel" style="width:55%"></div>'; drawPins(); return; }
   listEl.removeAttribute("aria-busy");
@@ -1254,7 +1276,7 @@ function renderDiscovery(){
     empty.hidden = false; empty.innerHTML = `나의 여행이 이곳에 차곡차곡 쌓여요.<br><button type="button" data-act="login">로그인하고 내 여행 지구본 →</button>`;
     listEl.innerHTML = ""; drawPins(); return;
   }
-  const inRegion = items.filter(it => it.region === S.region);
+  const inRegion = S.region === "all" ? items : items.filter(it => it.region === S.region);
   if (!inRegion.length){ listEl.innerHTML = `<p class="empty-world">${esc(EMPTY_REGION[L][S.tab])}</p>`; drawPins(); return; }
   const byCountry = new Map();
   inRegion.slice().sort((a, b) => (b.n || 0) - (a.n || 0)).forEach(it => { if (!byCountry.has(it.country)) byCountry.set(it.country, []); byCountry.get(it.country).push(it); });
@@ -1421,7 +1443,8 @@ function placeGlobe(){
   if (!home || !exp || !disc || !slot || !hero || !market) return;
   const small = home.clientWidth <= 620;
   if (small){ if (exp.parentElement !== slot) slot.appendChild(exp); if (disc.parentElement !== slot) slot.appendChild(disc); }
-  else { if (exp.parentElement !== hero) hero.appendChild(exp); if (disc.parentElement !== market.parentElement || disc.nextElementSibling !== market) market.parentElement.insertBefore(disc, market); }
+  // 🆕 10/12 창6(모드니 08:17 ① · 목업 v11): 넓은 화면 = 지역 목록을 오른쪽 지구본 칸 아래(전폭 ✗) · 폭 = 지구본 원 폭(layoutGlobe 가 맞춤)
+  else { if (exp.parentElement !== hero) hero.appendChild(exp); if (disc.parentElement !== exp) exp.appendChild(disc); }
   layoutGlobe();
 }
 let rT = null;
@@ -1461,7 +1484,7 @@ async function loadTrips(){
     });
     S.tripsLoad = "ok";
     if (!S.tabTouched) S.tab = MY.length ? "mine" : "modni";
-    if (S.tab === "mine"){ const first = MY.find(t => t.at); if (first){ S.rot = [-first.at[0], -Math.max(-50, Math.min(50, first.at[1])), 0]; S.region = frontRegion(MY, false) || REGION_OF_GROUP[first.g] || null; } }   // 🆕 v4.2 ④(창3): 돌린 뒤 대륙 = 정면 판정(표 값 ✗)
+    if (S.tab === "mine"){ const first = MY.find(t => t.at); if (first){ S.rot = [-first.at[0], -Math.max(-50, Math.min(50, first.at[1])), 0]; if (S.region !== "all") S.region = frontRegion(MY, false) || REGION_OF_GROUP[first.g] || null; } }   // 🆕 v4.2 ④(창3): 돌린 뒤 대륙 = 정면 판정(표 값 ✗)
   } catch(e){ S.tripsLoad = "error"; }
   renderAll();
 }
