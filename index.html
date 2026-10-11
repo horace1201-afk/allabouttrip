@@ -357,7 +357,7 @@ img{max-width:100%}
   #home4 .page{padding:16px 20px 24px}
   #home4 .hero4{display:block}
   #home4 .intro{padding:0}
-  #home4 .intro > .h-title,#home4 .intro > .eyebrow{display:none}
+  #home4 .intro > .h-title,#home4 .intro > .eyebrow,#home4 .intro > .hero-head{display:none}
   #home4 .mobile-chat{display:flex;align-items:flex-start;gap:10px;margin:0 0 14px}
   #home4 .mobile-chat .face{width:28px;height:28px;margin-top:12px}
   #home4 .chat-bubble{flex:1;min-width:0;padding:12px 14px;background:#f0eee7;border-radius:4px 18px 18px 18px}
@@ -396,10 +396,20 @@ img{max-width:100%}
 #home4 .page{max-width:1380px;padding:22px 34px 32px}
 #home4 .hero4{grid-template-columns:minmax(0,.92fr) minmax(0,1.22fr);gap:48px;align-items:center}
 #home4 .intro{padding:38px 0 24px;align-self:center}
+/* 🆕 10/12 창6(모드니 08:26 · 목업 v12): ① 첫 줄 두 줄(27/700 · 1.7) + 그림(높이 ≈ 두 줄) ② 「어디로 떠나고 싶어요?」 22/700 ③ 밑줄 입력 + 시작하기 아래 끝 맞춤 */
+#home4 .hero-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 40px}
+#home4 .hero-head .eyebrow{margin:0;font-size:27px;line-height:1.7;font-weight:700;letter-spacing:0;color:var(--green)}
+#home4 .hero-art{flex:none;height:92px;width:auto;display:block}
+#home4 .intro .h-title{font-size:22px;line-height:1.35;font-weight:700;letter-spacing:0;margin:0 0 12px}
+#home4 .search4{padding:16px}
+#home4 .search-row{gap:14px}
 /* G: 두 줄 입력 */
 #home4 .search-row{align-items:flex-end}
 #home4 .search-row textarea{flex:1;width:0;min-width:0;min-height:44px;resize:none;border:0;outline:0;background:transparent;padding:8px 0;font:inherit;font-size:16px;line-height:1.55;color:var(--ink)}
 #home4 .search-row textarea::placeholder{font-size:13px;line-height:1.55;color:#9A948D;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}   /* 🆕 10/11 창3(영아 20:09 · 목업 v8): 예시 글 한 줄 · 회색 · 줄바꿈 ✗ */
+/* 🆕 10/12 창6 ③: 옅은 밑줄 입력칸 · 예시 글 아주 흐리게(위 규칙 뒤라야 이김) */
+#home4 .search-row textarea{border-bottom:1px solid var(--line);padding:0 2px 8px;min-height:0}
+#home4 .search-row textarea::placeholder{color:rgba(110,104,120,.45)}
 /* A: 다가오는 여행 카드(입력 아래 · PC 폭 = 왼쪽 입력 폭) */
 #home4 .resume4{display:flex;gap:18px;align-items:center;margin:96px 0 0;padding:17px 18px;border:1px solid #dce6db;border-radius:14px;background:#f0f4eb}
 #home4 .resume-copy{flex:1;min-width:0}
@@ -498,11 +508,12 @@ img{max-width:100%}
     <div id="home4"><div class="page">
       <div class="hero4" id="hero4">
         <section class="intro" aria-labelledby="h-title">
-          <p class="eyebrow" id="eyebrow">계획은 크게, 여행은 가볍게</p>
+          <!-- 🆕 10/12 창6(모드니 08:26 · 목업 v12 · 영아 08:23): 첫 줄 = 「계획은 크게 / 여행은 가볍게」 두 줄(초록) + 오른쪽 끝 기기 그림(높이 = 두 줄) -->
+          <div class="hero-head"><p class="eyebrow" id="eyebrow">계획은 크게<br>여행은 가볍게</p><img class="hero-art" src="assets/home/hero_devices.png" alt="" aria-hidden="true" width="640" height="409"></div>
           <h1 class="h-title" id="h-title">어디로 떠나고 싶어요?</h1>
           <div class="mobile-chat"><span class="face-shell chat-face" aria-hidden="true"><img src="assets/home/modni-a-refined.svg" alt=""></span><div class="chat-bubble"><strong id="chat-q">어디로 떠나고 싶어요?</strong><span id="chat-sub">도시만 적어도 괜찮아요. 원하는 여행을 함께 찾아봐요.</span></div></div>
           <form class="search4" id="search-form" role="search" aria-labelledby="q-label">
-            <label class="input-label" for="q" id="q-label">모드니와 여행 만들기</label>
+            <label class="input-label sr" for="q" id="q-label">모드니와 여행 만들기</label>   <!-- 🆕 10/12 창6 ③: 화면 문구 ✗ · 화면 읽기용만 -->
             <div class="search-row">
               <textarea id="q" name="q" rows="2" autocomplete="off" enterkeyhint="go" placeholder="5월에 친구 네명이랑 남프랑스 렌터카여행"></textarea>
               <button type="button" class="icon-btn" id="q-clear" aria-label="입력 지우기" hidden>
@@ -957,6 +968,20 @@ function renderSearch(){
   paintFaces(slot);
 }
 /** ① 다가오는 여행 띠 — 로그인 + 다가오는 여행 있을 때만(없으면 띠 ✗ · 영아 10/10 08:35) */
+/** 🆕 10/12 창6(모드니 08:26 ④): 넓은 두 칸 = 다가오는 여행 카드 아래 끝을 지구본 원 아래 끝에 맞춤(왼쪽 칸이 가운데 정렬이라 몇 번 재며 맞춤) */
+function alignUpCard(){
+  const card = $("#up-card"), box = $("#globe-box"), hero = $("#hero4"), exp = $("#explorer");
+  if (!card || !box || !hero || !exp) return;
+  const twoCol = exp.parentElement === hero && getComputedStyle(hero).gridTemplateColumns.split(" ").length > 1;
+  if (card.hidden || !twoCol){ card.style.marginTop = ""; return; }
+  let m = parseFloat(getComputedStyle(card).marginTop) || 24;
+  for (let i = 0; i < 8; i++){
+    const b = box.getBoundingClientRect(), circleBottom = b.top + b.height / 2 + Math.min(b.width, b.height) * 0.47;
+    const d = circleBottom - card.getBoundingClientRect().bottom;
+    if (Math.abs(d) < 1.5) break;
+    m = Math.max(24, m + d); card.style.marginTop = m + "px";
+  }
+}
 function renderBand(){
   // 🆕 v4.1 A: 입력 아래 카드 — D-day · 전체 여행명(2줄) · 출발일·박수 · 「열기 →」(종전 openTripId 길 그대로)
   const card = $("#up-card"), up = currentUser && S.tripsLoad === "ok" ? MY.find(t => t.upcoming) : null;
@@ -964,6 +989,7 @@ function renderBand(){
   if (!up) return;
   $("#up-dday").textContent = up.st; $("#up-title").textContent = up.title; $("#up-sub").textContent = up.sub;
   $("#up-open").href = WEB_APP_URL + "/mytrips?openTripId=" + encodeURIComponent(up.id);
+  requestAnimationFrame(alignUpCard);
 }
 function renderContinue(){
   const slot = $("#continue-slot");
@@ -1050,6 +1076,7 @@ function layoutGlobe(){
   svg.attr("viewBox", `0 0 ${GW} ${GH}`);
   // 🆕 10/12 창6: 지구본 칸 아래 지역 목록 폭 = 원 지름(짧은 변 94% · 확대 100% 기준) — 칸 밖으로 안 나가고 지구본을 안 가림
   const disc = $("#discovery"); if (disc) disc.style.maxWidth = disc.parentElement === $("#explorer") ? Math.round(Math.min(GW, GH) * 0.94) + "px" : "";
+  requestAnimationFrame(alignUpCard);
   draw();
 }
 function draw(){
@@ -1637,7 +1664,7 @@ const EN_TEXTS = [
 ],
 [
 "#eyebrow",
-"Plan big, travel light"
+"Plan big<br>travel light"
 ],
 [
 "#chat-q",
