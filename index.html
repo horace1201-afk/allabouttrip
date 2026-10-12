@@ -394,8 +394,16 @@ img{max-width:100%}
 @media (max-width:699px){.wrap{padding:0 20px}}
 /* 🆕 대문 v4.1(영아 10/10 16:44 「목업과 달라」 · 지피 v5 보강 지시서 A~K · 목업 VIS/home-structure-v5.html SHA256 052007B4…CC79) — v4 규칙 위에 덮음 */
 #home4 .page{max-width:1380px;padding:22px 34px 32px}
-#home4 .hero4{grid-template-columns:minmax(0,.92fr) minmax(0,1.22fr);gap:48px;align-items:center}
-#home4 .intro{padding:38px 0 24px;align-self:center}
+#home4 .hero4{grid-template-columns:minmax(0,.92fr) minmax(0,1.22fr);gap:48px;align-items:start}   /* 🔴 10/12 창6(모드니 09:07 ⛔): center ✗ → start(왼쪽이 지구본 칸 높이 따라 안 움직임) */
+#home4 .intro{padding:38px 0 24px;align-self:start}
+/* 🔴 10/12 창6(모드니 09:07 ⛔ · 영아 09:05): 「다가오는 여행 아래 끝 = 지구본 원 아래 끝」 = JS ✗ → CSS 고정값만
+   왼쪽 칸 높이 = 탭 줄 + 원 아래 끝까지(오른쪽 칸 폭 = (min(100vw,1380) − 116) × .57 · 지구본 칸 = min(610, 그 폭) · 원 = 칸 가운데 + 47%)
+   화면 폭이 바뀔 때만 달라짐 · 지구본 돌리기·확대·검색·탭·목록과 무관 */
+@container home4 (min-width:851px){
+  #home4 .intro{--gate-box:min(610px, calc((min(100vw, 1380px) - 116px) * 0.57));box-sizing:border-box;min-height:calc(var(--gate-h0, 61px) + var(--gate-box) * 0.97);display:flex;flex-direction:column}
+  #home4 .intro > .resume4{margin-top:auto}
+  #home4 .intro > #answer-slot:not(:empty){margin-bottom:24px}
+}
 /* 🆕 10/12 창6(모드니 08:26 · 목업 v12): ① 첫 줄 두 줄(27/700 · 1.7) + 그림(높이 ≈ 두 줄) ② 「어디로 떠나고 싶어요?」 22/700 ③ 밑줄 입력 + 시작하기 아래 끝 맞춤 */
 #home4 .hero-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 40px}
 #home4 .hero-head .eyebrow{margin:0;font-size:27px;line-height:1.7;font-weight:700;letter-spacing:0;color:var(--green)}
@@ -411,7 +419,7 @@ img{max-width:100%}
 #home4 .search-row textarea{border-bottom:1px solid var(--line);padding:0 2px 8px;min-height:0}
 #home4 .search-row textarea::placeholder{color:rgba(110,104,120,.45)}
 /* A: 다가오는 여행 카드(입력 아래 · PC 폭 = 왼쪽 입력 폭) */
-#home4 .resume4{display:flex;gap:18px;align-items:center;margin:96px 0 0;padding:17px 18px;border:1px solid #dce6db;border-radius:14px;background:#f0f4eb}
+#home4 .resume4{display:flex;gap:18px;align-items:center;margin:24px 0 0;padding:17px 18px;border:1px solid #dce6db;border-radius:14px;background:#f0f4eb}
 #home4 .resume-copy{flex:1;min-width:0}
 #home4 .resume4 small{display:flex;gap:12px;margin-bottom:5px;font-size:12px;line-height:18px;color:#285B46}
 #home4 .resume4 small .dd{font-variant-numeric:tabular-nums}
@@ -524,8 +532,8 @@ img{max-width:100%}
           </form>
           <!-- 🆕 10/11 창3(영아 20:03~20:08 ① · 목업 v8): 입력 칸 아래 예시 칩 2개 삭제 — 예시 글은 placeholder 한 줄 -->
           <!-- 🆕 v4.1 A: 다가오는 여행 = 입력·예시 아래 카드 하나(손님·여행 없음 = 숨김 · 실제 여행 조회·열기 길) -->
-          <section class="resume4" id="up-card" aria-label="다가오는 여행" hidden><div class="resume-copy"><small><span id="up-k">다가오는 여행</span><span class="dd" id="up-dday"></span></small><strong id="up-title"></strong><p id="up-sub"></p></div><a class="up-open" id="up-open" href="#" aria-label="다가오는 여행 일정 열기">열기 →</a></section>
           <div id="answer-slot"></div>
+          <section class="resume4" id="up-card" aria-label="다가오는 여행" hidden><div class="resume-copy"><small><span id="up-k">다가오는 여행</span><span class="dd" id="up-dday"></span></small><strong id="up-title"></strong><p id="up-sub"></p></div><a class="up-open" id="up-open" href="#" aria-label="다가오는 여행 일정 열기">열기 →</a></section>
         </section>
         <section class="explorer" id="explorer" aria-label="지구본으로 여행 찾기">
           <div class="tabs" role="tablist" aria-label="지구본 선택">
@@ -533,7 +541,6 @@ img{max-width:100%}
             <button type="button" role="tab" id="tab-market" data-tab="market" aria-selected="false">여행자 코스</button>
             <button type="button" role="tab" id="tab-modni" data-tab="modni" aria-selected="true">모드니 추천</button>
           </div>
-          <p class="mode-caption" id="mode-caption" aria-live="polite"></p>
           <div class="globe-box" id="globe-box">
             <svg id="globe" role="img" aria-label="지역을 골라 여행을 찾는 지구본"></svg>
             <div class="pins4" id="pins4"></div>
@@ -968,20 +975,6 @@ function renderSearch(){
   paintFaces(slot);
 }
 /** ① 다가오는 여행 띠 — 로그인 + 다가오는 여행 있을 때만(없으면 띠 ✗ · 영아 10/10 08:35) */
-/** 🆕 10/12 창6(모드니 08:26 ④): 넓은 두 칸 = 다가오는 여행 카드 아래 끝을 지구본 원 아래 끝에 맞춤(왼쪽 칸이 가운데 정렬이라 몇 번 재며 맞춤) */
-function alignUpCard(){
-  const card = $("#up-card"), box = $("#globe-box"), hero = $("#hero4"), exp = $("#explorer");
-  if (!card || !box || !hero || !exp) return;
-  const twoCol = exp.parentElement === hero && getComputedStyle(hero).gridTemplateColumns.split(" ").length > 1;
-  if (card.hidden || !twoCol){ card.style.marginTop = ""; return; }
-  let m = parseFloat(getComputedStyle(card).marginTop) || 24;
-  for (let i = 0; i < 8; i++){
-    const b = box.getBoundingClientRect(), circleBottom = b.top + b.height / 2 + Math.min(b.width, b.height) * 0.47;
-    const d = circleBottom - card.getBoundingClientRect().bottom;
-    if (Math.abs(d) < 1.5) break;
-    m = Math.max(24, m + d); card.style.marginTop = m + "px";
-  }
-}
 function renderBand(){
   // 🆕 v4.1 A: 입력 아래 카드 — D-day · 전체 여행명(2줄) · 출발일·박수 · 「열기 →」(종전 openTripId 길 그대로)
   const card = $("#up-card"), up = currentUser && S.tripsLoad === "ok" ? MY.find(t => t.upcoming) : null;
@@ -989,7 +982,6 @@ function renderBand(){
   if (!up) return;
   $("#up-dday").textContent = up.st; $("#up-title").textContent = up.title; $("#up-sub").textContent = up.sub;
   $("#up-open").href = WEB_APP_URL + "/mytrips?openTripId=" + encodeURIComponent(up.id);
-  requestAnimationFrame(alignUpCard);
 }
 function renderContinue(){
   const slot = $("#continue-slot");
@@ -1076,7 +1068,6 @@ function layoutGlobe(){
   svg.attr("viewBox", `0 0 ${GW} ${GH}`);
   // 🆕 10/12 창6: 지구본 칸 아래 지역 목록 폭 = 원 지름(짧은 변 94% · 확대 100% 기준) — 칸 밖으로 안 나가고 지구본을 안 가림
   const disc = $("#discovery"); if (disc) disc.style.maxWidth = disc.parentElement === $("#explorer") ? Math.round(Math.min(GW, GH) * 0.94) + "px" : "";
-  requestAnimationFrame(alignUpCard);
   draw();
 }
 function draw(){
@@ -1458,10 +1449,12 @@ function submitSearch(){
   renderSearch(); renderDiscovery();
   if (!q){ $("#q").focus(); toast("도시나 원하는 여행을 한마디 적어 주세요"); }
 }
-$("#search-form").addEventListener("submit", (e) => { e.preventDefault(); submitSearch(); });
+/* 🆕 10/12 창6(모드니 09:14): 시작하기 = plan.allabouttrip.app/survey?q=<입력>&from=gate(비면 q 없이) · 받는 쪽(서베이 q → q0 답 → 2단계) = 창3 G12-32 */
+function goGate(){ const q = $("#q").value.trim(); location.href = WEB_APP_URL + "/survey?" + (q ? "q=" + encodeURIComponent(q) + "&" : "") + "from=gate"; }
+$("#search-form").addEventListener("submit", (e) => { e.preventDefault(); goGate(); });
 $("#q").addEventListener("input", () => { $("#q-clear").hidden = !$("#q").value; });
 // G: 두 줄 입력 — Enter = 시작하기(Shift+Enter = 줄바꿈 · 한글 조합 중 ✗)
-$("#q").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing){ e.preventDefault(); submitSearch(); } });
+$("#q").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing){ e.preventDefault(); goGate(); } });
 $("#share-form").addEventListener("submit", (e) => { e.preventDefault(); const c = $("#share-code").value.trim().toUpperCase(); if (!c){ $("#share-code").focus(); return; } location.href = WEB_APP_URL + "/shared?code=" + encodeURIComponent(c); });   // 🆕 10/11 창3 ③: 공유코드 → 앱 공유 일정 보기(app/shared.tsx)
 $("#diary-dialog").addEventListener("close", () => { const b = $("#diary-open"); if (b) b.focus(); });
 /* 🆕 v4: 대문 칸(#home4) CSS 폭 620 이하 = 지구본·지역 목록을 my 월드 안으로 · 그 위 = 입력 옆(지구본) + 아래 전폭(목록) — 한 벌을 옮김 */
