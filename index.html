@@ -937,13 +937,15 @@ function interpret(q){
 // 🆕 창3 10/10 (대문 v4.2 캡처 시뮬 전용 · localhost 만 · 배포 주소에선 없음): 로그인 없이 내 여행 그림(나라 집·도시 잔디·이어서 칸)을 그려 보는 훅 — 저장 ✗ · 데이터 ✗
 if (location.hostname === "localhost") window.__home4 = { S, renderAll, draw, setUser: (u) => { currentUser = u; }, setMy: (v) => { MY = v; } };
 function renderAll(){ renderHeader(); renderBand(); renderSearch(); renderContinue(); renderTabs(); renderDiscovery(); draw(); renderGlobeState(); renderCards(); renderPopular(); }
+// 🔴 10/13 창6(창4 21:01 · 라이브 실측 「저장한 여행 374개」 ✓ 인데 계정 칸 「내 여행 40개」): 수 = 한 곳(정확한 수 · 없으면 받은 줄 수)
+function myTripCountShown(){ return typeof S.myCount === "number" ? Math.max(S.myCount, MY.length) : MY.length; }
 function userName(){ const m = currentUser && currentUser.user_metadata || {}; return m.full_name || m.name || ((currentUser && currentUser.email) || "").split("@")[0]; }
 function renderHeader(){
   const member = !!currentUser;
   $("#login-btn").hidden = member; $("#me-btn").hidden = !member;
   if (member){ const nm = userName(); $("#me-name").textContent = nm + "님"; $("#me-ini").textContent = String(nm).slice(0, 1); }
   $("#acct").innerHTML = member
-    ? `<b>${esc(userName())}님, 반가워요</b><span>${S.tripsLoad === "error" ? "내 여행을 불러오지 못했어요" : `내 여행 ${MY.length}개`}</span><a class="secondary full" href="${WEB_APP_URL}/mypage">마이페이지</a>`
+    ? `<b>${esc(userName())}님, 반가워요</b><span>${S.tripsLoad === "error" ? "내 여행을 불러오지 못했어요" : `내 여행 ${myTripCountShown()}개`}</span><a class="secondary full" href="${WEB_APP_URL}/mypage">마이페이지</a>`
     : `<b>로그인하고 여행을 담아 보세요</b><span>Google 계정 하나로 시작해요</span><button type="button" class="primary full" data-act="login">로그인</button>`;
 }
 function renderSearch(){
@@ -1002,7 +1004,7 @@ function renderContinue(){
   //   안 1(폰 ≤480) = 「이어서 계획하기」 한 줄 + world-summary 오른쪽 「나의 여행 펼치기 →」 밑 「저장한 여행 N개」 / 안 2(넓으면) = 세이지 칸(계획 중) + 세로줄 칸(나의 여행 · 펼치기 →) — CSS 가 폭으로 가름 · 「모두 보기 ›」 는 「나의 여행 펼치기 →」(같은 /mytrips) 하나로
   const pl = MY.find(t => t.planning);
   const visited = MY.filter(t => t.visited).length, planning = MY.length - visited;
-  const wc = $("#world-count"); if (wc){ wc.textContent = `저장한 여행 ${typeof S.myCount === "number" ? Math.max(S.myCount, MY.length) : MY.length}개`; wc.hidden = false; }
+  const wc = $("#world-count"); if (wc){ wc.textContent = `저장한 여행 ${myTripCountShown()}개`; wc.hidden = false; }
   const tripHtml = (t) => `<div class="trip"><b>${esc(t.title)}</b><small>${esc(t.sub)}</small></div>`;
   slot.innerHTML = `<div class="resume cont-v1" ${pl ? "" : "hidden"}>${pl ? `<p class="resume-caption">이어서 계획하기</p><div class="resume-row"><span class="status">${esc(pl.st)}</span>${tripHtml(pl)}<button type="button" class="quiet" data-trip="${esc(pl.id)}">이어서 →</button></div>` : ""}</div>
     <div class="tile cont-v2">${pl ? `<div class="draft-tile"><p class="resume-caption">계획 중인 여행</p>${tripHtml(pl)}<button type="button" class="quiet" data-trip="${esc(pl.id)}">이어서 →</button></div>` : ""}<div class="plain-count"><p class="resume-caption">나의 여행</p><div class="trip"><b>저장한 여행 ${MY.length}개</b><small>계획 중 ${planning} · 다녀옴 ${visited}</small></div><button type="button" class="quiet" data-act="world-list">나의 여행 펼치기 →</button></div></div>`;
