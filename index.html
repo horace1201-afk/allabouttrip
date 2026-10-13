@@ -1002,7 +1002,7 @@ function renderContinue(){
   //   안 1(폰 ≤480) = 「이어서 계획하기」 한 줄 + world-summary 오른쪽 「나의 여행 펼치기 →」 밑 「저장한 여행 N개」 / 안 2(넓으면) = 세이지 칸(계획 중) + 세로줄 칸(나의 여행 · 펼치기 →) — CSS 가 폭으로 가름 · 「모두 보기 ›」 는 「나의 여행 펼치기 →」(같은 /mytrips) 하나로
   const pl = MY.find(t => t.planning);
   const visited = MY.filter(t => t.visited).length, planning = MY.length - visited;
-  const wc = $("#world-count"); if (wc){ wc.textContent = `저장한 여행 ${MY.length}개`; wc.hidden = false; }
+  const wc = $("#world-count"); if (wc){ wc.textContent = `저장한 여행 ${typeof S.myCount === "number" ? Math.max(S.myCount, MY.length) : MY.length}개`; wc.hidden = false; }
   const tripHtml = (t) => `<div class="trip"><b>${esc(t.title)}</b><small>${esc(t.sub)}</small></div>`;
   slot.innerHTML = `<div class="resume cont-v1" ${pl ? "" : "hidden"}>${pl ? `<p class="resume-caption">이어서 계획하기</p><div class="resume-row"><span class="status">${esc(pl.st)}</span>${tripHtml(pl)}<button type="button" class="quiet" data-trip="${esc(pl.id)}">이어서 →</button></div>` : ""}</div>
     <div class="tile cont-v2">${pl ? `<div class="draft-tile"><p class="resume-caption">계획 중인 여행</p>${tripHtml(pl)}<button type="button" class="quiet" data-trip="${esc(pl.id)}">이어서 →</button></div>` : ""}<div class="plain-count"><p class="resume-caption">나의 여행</p><div class="trip"><b>저장한 여행 ${MY.length}개</b><small>계획 중 ${planning} · 다녀옴 ${visited}</small></div><button type="button" class="quiet" data-act="world-list">나의 여행 펼치기 →</button></div></div>`;
@@ -1476,11 +1476,19 @@ async function loadTrips(){
   MY = [];
   if (!currentUser){ S.tripsLoad = "ok"; renderAll(); return; }
   S.tripsLoad = "loading"; renderAll();
+  S.myCount = null;
   try {
+    // 🔴 10/13 창6(창4 19:45 ✗ 「저장한 여행 40개 ↔ 앱 서베이 368개」): 목록은 40줄만 받아 「N개」 가 늘 40 에서 멈췄다 → 개수 = 따로 정확히 셈(head)
+    //   조건 = 앱 lib/trip/listed.ts LISTED_TRIP_OR 그대로(superseded·archived 숨김 포함) + 내 user_id(앱 countMyTrips 와 같은 수)
+    const LISTED_OR = "and(or(pref->modniCourse->>superseded.is.null,pref->modniCourse->>superseded.neq.true),or(pref->modniCourse->>archived.is.null,pref->modniCourse->>archived.neq.true),or(pref->modniCourse->>listed.eq.true,and(pref->modniCourse->>listed.is.null,pref->modniCourse->>stay.is.null,pref->modniCourse->>block.is.null)))";
+    const uid = currentUser.id;
+    sb.from("trips").select("id", { count: "exact", head: true }).eq("user_id", uid).is("deleted_at", null).or(LISTED_OR)
+      .then(({ count, error: ce }) => { if (!ce && typeof count === "number" && currentUser && currentUser.id === uid){ S.myCount = count; renderAll(); } }, () => {});
     const { data, error } = await sb.from("trips")
       .select("id, title, region, depart_date, nights, status, draft_step, updated_at, itinerary")
       // 9/28 #105: 내 여행 = 완성 코스만 — 도시 블록(pref.modniCourse.stay · .block) 숨김(앱 lib/trip/listed.ts 와 같은 조건)
-      .or("pref->modniCourse->>listed.eq.true,and(pref->modniCourse->>listed.is.null,pref->modniCourse->>stay.is.null,pref->modniCourse->>block.is.null)")
+      .eq("user_id", currentUser.id)
+      .or(LISTED_OR)
       .is("deleted_at", null)
       .order("updated_at", { ascending: false }).limit(40);
     if (error) throw error;
