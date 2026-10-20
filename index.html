@@ -548,8 +548,7 @@ img{max-width:100%}
         <section class="explorer" id="explorer" aria-label="지구본으로 여행 찾기">
           <div class="tabs" role="tablist" aria-label="지구본 선택">
             <button type="button" role="tab" id="tab-mine" data-tab="mine" aria-selected="false">내 여행</button>
-            <button type="button" role="tab" id="tab-market" data-tab="market" aria-selected="false">여행자 코스</button>
-            <button type="button" role="tab" id="tab-modni" data-tab="modni" aria-selected="true">모드니 추천</button>
+            <button type="button" role="tab" id="tab-modni" data-tab="modni" aria-selected="true">모두의 여행</button>
           </div>
           <div class="globe-box" id="globe-box">
             <svg id="globe" role="img" aria-label="지역을 골라 여행을 찾는 지구본"></svg>
@@ -708,6 +707,7 @@ img{max-width:100%}
 <div id="toast" role="status" hidden></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<script src="assets/home/globe-core.js"></script>
 <script>
 /* ─────────────────────────────────────────
    여행의 모든것 대문 v1 (10/10 창2 · 모드니 06:0x G12 ① · 덧그림 창6 대문_v1 + 명세.md 그대로 · 지피 ✗ 반영)
@@ -1019,36 +1019,23 @@ function renderContinue(){
   slot.innerHTML = `<div class="resume cont-v1" ${pl ? "" : "hidden"}>${pl ? `<p class="resume-caption">이어서 계획하기</p><div class="resume-row"><span class="status">${esc(pl.st)}</span>${tripHtml(pl)}<button type="button" class="quiet" data-trip="${esc(pl.id)}">이어서 →</button></div>` : ""}</div>
     <div class="tile cont-v2">${pl ? `<div class="draft-tile"><p class="resume-caption">계획 중인 여행</p>${tripHtml(pl)}<button type="button" class="quiet" data-trip="${esc(pl.id)}">이어서 →</button></div>` : ""}<div class="plain-count"><p class="resume-caption">나의 여행</p><div class="trip"><b>저장한 여행 ${MY.length}개</b><small>계획 중 ${planning} · 다녀옴 ${visited}</small></div><button type="button" class="quiet" data-act="world-list">나의 여행 펼치기 →</button></div></div>`;
 }
-function renderTabs(){ $$(".tabs [role=tab]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === S.tab))); }
+// 기존 market/modni 선택값은 모두 공개 여행 탭으로 연결한다.
+function globeTab(tab){ return tab === "mine" ? "mine" : "modni"; }
+function renderTabs(){ $$(".tabs [role=tab]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === globeTab(S.tab)))); }
 
 /* ── 지구본(d3 정사영 · 세이지) — 확정 모양 1~9 ── */
 let LAND = null, COUNTRIES = null;
-function topoFeature(topo, o){
-  const tf = topo.transform;
-  const arcs = topo.arcs.map(arc => { let x = 0, y = 0; return arc.map(p => { if (!tf) return p.slice(); x += p[0]; y += p[1]; return [x * tf.scale[0] + tf.translate[0], y * tf.scale[1] + tf.translate[1]]; }); });
-  const arcPts = (i) => (i >= 0 ? arcs[i] : arcs[~i].slice().reverse());
-  const ring = (idx) => { const pts = []; idx.forEach((i, k) => { const a = arcPts(i); pts.push(...(k ? a.slice(1) : a)); }); return pts; };
-  const geom = (g) => (g.type === "Polygon" ? { type: "Polygon", coordinates: g.arcs.map(ring) } : g.type === "MultiPolygon" ? { type: "MultiPolygon", coordinates: g.arcs.map(p => p.map(ring)) } : null);
-  return { type: "FeatureCollection", features: o.geometries.map(g => ({ type: "Feature", id: g.id, properties: g.properties || {}, geometry: geom(g) })).filter(f => f.geometry) };
-}
+
 const KO = { Japan: '일본', 'South Korea': '대한민국', 'North Korea': '북한', China: '중국', Taiwan: '대만', Vietnam: '베트남', Thailand: '태국', Philippines: '필리핀', Malaysia: '말레이시아', Indonesia: '인도네시아', Laos: '라오스', Cambodia: '캄보디아', Myanmar: '미얀마', India: '인도', Mongolia: '몽골', Russia: '러시아', Kazakhstan: '카자흐스탄', 'United States of America': '미국', Canada: '캐나다', Mexico: '멕시코', Brazil: '브라질', Argentina: '아르헨티나', Peru: '페루', Chile: '칠레', 'United Kingdom': '영국', Ireland: '아일랜드', France: '프랑스', Spain: '스페인', Portugal: '포르투갈', Italy: '이탈리아', Germany: '독일', Switzerland: '스위스', Austria: '오스트리아', Netherlands: '네덜란드', Belgium: '벨기에', Czechia: '체코', Poland: '폴란드', Hungary: '헝가리', Croatia: '크로아티아', Greece: '그리스', Turkey: '튀르키예', Norway: '노르웨이', Sweden: '스웨덴', Finland: '핀란드', Denmark: '덴마크', Iceland: '아이슬란드', Egypt: '이집트', Morocco: '모로코', 'South Africa': '남아프리카공화국', Kenya: '케냐', Tanzania: '탄자니아', 'Saudi Arabia': '사우디아라비아', 'United Arab Emirates': '아랍에미리트', Israel: '이스라엘', Jordan: '요르단', Iran: '이란', Australia: '호주', 'New Zealand': '뉴질랜드', Nepal: '네팔', 'Sri Lanka': '스리랑카', Uzbekistan: '우즈베키스탄' };
 /* 🆕 대문 v4 — 지구본(d3 정사영 · 칸 최대 470 · 가로:세로 1.24) + 대륙 탭 + 지역 목록(대륙 → 나라 → 코스 · 글씨만 · 항상 펼침)
    지구본 돌리면 정면 대륙의 탭·목록이 바뀌고 · 대륙 탭 누르면 지구본·목록이 같이 바뀜 · 끄는 동안 코스 이동/저장 0
-   많은 곳 = 얼굴 크기로(점·+숫자 배지 ✗) · 내 여행 = 집(계획 중) · 탭 셋 = 각자 실제 데이터(내 여행 = 내 것 · 여행자 = 공개 코스 · 모드니 = 모드니 코스) */
-const REGIONS = [
-  { id: "eu", name: "유럽", en: "Europe", groups: ["유럽"], at: [14, 47] },
-  { id: "ea", name: "동아시아", en: "East Asia", groups: ["국내", "일본", "동북아"], at: [128, 35] },
-  { id: "sea", name: "동남아", en: "Southeast Asia", groups: ["동남아"], at: [106, 12] },
-  { id: "sa", name: "남·중앙아시아", en: "South & Central Asia", groups: ["남·중앙아"], at: [74, 26] },
-  { id: "mea", name: "중동·아프리카", en: "Middle East & Africa", groups: ["중동·아프리카"], at: [36, 18] },
-  { id: "oc", name: "오세아니아", en: "Oceania", groups: ["오세아니아"], at: [146, -28] },
-  { id: "am", name: "미주", en: "Americas", groups: ["미주"], at: [-96, 32] },
-];
+   많은 곳 = 얼굴 크기로(점·+숫자 배지 ✗) · 내 여행 = 집(계획 중) · 모두의 여행 = 여행자 공개 코스 + 모드니 코스 */
+const REGIONS = AatGlobe.GLOBE_REGIONS;
 const REGION_OF_GROUP = Object.fromEntries(REGIONS.flatMap(r => r.groups.map(g => [g, r.id])));
 const regionById = (id) => REGIONS.find(r => r.id === id) || null;
 const CAPTION = {
-  ko: { mine: "내가 담고 다녀온 여행이 모이는 곳", market: "다른 여행자가 만든 코스를 살펴보세요.", modni: "모드니가 준비한 여행을 지역별로 살펴보세요." },
-  en: { mine: "Where the trips you saved and took come together", market: "Browse courses made by other travelers.", modni: "Explore Modni's ready-made trips by region." },
+  ko: { mine: "내가 담고 다녀온 여행이 모이는 곳", modni: "여행자와 모드니의 여행을 지역별로 살펴보세요." },
+  en: { mine: "Where the trips you saved and took come together", modni: "Explore trips from travelers and Modni by region." },
 };
 const svg = d3.select("#globe");
 const defs = svg.append("defs");
@@ -1068,8 +1055,8 @@ const pGrass = gBase.append("path").attr("class", "grass");   // 🆕 v4.2 ③: 
 const pHover = gBase.append("path").attr("class", "c-hover");
 const pBorders = gBase.append("path").attr("class", "borders");
 const pShade = gBase.append("circle").attr("class", "shade").attr("fill", "url(#globe-shade)");
-const proj = d3.geoOrthographic().clipAngle(90).precision(0.5);
-const geoPath = d3.geoPath(proj);
+let sharedWorld = { land: null, countries: { type: "FeatureCollection", features: [] } };
+let currentScene = null, sceneKey = "", sceneMy = null, sceneCourses = null, sceneUser = null, sceneWorld = null;
 /* 🆕 v4.1 B: 칸 최대 610×610 · aspect 1 · 구 지름 = 짧은 변 94%(r = .47 × min(W,H)) · C: 확대 100~240% 는 같은 projection 에 */
 let GW = 560, GH = 560, GR = 263, GCX = 280, GCY = 280;
 const ZOOM_MIN = 1, ZOOM_MAX = 2.4;
@@ -1082,24 +1069,44 @@ function layoutGlobe(){
   const disc = $("#discovery"); if (disc) disc.style.maxWidth = disc.parentElement === $("#explorer") ? Math.round(Math.min(GW, GH) * 0.94) + "px" : "";
   draw();
 }
+
+function homeGlobeState(){ return AatGlobe.createGlobeState({ tab: S.tab, region: S.region || "all", rot: S.rot, zoom: S.zoom, city: S.city }); }
+function homeGlobeData(){
+  const items = tabItems().map(t => ({ ...t, id: t.id || t.trip }));
+  return { world: sharedWorld, mine: S.tab === "mine" ? items : [], public: S.tab === "mine" ? [] : items };
+}
+function homeScene(){
+  const key = [GW, GH, S.tab, S.region, S.rot.join(","), S.zoom, S.city?.key, S.load, S.tripsLoad, lang, window.innerWidth <= 430].join("|");
+  if (!currentScene || key !== sceneKey || MY !== sceneMy || courses !== sceneCourses || currentUser !== sceneUser || sharedWorld !== sceneWorld){
+    currentScene = AatGlobe.buildGlobeScene({ width: GW, height: GH, state: homeGlobeState(), data: homeGlobeData(), compact: window.innerWidth <= 430, locale: lang === "en" ? "en" : "ko" });
+    sceneKey = key; sceneMy = MY; sceneCourses = courses; sceneUser = currentUser; sceneWorld = sharedWorld;
+  }
+  return currentScene;
+}
+function applyGlobeEvent(event){
+  const next = AatGlobe.reduceGlobeState(homeGlobeState(), event, homeGlobeData());
+  S.tab = next.tab === "mine" ? "mine" : "modni"; S.region = next.region; S.rot = next.rot; S.zoom = next.zoom; S.city = next.city;
+}
 function draw(){
-  if (S.city){ drawCity(); return; }   // 🆕 v4.2 ③: 도시 보기 = 평면(시안 geoMercator fitExtent · 차이표 Q6 추천)
-  GR = Math.min(GW, GH) * 0.47 * S.zoom;
-  clip.attr("cx", GCX).attr("cy", GCY).attr("r", GR - 0.5);
-  pShade.attr("cx", GCX).attr("cy", GCY).attr("r", GR);
-  proj.translate([GCX, GCY]).scale(GR - 1).rotate(S.rot);
-  pSphere.attr("d", geoPath({ type: "Sphere" }));
-  pLand.attr("d", LAND ? geoPath(LAND) : null);
-  pGrass.attr("d", null);
-  pBorders.attr("d", COUNTRIES ? geoPath(COUNTRIES) : null);
-  const lv = $("#zoom-level"); if (lv) lv.textContent = Math.round(S.zoom * 100) + "%";
+  const scene = homeScene();
+  GR = scene.shadeRadius;
+  clip.attr("cx", scene.clip.cx).attr("cy", scene.clip.cy).attr("r", scene.clip.r);
+  pShade.attr("cx", scene.clip.cx).attr("cy", scene.clip.cy).attr("r", scene.shadeRadius);
+  pSphere.attr("d", scene.paths.sphere); pLand.attr("d", scene.paths.land);
+  pGrass.attr("d", scene.paths.grass); pBorders.attr("d", scene.paths.borders);
+  if (scene.mode === "city") pHover.attr("d", null);
+  const lv = $("#zoom-level"); if (lv) lv.textContent = scene.zoomLabel;
   const zo = $('[data-zoom="out"]'), zi = $('[data-zoom="in"]');
-  if (zo) zo.disabled = S.zoom <= ZOOM_MIN + 1e-6; if (zi) zi.disabled = S.zoom >= ZOOM_MAX - 1e-6;
+  if (zo) zo.disabled = !scene.canZoomOut; if (zi) zi.disabled = !scene.canZoomIn;
   drawPins();
 }
-function setZoom(z){ const v = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, Math.round(z * 100) / 100)); if (v === S.zoom) return false; S.zoom = v; draw(); return true; }
-const visible = (at) => d3.geoDistance(at, [-S.rot[0], -S.rot[1]]) < Math.PI / 2 - 0.08;
-const inBox = (x, y, m) => x >= m && x <= GW - m && y >= m && y <= GH - m;   // 확대하면 구가 칸 밖으로 나감 — 칸 안 핀만
+function setZoom(z){
+  const before = S.zoom, city = S.city;
+  applyGlobeEvent({ type: "zoom", zoom: z });
+  if (S.zoom === before && S.city === city) return false;
+  draw(); return true;
+}
+
 /** 이 탭에 보일 것 = [{ id(코스/여행), label, region, country, city, at, trip? }] — 탭마다 따로(목업 예시 목록 복제 ✗) */
 function tabItems(){
   if (S.tab === "mine"){
@@ -1108,101 +1115,34 @@ function tabItems(){
     return MY.filter(t => t.a2 && t.country && t.city && t.at).filter(t => !S.city || cityKeyOf(t) === S.city.key /* 🆕 v4.2 ③: 도시 보기 = 그 도시 여행만 */).map(t => ({ trip: t.id, label: `${t.title} · ${t.st}`, region: REGION_OF_GROUP[t.g] || null, country: t.country, city: t.city, at: t.at, visited: t.visited })).filter(t => t.region);
   }
   if (S.load !== "ok") return [];
-  const list = marketCourses().filter(c => S.tab === "modni" ? c.is_sample : !c.is_sample);
+  const list = marketCourses();
   return list.map(c => { const p = coursePlace[c.id]; if (!p || !p.a2 || !A2_KO[p.a2]) return null;   // 나라 값 없음 = 지역 미확인
     return { id: c.id, label: titleOf(c), region: REGION_OF_GROUP[p.g] || null, country: A2_KO[p.a2], city: p.city, at: p.at, n: c.download_count || 0 }; }).filter(it => it && it.region);
 }
 function regionCounts(items){ const m = {}; items.forEach(it => { m[it.region] = (m[it.region] || 0) + 1; }); return m; }
 /** 정면(지구본 가운데)에 가장 가까운 대륙 — onlyWithData = 처음 고를 때(데이터 있는 대륙 먼저) · 돌릴 때는 7개 전부 */
-function frontRegion(items, onlyWithData){
-  const have = regionCounts(items), c = [-S.rot[0], -S.rot[1]];
-  let best = null, bd = 9;
-  REGIONS.filter(r => !onlyWithData || have[r.id]).forEach(r => { const d = d3.geoDistance(c, r.at); if (d < bd){ bd = d; best = r.id; } });
-  return best;
-}
+
+function frontRegion(items, onlyWithData){ return AatGlobe.nearestRegion([-S.rot[0], -S.rot[1]], onlyWithData ? items : undefined); }
 const FACE_SRC = MODNI_IMAGE;
-/* ── 🆕 v4.2 ③(창3 · 영아 21:31 「나라 집 / 도시 잔디」 · 시안 country-homes-city-gardens-v2 JS 원문 옮김) ──
-   멀리(지구본) = 여행 있는 나라마다 대표 집 **한 채**(자리 = 그 나라 도형 중 가장 큰 조각의 geoCentroid · 시안 largestPiece) · 이름표 = 나라 이름
-   도시 보기 = 나라 집 누름 → 그 나라에서 여행이 가장 많은 도시를 평면(geoMercator fitExtent)으로 · 잔디 = 도시 중심 반경 원(CITY_GRASS_DEG) · 집 한 채(52/48) + 작은 나무 3(32 · 집 상자와 겹치면 뺌) · 아래 목록 = 그 도시 여행만
-   // TODO(창8 · 실제 행정경계 GeoJSON 들어오면): 아래 geoCircle 잔디를 경계 path 로 교체 — 시안 v2 near 분기(city.features → path fill --grass · 나무 = 구 중심점) 그대로 */
-const CITY_GRASS_DEG = 0.07;   // ≈ 7.8km 반경(차이표 Q7 추천 「도시 6~8km」) · 경계 없을 때만
-const TREE_ANGLES = [200, 320, 80];   // 잔디 원 위 세 방향(차이표 Q8 추천) · 집 상자(±26 · -42~+10)와 겹치면 그 나무는 뺌
-let cityProj = null;
-const _countryCache = new Map();
-function largestPiece(f){ if (!f || f.geometry.type !== "MultiPolygon") return f; const polys = f.geometry.coordinates.map(c => ({ type: "Feature", geometry: { type: "Polygon", coordinates: c } })); return polys.reduce((best, p) => d3.geoArea(p) > d3.geoArea(best) ? p : best); }
-/** 여행 좌표가 들어 있는 나라 도형(world-110m countries · geoContains) — 없으면 null(섬·바다 좌표는 그 좌표 자체에 집) */
-function countryFeatureOf(at){ if (!COUNTRIES || !at) return null; const k = at.map(v => v.toFixed(2)).join(","); if (_countryCache.has(k)) return _countryCache.get(k); const f = COUNTRIES.features.find(c => d3.geoContains(c, at)) || null; _countryCache.set(k, f); return f; }
-const cityKeyOf = (t) => t.city + "@" + (t.at || []).map(v => v.toFixed(2)).join(",");
-/** 내 여행을 나라별로 묶음 — { key, name, at(대표 집 자리), n, visited, cities: Map(cityKey → {city, at, n}) } */
-function countryGroups(items){
-  const byC = new Map();
-  items.forEach(t => { if (!t.at) return; const f = countryFeatureOf(t.at); const key = f ? "c" + f.id : "p" + cityKeyOf(t);
-    const g = byC.get(key) || { key, f, name: t.country || (f && (KO[f.properties.name] || f.properties.name)) || t.city, at: f ? d3.geoCentroid(largestPiece(f)) : t.at, n: 0, visited: false, cities: new Map() };
-    g.n++; g.visited = g.visited || t.visited; const ck = cityKeyOf(t); const c = g.cities.get(ck) || { key: ck, city: t.city, at: t.at, n: 0 }; c.n++; g.cities.set(ck, c); byC.set(key, g); });
-  return byC;
-}
+let cityProj = null; // Legacy selection callbacks clear this marker; projection lives in the shared scene.
+const cityKeyOf = AatGlobe.cityKeyOf;
 function enterCity(countryKey){
-  const g = countryGroups(MY).get(countryKey); if (!g) return;
-  const top = [...g.cities.values()].sort((a, b) => b.n - a.n)[0]; if (!top) return;
-  S.city = { key: top.key, name: top.city, at: top.at, country: g.name, n: top.n }; S.expanded = false;
+  applyGlobeEvent({ type: "country", key: countryKey }); S.expanded = false;
   draw(); renderDiscovery();
   const d = $("#discovery"); if (d) d.scrollIntoView({ block: "nearest", behavior: reduceMotion ? "auto" : "smooth" });
 }
-function exitCity(){ if (!S.city) return; S.city = null; cityProj = null; draw(); renderDiscovery(); }
-function drawCity(){
-  const c = S.city;
-  const grass = d3.geoCircle().center(c.at).radius(CITY_GRASS_DEG)();
-  const fit = d3.geoCircle().center(c.at).radius(CITY_GRASS_DEG * 1.6)();
-  cityProj = d3.geoMercator().fitExtent([[18, 50], [GW - 18, GH - 24]], fit);
-  const gp = d3.geoPath(cityProj);
-  clip.attr("cx", GCX).attr("cy", GCY).attr("r", Math.hypot(GW, GH));   // 평면 = 자르지 않음
-  pShade.attr("cx", GCX).attr("cy", GCY).attr("r", 0);
-  pSphere.attr("d", `M0 0H${GW}V${GH}H0Z`);
-  pLand.attr("d", LAND ? gp(LAND) : null);
-  pGrass.attr("d", gp(grass));
-  pBorders.attr("d", null); pHover.attr("d", null);
-  const lv = $("#zoom-level"); if (lv) lv.textContent = c.name;
-  const zo = $('[data-zoom="out"]'), zi = $('[data-zoom="in"]');
-  if (zo) zo.disabled = false; if (zi) zi.disabled = true;   // − = 나라 보기로(보완) · ＋ = 평면에선 ✗
-  drawPins();
-}
+function exitCity(){ if (!S.city) return; applyGlobeEvent({ type: "back" }); draw(); renderDiscovery(); }
 function drawPins(){
   const box = $("#pins4"); if (!box) return;
-  const items = tabItems();
-  if (S.tab === "mine"){
-    if (S.city && cityProj){
-      // 도시 보기: 집 한 채(도시 중심) + 이름표 + 나무 3(잔디 원 위 · 집 상자와 안 겹치는 것만) · 「← 나라 보기」(보완)
-      const c = S.city, [hx, hy] = cityProj(c.at);
-      // 🆕 10/11 모드니 01:05(Codex 00:32 ✗ 375 뉴욕 나무 3 중 2): 집·칸 밖·다른 나무와 겹치면 **빼지 않고** 잔디 안 다른 자리로 결정론 재배치(각도 ±30°·±60°·±90° · 반지름 0.62→0.78→0.45 순 · 크기·배치 규칙 그대로) → 늘 3그루
-      const spotOf = (deg, rf) => { const a = deg * Math.PI / 180, r = CITY_GRASS_DEG * rf; const at = [c.at[0] + r * Math.sin(a) / Math.cos(c.at[1] * Math.PI / 180), c.at[1] + r * Math.cos(a)]; const [x, y] = cityProj(at); return { x, y }; };
-      const hitsHouse = (p) => Math.abs(p.x - hx) < 26 + 16 + 8 && p.y - 28 < hy + 14 + 8 && p.y + 4 > hy - 60 - 8;   // 🆕 10/11 창4 01:40 △(375 나무 1 이 집 왼쪽 위 모서리에 맞닿음): 집 상자 = 그림 52 + 이름표(≈ hy-60 ~ hy+14) · 여유 8px
-      const trees = [];
-      for (const deg of TREE_ANGLES){
-        let pick = null;
-        outer: for (const rf of [0.62, 0.78, 0.45]) for (const dd of [0, 30, -30, 60, -60, 90, -90, 120, -120, 150, -150, 180]) {
-          const p = spotOf(deg + dd, rf);
-          if (!inBox(p.x, p.y, 20) || hitsHouse(p)) continue;
-          if (trees.some(t => Math.abs(t.x - p.x) < 30 && Math.abs(t.y - p.y) < 30)) continue;
-          pick = p; break outer;
-        }
-        trees.push(pick || spotOf(deg, 0.62));   // 자리가 정 없으면 원래 자리(겹침 허용 · 3그루 유지)
-      }
-      box.innerHTML = `<button type="button" class="city-back" id="city-back" aria-label="나라 보기로 돌아가기">← 나라 보기</button>`
-        + trees.map(p => `<img class="gtree" src="assets/home/tree.png" alt="" aria-hidden="true" style="left:${p.x}px;top:${p.y}px">`).join("")
-        + `<button type="button" class="gpin city-home" data-pin-city="${esc(c.key)}" style="left:${hx}px;top:${hy}px" aria-label="${esc(c.name)}의 집 한 채 · ${esc(c.name)} 여행 ${c.n}개 보기"><img src="${esc(HOUSE_URI)}" alt=""><span>${esc(c.name)}</span></button>`;
-      return;
-    }
-    // 멀리: 나라당 대표 집 한 채(시안 · 칸 가장자리 24/55/35 밖이면 생략) · 누르면 그 나라 도시 보기
-    box.innerHTML = [...countryGroups(items).values()].filter(g => visible(g.at)).map(g => { const [x, y] = proj(g.at); if (x < 24 || x > GW - 24 || y < 55 || y > GH - 35) return "";
-      return `<button type="button" class="gpin" data-pin-country="${esc(g.key)}" style="left:${x}px;top:${y}px" aria-label="${esc(g.name)} 대표 집 · 내 여행 ${g.n}개${g.visited ? " · 다녀옴" : ""} · 도시 보기"><img src="${esc(HOUSE_URI)}" alt=""><span>${esc(g.name)}</span></button>`; }).join("");
-    return;
-  }
-  const counts = regionCounts(items), max = Math.max(1, ...Object.values(counts));
-  box.innerHTML = REGIONS.filter(r => counts[r.id] && visible(r.at)).map(r => { const [x, y] = proj(r.at), n = counts[r.id]; if (!inBox(x, y, 16)) return "";
-    void max;
-    const size = n >= 15 ? 44 : n >= 5 ? 36 : 28;   // 🆕 v4.2 ⑥(창3 · 정본 §6 [모드니 크기] · Q20 추천): 코스 수 1~4 = 28 · 5~14 = 36 · 15+ = 44(최대 44 · +숫자 ✗ · 선택 = 테두리만) — 종전 33~59 연속값
-    return `<button type="button" class="pin4${S.region === r.id ? " selected" : ""}" data-pin-region="${r.id}" style="left:${x}px;top:${y}px;--face-size:${size}px" aria-label="${esc(lang === "en" ? r.en : r.name)} ${n}${lang === "en" ? " trips" : "개 여행 보기"}"><span class="face-shell pin-face" aria-hidden="true"><img src="${esc(FACE_SRC)}" alt=""></span></button>`; }).join("");
+  const scene = homeScene();
+  box.innerHTML = (scene.mode === "city" ? '<button type="button" class="city-back" id="city-back" aria-label="나라 보기로 돌아가기">← 나라 보기</button>' : "") + scene.pins.map(p => {
+    if (p.kind === "tree") return `<img class="gtree" src="assets/home/tree.png" alt="" aria-hidden="true" style="left:${p.x}px;top:${p.y}px">`;
+    if (p.kind === "city") return `<button type="button" class="gpin city-home" data-pin-city="${esc(p.key)}" style="left:${p.x}px;top:${p.y}px" aria-label="${esc(p.label)}의 집 한 채 · ${p.count}개 여행 보기"><img src="${esc(HOUSE_URI)}" alt=""><span>${esc(p.label)}</span></button>`;
+    if (p.kind === "country") return `<button type="button" class="gpin" data-pin-country="${esc(p.key)}" style="left:${p.x}px;top:${p.y}px" aria-label="${esc(p.label)} 대표 집 · 내 여행 ${p.count}개${p.visited ? " · 다녀옴" : ""} · 도시 보기"><img src="${esc(HOUSE_URI)}" alt=""><span>${esc(p.label)}</span></button>`;
+    return `<button type="button" class="pin4${p.selected ? " selected" : ""}" data-pin-region="${p.key}" style="left:${p.x}px;top:${p.y}px;--face-size:${p.size}px" aria-label="${esc(p.label)} ${p.count}${lang === "en" ? " trips" : "개 여행 보기"}"><span class="face-shell pin-face" aria-hidden="true"><img src="${esc(FACE_SRC)}" alt=""></span></button>`;
+  }).join("");
 }
+
 /* 끌어 돌리기(마우스·손가락 · 가로 = 경도 · 마우스는 세로도) + 두 손가락 확대 — 돌리는 동안 정면 대륙의 탭·목록이 따라옴 · 끌기 끝은 누름이 아님 */
 let dragging = false, dragFrom = null, lastDragEnd = 0;
 const touches = new Map(); let pinch = null;
@@ -1219,8 +1159,7 @@ window.addEventListener("pointermove", (e) => {
   if (!dragFrom) return;
   const dx = e.clientX - dragFrom.x, dy = e.clientY - dragFrom.y;
   if (!dragFrom.moved){ if (Math.abs(dx) < 8 && !(dragFrom.mouse && Math.abs(dy) >= 8)) return; if (!dragFrom.mouse && Math.abs(dy) > Math.abs(dx)){ dragFrom = null; return; } dragFrom.moved = true; dragging = true; svg.classed("dragging", true); }
-  const k = 0.3 / S.zoom;
-  S.rot = [dragFrom.rot[0] + dx * k, dragFrom.mouse ? Math.max(-60, Math.min(60, dragFrom.rot[1] - dy * k)) : dragFrom.rot[1], 0];
+  S.rot = AatGlobe.rotationFromDrag({ ...homeGlobeState(), rot: dragFrom.rot }, dx, dy, dragFrom.mouse);
   draw();
   syncFrontRegion();
 });
@@ -1259,38 +1198,31 @@ function focusArea(g, k, at, animate = true){
   if (animate) rotateTo(target); else { S.rot = [-target[0], -Math.max(-50, Math.min(50, target[1])), 0]; draw(); }
 }
 /* 🆕 10/12 창6 ②(모드니 08:17): 땅 누름 = 그 대륙 탭 켜짐(가장 가까운 대륙 · 끌기 끝·도시 보기·바다 ✗) */
+
 svg.on("click", (e) => {
   if (S.city || !COUNTRIES || Date.now() - lastDragEnd < 350) return;
-  const [x, y] = d3.pointer(e), ll = proj.invert([x, y]);
-  if (!ll || Math.hypot(x - GCX, y - GCY) > GR) return;
-  const f = COUNTRIES.features.find(c => d3.geoContains(c, ll)); if (!f) return;
-  // 나라 → 대륙 = 대문의 나라 묶음 표(groupOf · 영문 이름 → 한글 → 나라 코드) · 표에 없으면 가장 가까운 대륙
-  const ko = KO[f.properties.name] || f.properties.name, a2 = Object.keys(A2_KO).find(k => A2_KO[k] === ko);
-  let best = a2 ? (REGION_OF_GROUP[groupOf(a2)] || null) : null;
-  if (!best){ const [lng, lat] = ll; best = lng < -30 ? "am" : (lat < 36 && lng > -20 && lng < 60) ? "mea" : (lat < -10 && lng > 110) ? "oc" : null; }
-  if (!best){ let bd = 9; REGIONS.forEach(r => { const d = d3.geoDistance(ll, r.at); if (d < bd){ bd = d; best = r.id; } }); }
-  if (best) chooseRegion(best, false);
+  const [x, y] = d3.pointer(e), event = AatGlobe.globeHitAt(homeScene(), x, y);
+  if (event?.type === "region") chooseRegion(event.region, false);
 });
+
 /* 나라 이름(호버 · 회색) */
+
 svg.on("mousemove", (e) => {
-  if (dragging || !COUNTRIES || S.city) return;   // 🆕 v4.2 ③: 도시 보기(평면)엔 나라 이름 호버 ✗
-  const [x, y] = d3.pointer(e), ll = proj.invert([x, y]), tip = $("#ctip");
-  if (!ll || Math.hypot(x - GCX, y - GCY) > GR){ tip.hidden = true; pHover.attr("d", null); return; }
-  const f = COUNTRIES.features.find(c => d3.geoContains(c, ll));
-  if (!f){ tip.hidden = true; pHover.attr("d", null); return; }
-  pHover.attr("d", geoPath(f));
-  tip.textContent = KO[f.properties.name] || f.properties.name; tip.style.left = x + "px"; tip.style.top = y + "px"; tip.hidden = false;
+  if (dragging || !COUNTRIES || S.city) return;
+  const [x, y] = d3.pointer(e), hit = homeScene().hoverAt(x, y), tip = $("#ctip");
+  if (!hit){ tip.hidden = true; pHover.attr("d", null); return; }
+  pHover.attr("d", hit.path); tip.textContent = hit.label; tip.style.left = x + "px"; tip.style.top = y + "px"; tip.hidden = false;
 }).on("mouseleave", () => { $("#ctip").hidden = true; pHover.attr("d", null); });
 
 /* ── 대륙 탭(7개 항상) + 지역 목록(처음 = 대륙 전체에서 3개 · 나라별로 나눠 · 「더보기 · N개 →」/「접기 ↑」) ── */
 const FIRST_N = 3;
 const EMPTY_REGION = {
-  ko: { mine: "이 지역에 담은 여행이 아직 없어요. 모드니 추천에서 여행을 찾아보세요.", market: "이 지역에는 아직 여행자 코스가 없어요.", modni: "이 지역에는 아직 모드니 추천이 없어요." },
-  en: { mine: "No saved trips in this region yet. Try Modni picks.", market: "No traveler courses in this region yet.", modni: "No Modni picks in this region yet." },
+  ko: { mine: "이 지역에 담은 여행이 아직 없어요. 모두의 여행에서 여행을 찾아보세요.", modni: "이 지역에는 아직 공개된 여행이 없어요." },
+  en: { mine: "No saved trips in this region yet. Try Everyone's trips.", modni: "No public trips in this region yet." },
 };
 function renderDiscovery(){
   const L = lang === "en" ? "en" : "ko";
-  const cap = $("#mode-caption"); if (cap) cap.textContent = CAPTION[L][S.tab];
+  const cap = $("#mode-caption"); if (cap) cap.textContent = CAPTION[L][globeTab(S.tab)];
   const regionsEl = $("#regions"), listEl = $("#country-list"), empty = $("#my-empty"), more = $("#region-more");
   const loading = S.tab === "mine" ? (currentUser && S.tripsLoad === "loading") : S.load === "loading";
   const failed = S.tab === "mine" ? (currentUser && S.tripsLoad === "error") : S.load === "error";
@@ -1307,7 +1239,7 @@ function renderDiscovery(){
     listEl.innerHTML = ""; drawPins(); return;
   }
   const inRegion = S.region === "all" ? items : items.filter(it => it.region === S.region);
-  if (!inRegion.length){ listEl.innerHTML = `<p class="empty-world">${esc(EMPTY_REGION[L][S.tab])}</p>`; drawPins(); return; }
+  if (!inRegion.length){ listEl.innerHTML = `<p class="empty-world">${esc(EMPTY_REGION[L][globeTab(S.tab)])}</p>`; drawPins(); return; }
   const byCountry = new Map();
   inRegion.slice().sort((a, b) => (b.n || 0) - (a.n || 0)).forEach(it => { if (!byCountry.has(it.country)) byCountry.set(it.country, []); byCountry.get(it.country).push(it); });
   const countries = [...byCountry.entries()].sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0]));
@@ -1440,7 +1372,7 @@ document.addEventListener("click", (e) => {
   if (el.dataset.pinCountry){ enterCity(el.dataset.pinCountry); return; }
   if (el.dataset.pinCity){ const d = $("#discovery"); if (d) d.scrollIntoView({ block: "nearest", behavior: reduceMotion ? "auto" : "smooth" }); return; }
   if (el.dataset.trip || el.dataset.pinTrip){ openTrip(el.dataset.trip || el.dataset.pinTrip); return; }
-  if (el.dataset.tab || el.dataset.tabGo){ S.tab = el.dataset.tab || el.dataset.tabGo; S.tabTouched = true; S.expanded = false; if (S.city){ S.city = null; cityProj = null; } renderTabs(); renderDiscovery(); draw(); return; }   // D: 탭 바꿔도 대륙 그대로(같은 선택 상태) · 🆕 v4.2 ③: 탭 바꾸면 도시 보기 끝
+  if (el.dataset.tab || el.dataset.tabGo){ S.tab = globeTab(el.dataset.tab || el.dataset.tabGo); S.tabTouched = true; S.expanded = false; if (S.city){ S.city = null; cityProj = null; } renderTabs(); renderDiscovery(); draw(); return; }   // D: 탭 바꿔도 대륙 그대로(같은 선택 상태) · 🆕 v4.2 ③: 탭 바꾸면 도시 보기 끝
   if (el.dataset.region){ chooseRegion(el.dataset.region, true); return; }
   if (el.dataset.pinRegion){ chooseRegion(el.dataset.pinRegion, true); const d = $("#discovery"); if (d) d.scrollIntoView({ block: "nearest", behavior: reduceMotion ? "auto" : "smooth" }); return; }
   if (el.dataset.gotoGroup){ focusArea(el.dataset.gotoGroup, null, null, true); renderDiscovery(); return; }
@@ -1546,7 +1478,7 @@ async function applyAuth(session){
 }
 async function boot(){
   renderAll();
-  fetch("assets/home/world-110m.json").then(r => r.json()).then(topo => { LAND = topoFeature(topo, topo.objects.land); COUNTRIES = topoFeature(topo, topo.objects.countries); draw(); renderGlobeState(); }).catch(() => { $("#globe-loading").textContent = "지구본을 불러오지 못했어요"; });
+  fetch("assets/home/world-110m.json").then(r => r.json()).then(topo => { sharedWorld = AatGlobe.decodeWorldTopology(topo); LAND = sharedWorld.land; COUNTRIES = sharedWorld.countries; for (const f of COUNTRIES.features){ const ko = KO[f.properties.name] || f.properties.name; const a2 = Object.keys(A2_KO).find(k => A2_KO[k] === ko); f.properties.ko = ko; f.properties.a2 = a2; f.properties.region = a2 ? REGION_OF_GROUP[groupOf(a2)] : undefined; } draw(); renderGlobeState(); }).catch(() => { $("#globe-loading").textContent = "지구본을 불러오지 못했어요"; });
   const { data: { session } } = await sb.auth.getSession();
   await applyAuth(session);
   loadMarket();
@@ -1588,12 +1520,8 @@ const EN_TEXTS = [
 "My trips"
 ],
 [
-"#tab-market",
-"Traveler courses"
-],
-[
 "#tab-modni",
-"Modni picks"
+"Everyone's trips"
 ],
 [
 "#market-h",

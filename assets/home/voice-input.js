@@ -14,6 +14,7 @@ if (form && input && submit && button && status) {
   let sendPending = false;
   let sendTimer = null;
   let disposed = false;
+  let sendGeneration = 0;
 
   const english = () => document.documentElement.lang.toLowerCase().startsWith('en');
   const copy = {
@@ -63,13 +64,15 @@ if (form && input && submit && button && status) {
   const requestSendAfterStop = () => {
     if (sendPending || !busy()) return;
     sendPending = true;
+    const generation = sendGeneration;
     void controller.stopAndWait().then(ended => {
+      if (generation !== sendGeneration) return;
       if (!ended || disposed) { sendPending = false; return; }
       // Leave the native submit-event dispatch before calling requestSubmit again.
       // Some browsers suppress a nested submission while the original click/Enter is still dispatching.
       sendTimer = setTimeout(() => {
         sendTimer = null;
-        if (disposed) { sendPending = false; return; }
+        if (disposed || generation !== sendGeneration) { sendPending = false; return; }
         sendPending = false;
         form.requestSubmit();
       }, 0);
@@ -88,6 +91,14 @@ if (form && input && submit && button && status) {
   }, true);
   const languageObserver = new MutationObserver(render);
   languageObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
-  window.addEventListener('pagehide', () => { disposed = true; if (sendTimer !== null) clearTimeout(sendTimer); sendTimer = null; sendPending = false; controller.dispose(); }, { once: true });
+  window.addEventListener('pagehide', event => {
+    sendGeneration++;
+    if (sendTimer !== null) clearTimeout(sendTimer);
+    sendTimer = null; sendPending = false;
+    // A back/forward-cache restore keeps this module and its listeners alive.
+    // Cancel the current session so the same controller can start again.
+    if (event.persisted) controller.cancel();
+    else { disposed = true; controller.dispose(); languageObserver.disconnect(); }
+  });
   render();
 }
