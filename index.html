@@ -63,6 +63,11 @@ img{max-width:100%}
 .wrap{max-width:1376px;margin:0 auto;padding:0 32px}
 .header{position:sticky;top:0;z-index:20;height:64px;background:var(--header-bg);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
 .header .wrap{display:flex;align-items:center;gap:4px;height:100%}
+.header .icon-btn,.header .brand,.header .nav{flex:none}
+.header .brand,.header .nav a,.header-actions{white-space:nowrap}
+.header-actions,.header .me{min-width:0}
+.header-actions>.text-btn,.header-actions>.secondary{flex:none}
+.header #me-name{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .icon-btn{width:44px;height:44px;display:grid;place-items:center;border:0;border-radius:10px;background:none;color:var(--ink);padding:0}
 .icon-btn:hover{background:var(--subtle)}
 .brand{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 6px;text-decoration:none;color:var(--ink);font-weight:700;font-size:17px;letter-spacing:.06em}
@@ -384,6 +389,7 @@ img{max-width:100%}
 }
 @media (pointer:coarse){#home4 .tabs button,#home4 .regions button,#home4 .country-list a,#home4 .country-list button,#home4 summary{min-height:44px}}
 @media (max-width:767px){.header{height:56px}.nav{display:none}}
+@media (min-width:768px) and (max-width:900px){.header .nav{margin-left:4px}.header .nav a{padding:0 8px}}
 @media (max-width:699px){
   .overlay{place-items:end stretch;padding:0}
   .dialog{width:100%;border-radius:20px 20px 0 0;padding:24px 20px 28px}
@@ -462,8 +468,7 @@ img{max-width:100%}
 #home4 .discovery{margin-top:18px;padding-bottom:10px}
 #home4 .explorer > .discovery{margin:12px auto 0;text-align:left}   /* 🆕 10/12 창6: 지구본 칸 아래 · 원 폭 안 · 왼쪽 맞춤 */
 #home4 .explorer > .discovery .country-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 20px}
-#home4 .explorer > .discovery .regions{flex-wrap:nowrap;overflow-x:auto;gap:2px 16px;scrollbar-width:none;white-space:nowrap}   /* 🆕 10/12 창6: 원 폭 안 한 줄(넘치면 가로로 · 목업 .ctabs) */
-#home4 .explorer > .discovery .regions::-webkit-scrollbar{display:none}
+#home4 .explorer > .discovery .regions{flex-wrap:wrap;gap:2px 16px;white-space:nowrap}
 #home4 .explorer > .discovery .regions button{flex:none}
 #home4 .regions{gap:2px 22px}
 #home4 .country-list{grid-template-columns:repeat(3,minmax(0,240px));gap:12px 28px;min-height:54px}
@@ -837,6 +842,7 @@ let currentUser = null;
 let courses = [];
 const S = { auth: "guest", tripsLoad: "ok", tab: "modni", region: null, expanded: false, tabTouched: false, load: "loading", answer: null, removed: new Set(), open: {}, openK: {}, info: false, rot: [-18, -17, 0], zoom: 1, filter: "modni", sort: "saves", hitK: null, city: null /* 🆕 v4.2 ③: 도시 보기(잔디 + 집 + 나무) · null = 지구본 */ };
 let MY = [];            // 내 여행 [{ id, title, g, k, at, st, sub, act, visited, upcoming, planning }]
+let RECENT_MY = [];     // 이어서 계획하기 표시만 최근 40개, 지구본·집계는 MY 전체
 let PINS = [], MODNI_PINS = [], TREE_ALL = [], TREE_MODNI = [], CITY_DICT = [];
 let lastFocus = null;
 
@@ -868,11 +874,12 @@ function collapseVariants(list){
 const marketCourses = () => courses.filter(c => !(currentUser && c.publisher_id && c.publisher_id === currentUser.id && ringOf(c) === "p"));
 async function cityCoords(names){
   const want = [...new Set(names.filter(Boolean))];
-  if (!want.length) return {};
-  const { data, error } = await sb.from("city_coords").select("city, lat, lng, country_code").in("city", want);
-  if (error) throw error;
   const out = {};
-  for (const r of (data || [])) if (Number.isFinite(r.lat) && Number.isFinite(r.lng)) out[r.city] = r;
+  for (let i = 0; i < want.length; i += 100){
+    const { data, error } = await sb.from("city_coords").select("city, lat, lng, country_code").in("city", want.slice(i, i + 100));
+    if (error) throw error;
+    for (const r of (data || [])) if (Number.isFinite(r.lat) && Number.isFinite(r.lng)) out[r.city] = r;
+  }
   return out;
 }
 async function loadMarket(){
@@ -945,7 +952,7 @@ function interpret(q){
 
 /* ── 그리기 ── */
 // 🆕 창3 10/10 (대문 v4.2 캡처 시뮬 전용 · localhost 만 · 배포 주소에선 없음): 로그인 없이 내 여행 그림(나라 집·도시 잔디·이어서 칸)을 그려 보는 훅 — 저장 ✗ · 데이터 ✗
-if (location.hostname === "localhost") window.__home4 = { S, renderAll, draw, setUser: (u) => { currentUser = u; }, setMy: (v) => { MY = v; } };
+if (location.hostname === "localhost") window.__home4 = { S, renderAll, draw, setUser: (u) => { currentUser = u; }, setMy: (v) => { MY = v; RECENT_MY = v.slice(0, 40); } };
 function renderAll(){ renderHeader(); renderBand(); renderSearch(); renderContinue(); renderTabs(); renderDiscovery(); draw(); renderGlobeState(); renderCards(); renderPopular(); }
 // 🔴 10/13 창6(창4 21:01 · 라이브 실측 「저장한 여행 374개」 ✓ 인데 계정 칸 「내 여행 40개」): 수 = 한 곳(정확한 수 · 없으면 받은 줄 수)
 function myTripCountShown(){ return typeof S.myCount === "number" ? Math.max(S.myCount, MY.length) : MY.length; }
@@ -1012,12 +1019,12 @@ function renderContinue(){
   }
   // 🆕 v4.2 ⑤(창3 · 시안 modni-face-and-my-world.html · 영아 정정): 다가오는 여행 줄 ✗(입력 아래 #up-card 가 보여 줌) · 계획 중 1줄만 · 상태 12px 회색 · 「이어서 →」 = openTrip 그대로(data-trip)
   //   안 1(폰 ≤480) = 「이어서 계획하기」 한 줄 + world-summary 오른쪽 「나의 여행 펼치기 →」 밑 「저장한 여행 N개」 / 안 2(넓으면) = 세이지 칸(계획 중) + 세로줄 칸(나의 여행 · 펼치기 →) — CSS 가 폭으로 가름 · 「모두 보기 ›」 는 「나의 여행 펼치기 →」(같은 /mytrips) 하나로
-  const pl = MY.find(t => t.planning);
+  const pl = RECENT_MY.find(t => t.planning);
   const visited = MY.filter(t => t.visited).length, planning = MY.length - visited;
   const wc = $("#world-count"); if (wc){ wc.textContent = `저장한 여행 ${myTripCountShown()}개`; wc.hidden = false; }
   const tripHtml = (t) => `<div class="trip"><b>${esc(t.title)}</b><small>${esc(t.sub)}</small></div>`;
   slot.innerHTML = `<div class="resume cont-v1" ${pl ? "" : "hidden"}>${pl ? `<p class="resume-caption">이어서 계획하기</p><div class="resume-row"><span class="status">${esc(pl.st)}</span>${tripHtml(pl)}<button type="button" class="quiet" data-trip="${esc(pl.id)}">이어서 →</button></div>` : ""}</div>
-    <div class="tile cont-v2">${pl ? `<div class="draft-tile"><p class="resume-caption">계획 중인 여행</p>${tripHtml(pl)}<button type="button" class="quiet" data-trip="${esc(pl.id)}">이어서 →</button></div>` : ""}<div class="plain-count"><p class="resume-caption">나의 여행</p><div class="trip"><b>저장한 여행 ${MY.length}개</b><small>계획 중 ${planning} · 다녀옴 ${visited}</small></div><button type="button" class="quiet" data-act="world-list">나의 여행 펼치기 →</button></div></div>`;
+    <div class="tile cont-v2">${pl ? `<div class="draft-tile"><p class="resume-caption">계획 중인 여행</p>${tripHtml(pl)}<button type="button" class="quiet" data-trip="${esc(pl.id)}">이어서 →</button></div>` : ""}<div class="plain-count"><p class="resume-caption">나의 여행</p><div class="trip"><b>저장한 여행 ${myTripCountShown()}개</b><small>계획 중 ${planning} · 다녀옴 ${visited}</small></div><button type="button" class="quiet" data-act="world-list">나의 여행 펼치기 →</button></div></div>`;
 }
 // 기존 market/modni 선택값은 모두 공개 여행 탭으로 연결한다.
 function globeTab(tab){ return tab === "mine" ? "mine" : "modni"; }
@@ -1225,7 +1232,7 @@ function renderDiscovery(){
   const cap = $("#mode-caption"); if (cap) cap.textContent = CAPTION[L][globeTab(S.tab)];
   const regionsEl = $("#regions"), listEl = $("#country-list"), empty = $("#my-empty"), more = $("#region-more");
   const loading = S.tab === "mine" ? (currentUser && S.tripsLoad === "loading") : S.load === "loading";
-  const failed = S.tab === "mine" ? (currentUser && S.tripsLoad === "error") : S.load === "error";
+  const failed = S.tab === "mine" ? (currentUser && (S.tripsLoad === "error" || S.tripLocationsLoad === "error")) : S.load === "error";
   const items = loading || failed ? [] : tabItems();
   if (!S.region) S.region = "all";   // 🆕 10/12 창6 ②(모드니 08:17 · 목업 v11): 처음 = 「전체」(전대륙)   // 🆕 v4.2 ④(창3): 처음도 정면 대륙 그대로(데이터 있는 대륙으로 안 보냄 · 빈 면 = 빈 상태 문구)
   // D: 7개 항상(로딩·실패·0개여도 골격 그대로)
@@ -1233,7 +1240,7 @@ function renderDiscovery(){
   empty.hidden = true; more.hidden = true;
   if (loading){ listEl.setAttribute("aria-busy", "true"); listEl.innerHTML = '<p class="sr">목록을 불러오는 중이에요</p><div class="skel" style="width:70%"></div><div class="skel" style="width:55%"></div>'; drawPins(); return; }
   listEl.removeAttribute("aria-busy");
-  if (failed){ listEl.innerHTML = `<div class="err-box"><b>목록을 불러오지 못했어요</b><span>잠시 뒤 다시 시도해 주세요. 지구본은 그대로 돌려 볼 수 있어요.</span><button type="button" class="secondary" data-act="${S.tab === "mine" ? "retry-trips" : "retry"}">다시 시도</button></div>`; drawPins(); return; }
+  if (failed){ listEl.innerHTML = `<div class="err-box"><b>${S.tab === "mine" && S.tripsLoad === "ok" ? "여행 위치를 확인하지 못했어요" : "목록을 불러오지 못했어요"}</b><span>잠시 뒤 다시 시도해 주세요. 지구본은 그대로 돌려 볼 수 있어요.</span><button type="button" class="secondary" data-act="${S.tab === "mine" ? "retry-trips" : "retry"}">다시 시도</button></div>`; drawPins(); return; }
   if (S.tab === "mine" && !currentUser){
     empty.hidden = false; empty.innerHTML = `나의 여행이 이곳에 차곡차곡 쌓여요.<br><button type="button" data-act="login">로그인하고 내 여행 지구본 →</button>`;
     listEl.innerHTML = ""; drawPins(); return;
@@ -1416,48 +1423,101 @@ if (window.ResizeObserver) new ResizeObserver(() => { clearTimeout(rT); rT = set
 else window.addEventListener("resize", () => { clearTimeout(rT); rT = setTimeout(placeGlobe, 80); });
 
 /* ── 내 여행(로그인) — 지구본 집 · 「이어서 할 여행」 · 옆 목록 ── */
+// 앱 lib/trip/listed.ts와 같은 공개 목록 조건. 소유자·삭제 조건은 모든 페이지에 적용한다.
+const LISTED_OR = "and(or(pref->modniCourse->>superseded.is.null,pref->modniCourse->>superseded.neq.true),or(pref->modniCourse->>archived.is.null,pref->modniCourse->>archived.neq.true),or(pref->modniCourse->>listed.eq.true,and(pref->modniCourse->>listed.is.null,pref->modniCourse->>stay.is.null,pref->modniCourse->>block.is.null)))";
+const TRIP_SUMMARY_SELECT = "id, title, region, depart_date, nights, updated_at, first_city:itinerary->days->0->>city, route:pref->selectedCourse->route";
+const TRIP_SUMMARY_PAGE_SIZE = 200;
+let tripLoadVersion = 0;
+function tripCities(t){
+  const route = Array.isArray(t.route) ? t.route.filter(c => typeof c === "string") : [];
+  return [...new Set([t.first_city, ...(t.legacy_cities || []), ...route, ...String(t.region || "").replace(/,/g, "·").split("·")]
+    .filter(c => typeof c === "string").map(c => c.trim()).filter(Boolean))];
+}
+async function fetchTripSummaries(uid, isCurrent){
+  const rows = new Map();
+  for (let from = 0; ; ){
+    const { data, error } = await sb.from("trips").select(TRIP_SUMMARY_SELECT)
+      .eq("user_id", uid).is("deleted_at", null).or(LISTED_OR)
+      .order("updated_at", { ascending: false }).order("id", { ascending: false })
+      .range(from, from + TRIP_SUMMARY_PAGE_SIZE - 1);
+    if (!isCurrent()) return null;
+    if (error) throw error;
+    const page = data || [];
+    if (!page.length) return [...rows.values()];
+    const size = rows.size;
+    for (const row of page) rows.set(row.id, row);
+    if (rows.size === size) throw new Error("trip_summary_page_did_not_advance");
+    // 서버의 행 제한이 요청 크기보다 작아도 실제 받은 행 수만큼 진행하고 빈 페이지에서 끝낸다.
+    from += page.length;
+  }
+}
+async function loadTripLocations(rows, uid, isCurrent, at){
+  Object.assign(at, await cityCoords(rows.flatMap(tripCities)));
+  if (!isCurrent()) return;
+  // 첫날 좌표가 없는 legacy 여행만 뒤쪽 도시 scalar 필드로 확인. 일정 본문/장소는 받지 않는다.
+  let pending = rows.filter(t => !at[String(t.first_city || "").trim()]);
+  for (let block = 0; pending.length; block++){
+    if (block === 32) throw new Error("trip_city_scan_incomplete"); // 비정상 장기 일정은 미확인으로 표시
+    const start = 1 + block * 16, fields = Array.from({ length: 16 }, (_, i) => `city_${i}:itinerary->days->${start + i}->>city`);
+    const found = new Map();
+    for (let i = 0; i < pending.length; i += 50){
+      const ids = pending.slice(i, i + 50).map(t => t.id);
+      for (let from = 0; ; ){
+        const { data, error } = await sb.from("trips").select(["id", ...fields].join(","))
+          .eq("user_id", uid).is("deleted_at", null).or(LISTED_OR).in("id", ids)
+          .not(`itinerary->days->${start}`, "is", null).order("id", { ascending: false })
+          .range(from, from + TRIP_SUMMARY_PAGE_SIZE - 1);
+        if (!isCurrent()) return;
+        if (error) throw error;
+        const page = data || [];
+        if (!page.length) break;
+        const size = found.size;
+        for (const t of page) found.set(t.id, fields.map((_, j) => t[`city_${j}`]).filter(c => typeof c === "string" && c.trim()).map(c => c.trim()));
+        if (found.size === size) throw new Error("trip_city_page_did_not_advance");
+        from += page.length;
+      }
+    }
+    if (!found.size) break;
+    for (const t of pending) if (found.has(t.id)) t.legacy_cities = [...(t.legacy_cities || []), ...found.get(t.id)];
+    Object.assign(at, await cityCoords([...found.values()].flat().filter(c => !at[c])));
+    if (!isCurrent()) return;
+    pending = pending.filter(t => found.has(t.id) && !(t.legacy_cities || []).some(c => at[c]));
+  }
+}
 async function loadTrips(){
-  MY = [];
+  const version = ++tripLoadVersion, uid = currentUser && currentUser.id;
+  const isCurrent = () => tripLoadVersion === version && (currentUser && currentUser.id) === uid;
+  MY = []; RECENT_MY = []; S.myCount = null; S.tripLocationsLoad = "ok";
   if (!currentUser){ S.tripsLoad = "ok"; renderAll(); return; }
   S.tripsLoad = "loading"; renderAll();
-  S.myCount = null;
   try {
-    // 🔴 10/13 창6(창4 19:45 ✗ 「저장한 여행 40개 ↔ 앱 서베이 368개」): 목록은 40줄만 받아 「N개」 가 늘 40 에서 멈췄다 → 개수 = 따로 정확히 셈(head)
-    //   조건 = 앱 lib/trip/listed.ts LISTED_TRIP_OR 그대로(superseded·archived 숨김 포함) + 내 user_id(앱 countMyTrips 와 같은 수)
-    const LISTED_OR = "and(or(pref->modniCourse->>superseded.is.null,pref->modniCourse->>superseded.neq.true),or(pref->modniCourse->>archived.is.null,pref->modniCourse->>archived.neq.true),or(pref->modniCourse->>listed.eq.true,and(pref->modniCourse->>listed.is.null,pref->modniCourse->>stay.is.null,pref->modniCourse->>block.is.null)))";
-    const uid = currentUser.id;
-    sb.from("trips").select("id", { count: "exact", head: true }).eq("user_id", uid).is("deleted_at", null).or(LISTED_OR)
-      .then(({ count, error: ce }) => { if (!ce && typeof count === "number" && currentUser && currentUser.id === uid){ S.myCount = count; renderAll(); } }, () => {});
-    const { data, error } = await sb.from("trips")
-      .select("id, title, region, depart_date, nights, status, draft_step, updated_at, itinerary")
-      // 9/28 #105: 내 여행 = 완성 코스만 — 도시 블록(pref.modniCourse.stay · .block) 숨김(앱 lib/trip/listed.ts 와 같은 조건)
-      .eq("user_id", currentUser.id)
-      .or(LISTED_OR)
-      .is("deleted_at", null)
-      .order("updated_at", { ascending: false }).limit(40);
-    if (error) throw error;
-    const rows = data || [], today = todayStr();
-    const cityOf = (t) => { const days = t.itinerary && Array.isArray(t.itinerary.days) ? t.itinerary.days : []; const cs = days.map(d => String(d && d.city || "").trim()).filter(Boolean);
-      return cs.length ? cs : String(t.region || "").replace(/,/g, "·").split("·").map(x => x.trim()).filter(Boolean); };
-    let at = {};
-    try { at = await cityCoords(rows.flatMap(cityOf)); } catch(e){ at = {}; }
+    const rows = await fetchTripSummaries(uid, isCurrent);
+    if (!rows || !isCurrent()) return;
+    const today = todayStr(), recentRows = rows.slice(0, 40);
+    const at = {};
+    try { await loadTripLocations(rows, uid, isCurrent, at); }
+    catch(e){ if (!isCurrent()) return; S.tripLocationsLoad = "error"; }
+    if (!isCurrent()) return;
     const future = rows.filter(t => t.depart_date && t.depart_date >= today).sort((a, b) => a.depart_date.localeCompare(b.depart_date));
     const upcoming = future[0] || null;
-    const planning = rows.filter(t => t.id !== (upcoming && upcoming.id)).filter(t => !t.depart_date || t.depart_date >= today)[0] || null;
+    const planning = recentRows.filter(t => t.id !== (upcoming && upcoming.id)).filter(t => !t.depart_date || t.depart_date >= today)[0] || null;
     MY = rows.map(t => {
-      const r = cityOf(t).map(c => at[c]).find(Boolean); const a2 = r ? String(r.country_code || "").toUpperCase() : ""; const g = groupOf(a2);
+      // 종전처럼 여행당 대표 도시 하나. 경로/지역은 첫날 도시의 좌표가 없을 때 후보로 쓴다.
+      const city = tripCities(t).find(c => at[c]), r = city && at[city]; const a2 = r ? String(r.country_code || "").toUpperCase() : ""; const g = groupOf(a2);
       const visited = !!(t.depart_date && t.depart_date < today);
       const title = t.title || t.region || "여행";
       const isUp = !!(upcoming && upcoming.id === t.id), isPl = !!(planning && planning.id === t.id);
-      return { id: t.id, title, g, a2, country: A2_KO[a2] || null, city: r ? (cityOf(t)[0] || null) : null, k: SINGLE.has(g) ? (cityOf(t)[0] || title) : (A2_KO[a2] || "기타"), at: r ? [r.lng, r.lat] : null, visited,
+      return { id: t.id, title, g, a2, country: A2_KO[a2] || null, city: city || null, k: SINGLE.has(g) ? (city || title) : (A2_KO[a2] || "기타"), at: r ? [r.lng, r.lat] : null, visited,
         st: isUp ? ddayOf(t.depart_date) : visited ? "✓ 다녀옴" : "계획 중",
         sub: isUp ? depLabel(t.depart_date) + (t.nights ? ` · ${t.nights}박` : "") : (t.depart_date ? depLabel(t.depart_date) : "날짜 미정") + (t.updated_at ? ` · ${agoOf(t.updated_at)}` : ""),
         act: isUp ? "일정 보기" : visited ? "여행 보기" : "이어서", upcoming: isUp, planning: isPl };
     });
+    RECENT_MY = MY.slice(0, 40);
+    S.myCount = rows.length;
     S.tripsLoad = "ok";
     if (!S.tabTouched) S.tab = MY.length ? "mine" : "modni";
     if (S.tab === "mine"){ const first = MY.find(t => t.at); if (first){ S.rot = [-first.at[0], -Math.max(-50, Math.min(50, first.at[1])), 0]; if (S.region !== "all") S.region = frontRegion(MY, false) || REGION_OF_GROUP[first.g] || null; } }   // 🆕 v4.2 ④(창3): 돌린 뒤 대륙 = 정면 판정(표 값 ✗)
-  } catch(e){ S.tripsLoad = "error"; }
+  } catch(e){ if (!isCurrent()) return; S.tripsLoad = "error"; }
   renderAll();
 }
 
