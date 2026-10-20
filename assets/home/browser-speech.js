@@ -1,4 +1,4 @@
-/* Generated from lib/survey/browserSpeech.ts; sourceSHA256: dcf420b243d61d95e91f126f7eaac18ffded64552d3fd2a979e3389f0d12a0e6; keep in sync with app source. */
+/* Generated from lib/survey/browserSpeech.ts; sourceSHA256: 3887d33f2ef01d986ee6a6a475fecbc0757c0fb30e1768e7afa57f2b0637102d; keep in sync with app source. */
 export function browserRecognitionFactory(host = globalThis) {
     return () => {
         const Ctor = host?.SpeechRecognition ?? host?.webkitSpeechRecognition;
@@ -21,6 +21,7 @@ export class BrowserSpeechController {
         this.disposed = false;
         this.phase = 'idle';
         this.stopTimer = null;
+        this.stopWaiters = [];
         this.factory = factory;
         this.append = append;
         this.changed = changed;
@@ -30,11 +31,14 @@ export class BrowserSpeechController {
         this.changed({ phase, ...extra }); }
     clearStopTimer() { if (this.stopTimer)
         clearTimeout(this.stopTimer); this.stopTimer = null; }
+    settleStopWaiters(ended) { const waiters = this.stopWaiters.splice(0); waiters.forEach(resolve => resolve(ended)); }
     start() {
         if (this.disposed || this.phase === 'starting' || this.phase === 'listening' || this.phase === 'stopping')
             return;
-        if (this.recognizer)
+        if (this.recognizer) {
             this.retire(this.recognizer, true);
+            this.settleStopWaiters(false);
+        }
         this.clearStopTimer();
         let rec;
         try {
@@ -89,6 +93,7 @@ export class BrowserSpeechController {
             this.clearStopTimer();
             this.retire(rec, false);
             this.emit(lastError ? 'error' : 'idle', lastError ? { message: lastError } : {});
+            this.settleStopWaiters(!lastError);
         };
         try {
             rec.start();
@@ -96,6 +101,7 @@ export class BrowserSpeechController {
         catch {
             this.retire(rec, true);
             this.emit('error', { message: '음성 입력을 시작하지 못했어요. 다시 시도해 주세요.' });
+            this.settleStopWaiters(false);
         }
     }
     stop() {
@@ -113,18 +119,30 @@ export class BrowserSpeechController {
                 this.retire(rec, true);
                 this.stopTimer = null;
                 this.emit('error', { message: '음성 입력을 마무리하지 못했어요. 다시 눌러 주세요.' });
+                this.settleStopWaiters(false);
             }, this.stopTimeoutMs);
         }
         catch {
             this.clearStopTimer();
             this.retire(rec, true);
             this.emit('error', { message: '음성 입력을 멈추지 못했어요. 다시 눌러 주세요.' });
+            this.settleStopWaiters(false);
         }
+    }
+    /** Stop active recognition and resolve after the final results have been delivered by onend. */
+    stopAndWait() {
+        if (this.disposed)
+            return Promise.resolve(false);
+        if (!this.recognizer)
+            return Promise.resolve(this.phase === 'idle');
+        const ended = new Promise(resolve => this.stopWaiters.push(resolve));
+        this.stop();
+        return ended;
     }
     /** Abort the current gesture while leaving the controller available for a later start. */
     cancel() { const rec = this.recognizer; if (this.disposed)
         return; this.clearStopTimer(); if (rec)
-        this.retire(rec, true); this.emit('idle'); }
+        this.retire(rec, true); this.emit('idle'); this.settleStopWaiters(false); }
     retire(rec, abort) {
         if (this.recognizer === rec)
             this.recognizer = null;
@@ -138,5 +156,5 @@ export class BrowserSpeechController {
     }
     dispose() { if (this.disposed)
         return; this.disposed = true; this.clearStopTimer(); const rec = this.recognizer; this.recognizer = null; if (rec)
-        this.retire(rec, true); }
+        this.retire(rec, true); this.settleStopWaiters(false); }
 }
