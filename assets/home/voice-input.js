@@ -11,6 +11,9 @@ if (form && input && submit && button && status) {
   const supported = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
   let snapshot = { phase: supported ? 'idle' : 'unsupported' };
   let interim = '';
+  let sendPending = false;
+  let sendTimer = null;
+  let disposed = false;
 
   const english = () => document.documentElement.lang.toLowerCase().startsWith('en');
   const copy = {
@@ -35,7 +38,7 @@ if (form && input && submit && button && status) {
     button.setAttribute('aria-pressed', String(active));
     button.setAttribute('aria-label', say(active ? 'stop' : snapshot.phase === 'unsupported' ? 'unsupported' : 'idle'));
     button.title = button.getAttribute('aria-label');
-    submit.disabled = busy();
+    submit.disabled = false;
     const matchedError = snapshot.message && Object.entries(copy).find(([, values]) => values[0] === snapshot.message)?.[0];
     const message = snapshot.message ? say(matchedError || snapshot.errorKey || 'error')
       : snapshot.phase === 'unsupported' ? say('unsupported')
@@ -57,12 +60,34 @@ if (form && input && submit && button && status) {
     if (snapshot.phase === 'starting' || snapshot.phase === 'listening') controller.stop();
     else if (!busy() && supported) { interim = ''; controller.start(); }
   });
-  form.addEventListener('submit', event => { if (busy()) { event.preventDefault(); event.stopImmediatePropagation(); } }, true);
+  const requestSendAfterStop = () => {
+    if (sendPending || !busy()) return;
+    sendPending = true;
+    void controller.stopAndWait().then(ended => {
+      if (!ended || disposed) { sendPending = false; return; }
+      // Leave the native submit-event dispatch before calling requestSubmit again.
+      // Some browsers suppress a nested submission while the original click/Enter is still dispatching.
+      sendTimer = setTimeout(() => {
+        sendTimer = null;
+        if (disposed) { sendPending = false; return; }
+        sendPending = false;
+        form.requestSubmit();
+      }, 0);
+    });
+  };
+  form.addEventListener('submit', event => {
+    if (busy() || sendPending) {
+      event.preventDefault(); event.stopImmediatePropagation();
+      requestSendAfterStop();
+    }
+  }, true);
   input.addEventListener('keydown', event => {
-    if (busy() && event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); event.stopImmediatePropagation(); }
+    if ((busy() || sendPending) && event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
+      event.preventDefault(); event.stopImmediatePropagation(); requestSendAfterStop();
+    }
   }, true);
   const languageObserver = new MutationObserver(render);
   languageObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
-  window.addEventListener('pagehide', () => controller.dispose(), { once: true });
+  window.addEventListener('pagehide', () => { disposed = true; if (sendTimer !== null) clearTimeout(sendTimer); sendTimer = null; sendPending = false; controller.dispose(); }, { once: true });
   render();
 }
