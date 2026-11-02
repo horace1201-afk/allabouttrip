@@ -58,11 +58,11 @@ function setup() {
 const ids = value => Array.from(value, row => row.id || row.trip);
 
 test('the homepage exposes exactly My trips and Everyone’s trips, including English', () => {
-  assert.deepEqual(tabButtons.map(b => [b.dataset.tab, b.label]), [['mine', '내 여행'], ['modni', '모두의 여행']]);
+  assert.deepEqual(tabButtons.map(b => [b.dataset.tab, b.label]), [['modni', '모두의 여행'], ['mine', '내 여행']]);
   assert.ok(html.includes('"#tab-modni",\n"Everyone\'s trips"') || html.includes('"#tab-modni",\r\n"Everyone\'s trips"'));
   const { run } = setup();
   run('renderTabs()');
-  assert.deepEqual(tabButtons.map(b => b['aria-selected']), ['false', 'true']);
+  assert.deepEqual(tabButtons.map(b => b['aria-selected']), ['true', 'false']);
 });
 
 test('public tabs include both public types while retaining existing author and location guards', () => {
@@ -102,7 +102,7 @@ test('legacy tab and tab-go selections choose the public tab and preserve region
       assert.equal(context.S.region, 'eu');
       assert.equal(context.S.city, null); assert.equal(context.cityProj, null);
       assert.equal(context.S.expanded, false); assert.equal(context.S.tabTouched, true);
-      assert.deepEqual(tabButtons.map(b => b['aria-selected']), value === 'mine' ? ['true', 'false'] : ['false', 'true']);
+      assert.deepEqual(tabButtons.map(b => b['aria-selected']), value === 'mine' ? ['false', 'true'] : ['true', 'false']);
     }
   }
   assert.equal(run('courseHref("legacy/id &한글")'), 'https://plan.allabouttrip.app/course-detail?marketId=legacy%2Fid%20%26%ED%95%9C%EA%B8%80');
