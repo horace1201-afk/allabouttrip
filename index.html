@@ -1470,7 +1470,10 @@ function submitSearch(){
   if (!q){ $("#q").focus(); toast("도시나 원하는 여행을 한마디 적어 주세요"); }
 }
 /* 🆕 10/12 창6(모드니 09:14): 시작하기 = plan.allabouttrip.app/survey?q=<입력>&from=gate(비면 q 없이) · 받는 쪽(서베이 q → q0 답 → 2단계) = 창3 G12-32 */
-function goGate(){ const q = $("#q").value.trim(); location.href = WEB_APP_URL + "/survey?" + (q ? "q=" + encodeURIComponent(q) + "&" : "") + "from=gate"; }
+/* 🔴 11/07 영아 16:2x 「대문 글 칸 500자 상한 = 없애기」: 긴 글은 주소 검색줄이 plan 호스트 한도를 넘는다(실측 주소 12,000자 = 414 · 한글 한 자 = 9자)
+   → 긴 글(인코딩 6,000자 넘음)은 해시 #q= 로(서버로 안 감) · 받는 쪽 = 앱 lib/nav/gateHandoff readGateQuery(검색줄 → 없으면 해시) · 짧은 글 = 종전 ?q= 그대로 */
+const GATE_Q_SEARCH_MAX = 6000;
+function goGate(){ const q = $("#q").value.trim(); const e = q ? encodeURIComponent(q) : ""; location.href = WEB_APP_URL + "/survey?" + (e && e.length <= GATE_Q_SEARCH_MAX ? "q=" + e + "&" : "") + "from=gate" + (e.length > GATE_Q_SEARCH_MAX ? "#q=" + e : ""); }
 $("#search-form").addEventListener("submit", (e) => { e.preventDefault(); goGate(); });
 $("#q").addEventListener("input", () => { $("#q-clear").hidden = !$("#q").value; });
 // G: 두 줄 입력 — Enter = 시작하기(Shift+Enter = 줄바꿈 · 한글 조합 중 ✗)
